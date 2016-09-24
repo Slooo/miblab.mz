@@ -8,13 +8,16 @@ use App\CCosts;
 use App\Costs;
 use Auth;
 use Carbon\Carbon;
+use DB;
 
 class CostsController extends Controller
 {
     # analytics
     public function analytics()
     {
-        return view('costs.analytics');
+        $month = Carbon::now()->startOfMonth();
+        $ccosts = CCosts::all();
+        return view('costs.analytics', compact('ccosts', 'month'));
     }
     
     # categories costs

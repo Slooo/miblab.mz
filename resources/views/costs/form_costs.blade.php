@@ -1,14 +1,14 @@
 {{ Form::open(['id' => 'form_costs', 'class' => 'form-horizontal']) }}
 
 <div class="form-group">
-	{{ Form::label('price', 'Сумма', ['class' => 'control-label']) }}
-	{{ Form::text('price', null, ['class' => 'form-control', 'id' => 'price', 'placeholder' => 'Введите сумму']) }}
+	{{ Form::label('sum', 'Сумма', ['class' => 'control-label']) }}
+	{{ Form::text('sum', null, ['class' => 'form-control', 'id' => 'sum', 'placeholder' => 'Введите сумму']) }}
 </div>
 
 <div class="form-group">
-	{{ Form::label('added_at', 'Дата', ['class' => 'control-label']) }}
+	{{ Form::label('date', 'Дата', ['class' => 'control-label']) }}
 	<div class="input-group date" id="datetimepicker">
-		{{ Form::text('added_at', null, ['class' => 'form-control', 'id' => 'added_at', 'placeholder' => 'Введите дату']) }}
+		{{ Form::text('date', null, ['class' => 'form-control', 'id' => 'date', 'placeholder' => 'Введите дату']) }}
 		<span class="input-group-addon">
 		 	<span class="glyphicon glyphicon-calendar"></span>
 		</span>

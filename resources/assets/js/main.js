@@ -195,6 +195,6 @@ $(document).ready(function() {
 // datepicker
 $(function () {
 	$('#datetimepicker').datetimepicker(
-		{language : 'ru', useSeconds : true, format: 'DD-MM-YYYY HH:mm:ss'}
+		{language : 'ru', useSeconds : true, format: 'YYYY-MM-DD'}
 	);
 });

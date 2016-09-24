@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddCoumnCosts extends Migration
+class UpdateColumnUsers extends Migration
 {
     /**
      * Run the migrations.
@@ -12,8 +12,9 @@ class AddCoumnCosts extends Migration
      */
     public function up()
     {
-        Schema::table('costs', function (Blueprint $table) {
-            $table->string('added_at')->after('sum');
+        Schema::table('users', function($table)
+        {
+            $table->integer('point')->nullable()->change();
         });
     }
 
@@ -24,8 +25,9 @@ class AddCoumnCosts extends Migration
      */
     public function down()
     {
-        Schema::table('costs', function (Blueprint $table) {
-            $table->dropColumn('added_at');
+        Schema::table('users', function($table)
+        {
+            $table->integer('point')->change();
         });
     }
 }

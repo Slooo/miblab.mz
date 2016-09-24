@@ -43,7 +43,7 @@
 
                 @if (Auth::check())
                     <a class="navbar-brand" href="{{ url('/') }}">
-                        Торговая точка #{{ Auth::user()->point }}
+                        @if(Auth::user()->point > 0) Торговая точка #{{ Auth::user()->point }} @endif
                     </a>
                 @endif
 
@@ -60,7 +60,7 @@
                             </a>
 
                             <ul class="dropdown-menu" role="menu">
-                                @if(Auth::user()->status == 0)
+                                @if(Auth::user()->status == 2)
                                     <li><a href="{{ url('items/cashier') }}">Поиск товаров</a></li>
                                     <li><a href="{{ url('order') }}">Заказы</a></li>
                                 @elseif(Auth::user()->status == 1)
@@ -69,6 +69,8 @@
                                     <li><a href="{{ url('costs') }}">Учет расходов</a></li>
                                     <li><a href="{{ url('costs/create') }}">Добавить расходы</a></li>
                                     <li><a href="{{ url('order') }}">Заказы</a></li>
+                                @elseif(Auth::user()->status == 0)
+                                    <li><a href="{{ url('analytics') }}">Аналитика</a></li>
                                 @endif
                                 <li><a href="{{ url('/logout') }}"><i class="fa fa-btn fa-sign-out"></i>Выйти</a></li>
                             </ul>

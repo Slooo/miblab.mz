@@ -34,3 +34,19 @@ $('body').on('click', '#js-costs--create', function(e){
 		$('#price').val('');
 	});
 });
+
+// All
+var all = 0;
+$('.js-analytics-all--sum').each(function() {
+    all += Number($(this).text());
+});
+
+$('#js-analytics-all-total').text(all);
+
+// Month
+var month = 0;
+$('.js-analytics-month--sum').each(function() {
+    month += Number($(this).text());
+});
+
+$('#js-analytics-month-total').text(month);

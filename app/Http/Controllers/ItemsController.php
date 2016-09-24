@@ -29,12 +29,6 @@ class ItemsController extends Controller
         }
     }
 
-    # analytics
-    public function analytics()
-    {
-        return view('items.analytics');
-    }
-
     # all items
     public function index()
     {
@@ -76,7 +70,7 @@ class ItemsController extends Controller
         {
             return response()->json(['status' => 0, 'message' => 'Штрихкод существует']);
         } else {
-            Items::create(array('barcode' => $request->barcode, 'status' => 0));
+            Items::create(['barcode' => $request->barcode, 'status' => 0]);
             return response()->json(['status' => 1, 'message' => 'Штрихкод отправлен']);
         }
     }

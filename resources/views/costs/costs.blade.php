@@ -19,8 +19,8 @@
 
 			@foreach($ccosts->costs as $row)
 			<tr>
-				<td>{{ $row->added_at }}</td>
-				<td>{{ $row->price }}</td>
+				<td>{{ $row->date }}</td>
+				<td>{{ $row->sum }}</td>
 			</tr>
 			@endforeach
 		</table>

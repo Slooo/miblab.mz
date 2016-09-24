@@ -9,7 +9,7 @@ class Costs extends Model
     protected $table = 'costs';
 
     protected $fillable = [
-        'id', 'price', 'added_at', 'created_at', 'updated_at',
+        'id', 'sum', 'date', 'created_at', 'updated_at',
     ];
 
     public function ccosts()
