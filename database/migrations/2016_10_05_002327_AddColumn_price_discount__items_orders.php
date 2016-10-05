@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddCoumnCosts extends Migration
+class AddColumnPriceDiscountItemsOrders extends Migration
 {
     /**
      * Run the migrations.
@@ -12,8 +12,8 @@ class AddCoumnCosts extends Migration
      */
     public function up()
     {
-        Schema::table('costs', function (Blueprint $table) {
-            $table->string('added_at')->after('price');
+        Schema::table('items_orders', function (Blueprint $table) {
+            $table->string('items_price_discount')->after('items_price');
         });
     }
 
@@ -24,8 +24,8 @@ class AddCoumnCosts extends Migration
      */
     public function down()
     {
-        Schema::table('costs', function (Blueprint $table) {
-            $table->dropColumn('added_at');
+        Schema::table('items_orders', function (Blueprint $table) {
+            $table->dropColumn('items_price_discount');
         });
     }
 }
