@@ -33,7 +33,8 @@
 
 	<div class="col-md-12">
 		<hr>
-		<strong>Итого: {{ $order->price }} &#8381;</strong>
+		<strong>Итого: {{ $order->sum }} &#8381;</strong><br>
+		<strong>Итого со скидкой: {{ $order->sum_discount }} &#8381;</strong>
 	</div>
 	
 </div>

@@ -13,7 +13,7 @@ class OrderController extends Controller
 	# all orders
 	public function index()
 	{
-		$orders = Orders::orderBy('id', 'desc')->take(10)->get();
+		$orders = Orders::orderBy('id', 'desc')->get();#->take(10)->get();
 		if(count($orders) > 0)
 		{
 			return view('order.index')->with(['orders' => $orders]);

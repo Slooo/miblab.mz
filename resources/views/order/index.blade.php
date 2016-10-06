@@ -15,6 +15,7 @@
 				<th>№ заказа</th>
 				<th>Дата</th>
 				<th>Сумма &#8381;</th>
+				<th>Сумма со скидкой &#8381;</th>
 				<th>Тип оплаты</th>
 			</tr>
 			
@@ -22,7 +23,8 @@
 			<tr>
 				<td class="js-order--url" data-url="{{ url('order/'.$row->id) }}">{{ $row->id }}</td>
 				<td>{{ $row->created_at }}</td>
-				<td>{{ $row->price }}</td>
+				<td>{{ $row->sum }}</td>
+				<td>{{ $row->sum_discount }}</td>
 				<td>
 				@if($row->type == 1)
 					Налично
