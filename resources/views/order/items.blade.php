@@ -17,7 +17,6 @@
 				<th>Цена &#8381; / шт.</th>
 				<th>Количество / уход</th>
 				<th>Сумма</th>
-
 			</tr>
 			@foreach($order->items as $row)
 			<tr>	

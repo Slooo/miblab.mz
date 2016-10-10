@@ -50,3 +50,19 @@ $('.js-analytics-month--sum').each(function() {
 });
 
 $('#js-analytics-month-total').text(month);
+
+// Point month
+var pointMonth = 0;
+$('.js-analytics-point-month--sum').each(function() {
+	pointMonth += Number($(this).text());
+});
+
+$('#js-analytics-point-month-total').text(pointMonth);
+
+// Point month
+var week30Day = 0;
+$('.js-analytics-week-30day--sum').each(function() {
+	week30Day += Number($(this).text());
+});
+
+$('#js-analytics-week-30day-total').text(week30Day);

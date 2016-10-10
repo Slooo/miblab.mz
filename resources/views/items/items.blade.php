@@ -67,8 +67,7 @@
 				@endif
 				</td>
 
-				<td><button type="button" data-barcode="{{ $row->barcode }}" class="btn btn-circle btn-primary js-item--print-review"><i class="fa fa-print" aria-hidden="true"></i>
-</button></td>
+				<td><button type="button" data-barcode="{{ $row->barcode }}" class="btn btn-circle btn-primary js-item--print-review"><i class="fa fa-print" aria-hidden="true"></i></button></td>
 			</tr>
 			@endforeach
 		</table>
