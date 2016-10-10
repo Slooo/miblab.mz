@@ -70,7 +70,8 @@
                                     <li><a href="{{ url('costs/create') }}">Добавить расходы</a></li>
                                     <li><a href="{{ url('order') }}">Заказы</a></li>
                                 @elseif(Auth::user()->status == 0)
-                                    <li><a href="{{ url('analytics') }}">Аналитика</a></li>
+                                    <li><a href="{{ url('manage/analytics') }}">Аналитика</a></li>
+                                    <li><a href="{{ url('manage/orders') }}">Заказы</a></li>
                                 @endif
                                 <li><a href="{{ url('/logout') }}"><i class="fa fa-btn fa-sign-out"></i>Выйти</a></li>
                             </ul>

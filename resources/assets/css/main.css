@@ -134,3 +134,13 @@ h2 {
   margin-top:10px;
   width:80%;
 }
+
+/* ---------------- Analytics --------------- */
+
+.analytics-table th {
+  text-align:center;
+}
+
+.analytics-table td.analytics--number-format {
+  text-align:right;
+}
