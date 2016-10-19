@@ -14,7 +14,8 @@ class CreateCostsTable extends Migration
     {
         Schema::create('costs', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('price');
+            $table->string('sum');
+            $table->timestamp('date');
             $table->timestamps();
         });
     }

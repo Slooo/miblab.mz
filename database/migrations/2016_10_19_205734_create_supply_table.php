@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRolesTable extends Migration
+class CreateSupplyTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,9 +12,15 @@ class CreateRolesTable extends Migration
      */
     public function up()
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('supply', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
+            $table->string('barcode');
+            $table->string('price');
+            $table->string('price_discount');
+            $table->string('quantity');
+            $table->integer('point');
+            $table->timestamps();
         });
     }
 
@@ -25,6 +31,6 @@ class CreateRolesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('roles');
+        Schema::drop('supply');
     }
 }

@@ -121,7 +121,7 @@ $('body').on('click', '#js-order--create', function(e){
 	var data  = {'price':total, 'type':type, 'items':items};
 
 	$.ajax({
-		url 	 : base_url + 'order',
+		url 	 : base_url + 'cashier/order',
 		type 	 : 'POST',
 		dataType : 'json',
 		data  	 : data,
@@ -155,7 +155,7 @@ $('body').on('click', '#js-item--barcode-create', function(e){
 	var data = {'barcode':barcode}
 
 	$.ajax({
-		url:     'barcode',
+		url:     'cashier/barcode',
 		type:     "POST",
 		dataType: "json",
 		data: data,

@@ -1,4 +1,5 @@
 {{ Form::open(['id' => 'form_item', 'class' => 'form-horizontal']) }}
+
 {{ Form::hidden('id', null, ['id' => 'item_id']) }}
 
 <div class="form-group">
@@ -14,6 +15,11 @@
 <div class="form-group">
 	{{ Form::label('price', 'Цена', ['class' => 'control-label']) }}
 	{{ Form::text('price', null, ['class' => 'form-control', 'placeholder' => 'Введите цену']) }}
+</div>
+
+<div class="form-group">
+	{{ Form::label('price_discount', 'Цена со скидкой', ['class' => 'control-label']) }}
+	{{ Form::text('price_discount', null, ['class' => 'form-control', 'placeholder' => 'Введите цену со скидкой']) }}
 </div>
 
 <div class="form-group">

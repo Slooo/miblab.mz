@@ -5,30 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\ItemsRequest;
 use App\Http\Requests;
-use App\Items;
+
 use Auth;
-use DNS1D;
 use Carbon\Carbon;
+use DNS1D;
+
+# models
+use App\Items;
 
 class ItemsController extends Controller
 {
-    public function __construct()
-    {
-        #$this->middleware('auth', ['only' => 'index']); #только
-        #$this->middleware('auth', ['except' => ['index']]); # кроме 
-    }
-
-    # index user page
-    public function home()
-    {
-        if(Auth::user()->status == 1)
-        {
-            return redirect('items');
-        } else {
-            return redirect('items/cashier');
-        }
-    }
-
     # all items
     public function index()
     {
@@ -79,18 +65,7 @@ class ItemsController extends Controller
     public function status(Request $request)
     {
         $item = Items::findOrFail($request->id);
-
-        switch($request->status)
-        {
-            case 0:
-                $status = 1;
-                break;
-            
-            case 1:
-                $status = 0;
-                break;
-        }
-
+        $status = ($request->status == 0 ? 1 : 0);
         $item->update(['status' => $status]);
         return response()->json(['status' => $status]);
     }
@@ -120,7 +95,7 @@ class ItemsController extends Controller
     public function store(ItemsRequest $request)
     {
         $request['point'] = Auth::user()->point;
-        $items = Items::create($request->all());
+        Items::create($request->all());
         return response()->json(['status' => 1, 'message' => 'Товар создан']);
     }
 

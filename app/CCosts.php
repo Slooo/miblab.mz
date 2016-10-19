@@ -16,4 +16,9 @@ class CCosts extends Model
     {
         return $this->belongsToMany(Costs::class, 'ccosts_costs', 'ccosts_id', 'costs_id');
     }
+
+    public function pivot()
+    {
+        return $this->hasOne(CCostsCosts::class);
+    }
 }

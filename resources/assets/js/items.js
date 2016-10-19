@@ -99,7 +99,7 @@ $('#js-item--barcode').focusout(function() {
 	if(barcode)
 	{
 		$.ajax({
-			url:     'search',
+			url:     base_url + segment1 + '/items/search',
 			type:     "POST",
 			dataType: "json",
 			data: data,
@@ -145,7 +145,7 @@ $('body').on('click', '#js-item--sbm', function(e){
 	if(id == 0)
 	{
 		//create
-		url = base_url + 'items';
+		url = base_url + segment1 + '/' + segment2;
 		type = "POST";
 
 	} else {
@@ -226,7 +226,7 @@ $('#js-item--print-review').click(function(e){
 	var data = {'barcode':barcode};
 
 	$.ajax({
-		url 	 : base_url + 'items/barcode/generate',
+		url 	 : base_url + 'admin/items/barcode/generate',
 		type 	 : 'POST',
 		dataType : 'json',
 		data 	 : data,

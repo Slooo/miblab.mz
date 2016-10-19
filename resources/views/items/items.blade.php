@@ -57,7 +57,7 @@
 			<tr item="{{ $row->id }}">
 				<td>{{ $row->barcode }}</td>
 				<td data-type="name">{{ $row->name }}</td>
-				<td class="js-item--update" data-type="price">{{ $row->price }}</td>
+				<td class="js-item--update" data-type="price">{{ number_format($row->price, 0, ' ', ' ') }}</td>
 				<td class="js-item--update" data-type="quantity">{{ $row->quantity }}</td>
 				<td>
 				@if($row->status == 1)

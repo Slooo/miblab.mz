@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call(UsersTableSeeder::class);
+    	DB::unprepared(file_get_contents('./database/seeds/dump/mz_2016-10-20.sql'));
+    	$this->command->info('Seed: column added successfully.');
     }
 }

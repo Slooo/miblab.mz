@@ -5,21 +5,14 @@
     <meta name="description" content="Главная страница сайта" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="keywords" content="Сайт, о том, о сём" />
+    <meta name="keywords" content="mz" />
     <meta name="_token" content="{{ csrf_token() }}">
     <title>Касса</title>
 	
-	<!-- Icon -->
-    <link rel="shortcut icon" href="favicon.png" />
-
-    <!-- Fonts -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
-
     <!-- Styles -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />    
     <link rel="stylesheet" href="{{ elixir('css/app.css') }}">
 
-    <script src="//code.jquery.com/jquery.js"></script>
+    <!-- Scripts -->
     <script src="{{ elixir('js/libs.js') }}"></script>
 
 </head>
@@ -38,7 +31,7 @@
 
                 <!-- Branding Image -->
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    Имя организации
+                    MZ
                 </a>
 
                 @if (Auth::check())
@@ -54,25 +47,42 @@
                     <!-- Authentication Links -->
                     @if (Auth::guest())
                     @else
+                        @if (Request::is('admin/*') || Request::is('manage/*'))
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                                настройки <span class="caret"></span>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu--lg" role="menu">
+                                <li class="dropdown-header">Выбрать период</li>
+                                <li>@include('_forms.date')</li>
+                                <li class="divider"></li>
+                            </ul>
+                        </li>
+                        @endif
+
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                                 {{ Auth::user()->username }} <span class="caret"></span>
                             </a>
 
                             <ul class="dropdown-menu" role="menu">
-                                @if(Auth::user()->status == 2)
-                                    <li><a href="{{ url('items/cashier') }}">Поиск товаров</a></li>
-                                    <li><a href="{{ url('order') }}">Заказы</a></li>
-                                @elseif(Auth::user()->status == 1)
-                                    <li><a href="{{ url('items') }}">Все товары</a></li>
-                                    <li><a href="{{ url('items/create') }}">Добавить товар</a></li>
-                                    <li><a href="{{ url('costs') }}">Учет расходов</a></li>
-                                    <li><a href="{{ url('costs/create') }}">Добавить расходы</a></li>
-                                    <li><a href="{{ url('order') }}">Заказы</a></li>
-                                @elseif(Auth::user()->status == 0)
-                                    <li><a href="{{ url('manage/analytics') }}">Аналитика</a></li>
-                                    <li><a href="{{ url('manage/orders') }}">Заказы</a></li>
-                                @endif
+                            @if(Auth::user()->status == 2)
+                                <li><a href="{{ url('cashier/search') }}">Поиск товаров</a></li>
+                                <li><a href="{{ url('cashier/orders') }}">Заказы</a></li>
+                            @elseif(Auth::user()->status == 1)
+                                <li><a href="{{ url('admin/items') }}">Все товары</a></li>
+                                <li><a href="{{ url('admin/items/create') }}">Добавить товар</a></li>
+                                <li><a href="{{ url('admin/costs') }}">Учет расходов</a></li>
+                                <li><a href="{{ url('admin/costs/create') }}">Добавить расходы</a></li>
+                                <li><a href="{{ url('admin/orders') }}">Заказы</a></li>
+                                <li><a href="{{ url('admin/supply/create') }}">Добавить приход</a></li>
+                                <li><a href="{{ url('admin/supply') }}">Приходы</a></li>
+                            @elseif(Auth::user()->status == 0)
+                                <li><a href="{{ url('manage/analytics') }}">Аналитика</a></li>
+                                <li><a href="{{ url('manage/orders') }}">Заказы</a></li>
+                                <li><a href="{{ url('manage/costs') }}">Учет расходов</a></li>
+                            @endif
                                 <li><a href="{{ url('/logout') }}"><i class="fa fa-btn fa-sign-out"></i>Выйти</a></li>
                             </ul>
                         </li>
@@ -81,7 +91,8 @@
             </div>
         </div>
     </nav>
-    
+        
+    <!-- Content -->
     <div class="container">
         <div class="row">
         	<div id="alert"></div>
@@ -90,9 +101,21 @@
     </div>
 
     <!-- JavaScripts -->
-    <script>base_url = '{{ url('/') }}/';</script>
+    <script>
+    var base_url, segment1, segment2;
+        base_url = '{{ url('/') }}/';
+        segment1 = '{{ Request::segment(1) }}';   
+        segment2 = '{{ Request::segment(2) }}';  
+    </script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="{{ elixir('js/app.js') }}"></script>
     @yield('script')
+
+    <style>
+.dropdown-menu--lg {
+    width:300px;
+}
+</style>
+
 </body>
 </html>

@@ -14,8 +14,34 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    public function roles()
+    public function isCashier()
     {
-        return $this->belongsToMany(Role::class);
+        if($this->status == 2)
+        {
+            return true;
+        } else {
+            return false;
+        }
     }
+
+    public function isAdmin()
+    {
+        if($this->status == 1)
+        {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function isManage()
+    {
+        if($this->status == 0)
+        {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

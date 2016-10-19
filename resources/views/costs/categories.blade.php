@@ -12,7 +12,7 @@
 	<div class="col-md-8 col-md-offset-4">
 		<div class="btn-group-vertical">
 		@foreach($ccosts as $row)
-			<a href="{{ url('costs/'.$row->id) }}" class="btn btn-default">{{ $row->name }}</a>
+			<a href="{{ url(Request::segment(1).'/costs/'.$row->id) }}" class="btn btn-default">{{ $row->name }}</a>
 		@endforeach
 		</div>
 	</div>

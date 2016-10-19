@@ -10,7 +10,7 @@
 	</div>
 
 	<div class="col-md-6 col-md-offset-3">
-		@include('costs.form_costs', [$ccosts])
+		@include('_forms.costs_create', [$ccosts])
 	</div>
 
 </div>

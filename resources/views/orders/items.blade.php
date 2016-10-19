@@ -19,12 +19,12 @@
 				<th>Сумма</th>
 			</tr>
 			@foreach($order->items as $row)
-			<tr>	
+			<tr>
 				<td>{{ $row->barcode }}</td>	
 				<td>{{ $row->name }}</td>
-				<td>{{ $row->pivot->items_price }}</td>
+				<td>{{ number_format($row->pivot->items_price, 0, ' ', ' ') }}</td>
 				<td>{{ $row->pivot->items_quantity }}</td>
-				<td>{{ $row->pivot->items_sum }}</td>
+				<td>{{ number_format($row->pivot->items_sum, 0, ' ', ' ') }}</td>
 			</tr>
 			@endforeach
 		</table>
@@ -32,8 +32,8 @@
 
 	<div class="col-md-12">
 		<hr>
-		<strong>Итого: {{ $order->sum }} &#8381;</strong><br>
-		<strong>Итого со скидкой: {{ $order->sum_discount }} &#8381;</strong>
+		<strong>Итого: {{ number_format($order->sum, 0, ' ', ' ') }} &#8381;</strong><br>
+		<strong>Итого со скидкой: {{ number_format($order->sum_discount, 0, ' ', ' ') }} &#8381;</strong>
 	</div>
 	
 </div>

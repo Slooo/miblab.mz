@@ -194,7 +194,7 @@ $(document).ready(function() {
 
 // datepicker
 $(function () {
-	$('#datetimepicker').datetimepicker(
+	$('#datetimepicker, #datetimepicker2').datetimepicker(
 		{language : 'ru', useSeconds : true, format: 'YYYY-MM-DD'}
 	);
 });

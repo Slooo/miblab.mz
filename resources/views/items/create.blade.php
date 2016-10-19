@@ -10,7 +10,7 @@
 	</div>
 
 	<div class="col-md-8 col-md-offset-2">
-		@include('items.form_update')
+		@include('_forms.items_update')
 	</div>
 
 </div>

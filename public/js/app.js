@@ -194,7 +194,7 @@ $(document).ready(function() {
 
 // datepicker
 $(function () {
-	$('#datetimepicker').datetimepicker(
+	$('#datetimepicker, #datetimepicker2').datetimepicker(
 		{language : 'ru', useSeconds : true, format: 'YYYY-MM-DD'}
 	);
 });
@@ -321,7 +321,7 @@ $('body').on('click', '#js-order--create', function(e){
 	var data  = {'price':total, 'type':type, 'items':items};
 
 	$.ajax({
-		url 	 : base_url + 'order',
+		url 	 : base_url + 'cashier/order',
 		type 	 : 'POST',
 		dataType : 'json',
 		data  	 : data,
@@ -355,7 +355,7 @@ $('body').on('click', '#js-item--barcode-create', function(e){
 	var data = {'barcode':barcode}
 
 	$.ajax({
-		url:     'barcode',
+		url:     'cashier/barcode',
 		type:     "POST",
 		dataType: "json",
 		data: data,
@@ -533,7 +533,7 @@ $('#js-item--barcode').focusout(function() {
 	if(barcode)
 	{
 		$.ajax({
-			url:     'search',
+			url:     base_url + segment1 + '/items/search',
 			type:     "POST",
 			dataType: "json",
 			data: data,
@@ -579,7 +579,7 @@ $('body').on('click', '#js-item--sbm', function(e){
 	if(id == 0)
 	{
 		//create
-		url = base_url + 'items';
+		url = base_url + segment1 + '/' + segment2;
 		type = "POST";
 
 	} else {
@@ -660,7 +660,7 @@ $('#js-item--print-review').click(function(e){
 	var data = {'barcode':barcode};
 
 	$.ajax({
-		url 	 : base_url + 'items/barcode/generate',
+		url 	 : base_url + 'admin/items/barcode/generate',
 		type 	 : 'POST',
 		dataType : 'json',
 		data 	 : data,
