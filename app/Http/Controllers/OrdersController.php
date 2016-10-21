@@ -46,11 +46,9 @@ class OrdersController extends Controller
 	# orders date
 	public function date(Request $request)
 	{
-		$start = $request->date_start;
-		$end = $request->date_end;
-		$orders = Orders::whereHas('items', function($query) use($start, $end)
+		$orders = Orders::whereHas('pivot', function($query) use($request)
 			{
-				$query->whereBetween('items_orders.created_at', [$start, $end]);
+				$query->whereBetween('created_at', [$request->date_start, $request->date_end]);
 			})->get();
 		return view('orders.index', compact('orders'));
 	}
