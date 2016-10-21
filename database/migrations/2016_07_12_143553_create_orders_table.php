@@ -18,7 +18,6 @@ class CreateOrdersTable extends Migration
             $table->string('sum_discount');
             $table->integer('type');
             $table->rememberToken();
-            $table->timestamps();
         });
     }
 

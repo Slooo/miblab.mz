@@ -16,7 +16,6 @@ class CreateCostsTable extends Migration
             $table->increments('id');
             $table->string('sum');
             $table->timestamp('date');
-            $table->timestamps();
         });
     }
 
