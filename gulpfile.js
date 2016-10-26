@@ -28,8 +28,9 @@ elixir(function(mix) {
 		'main.js', 
 		'cashier.js', 
 		'costs.js', 
-		'orders.js', 
-		'items.js', 
+		'orders.js',
+		'supply.js',
+		'items.js',
 		'settings.js',
 		], 'public/js/app.js')
 

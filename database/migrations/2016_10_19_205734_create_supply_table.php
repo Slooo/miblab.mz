@@ -14,13 +14,9 @@ class CreateSupplyTable extends Migration
     {
         Schema::create('supply', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
-            $table->string('barcode');
-            $table->string('price');
-            $table->string('price_discount');
-            $table->string('quantity');
-            $table->integer('point');
-            $table->timestamps();
+            $table->string('sum');
+            $table->string('sum_discount');
+            $table->integer('type');
         });
     }
 

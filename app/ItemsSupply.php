@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 use Carbon\Carbon;
 
-class ItemsOrders extends Model
+class ItemsSupply extends Model
 {
-	protected $table = 'items_orders';
+	protected $table = 'items_supply';
 
 	protected $dates = ['created_at', 'updated_at'];
 

@@ -32,13 +32,13 @@ class ItemsController extends Controller
     public function search(ItemsRequest $request)
     {
         # this admin
-        if(Auth::user()->status == 1)
-        {
-            $items = Items::where('barcode', $request->barcode)->first();
+        #if(Auth::user()->status == 1)
+        #{
+         #   $items = Items::where('barcode', $request->barcode)->first();
         # this cashier
-        } else {
+        #} else {
             $items = Items::where('barcode', $request->barcode)->where('status', 1)->get();
-        }
+        #}
 
         if (count($items) > 0)
         {

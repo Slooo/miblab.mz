@@ -11,14 +11,21 @@ class Supply extends Model
 	protected $table = 'supply';
 	
     protected $fillable = [
-        'name', 'barcode', 'price', 'price_discount', 'quantity', 'point',
+        'id', 'sum', 'sum_discount', 'type',
     ];
+
+    public $timestamps = false;
 
     protected $dates = ['date'];
 
-    public function getDateFormatAttribute($date)
+    public function items()
     {
-        return Carbon::parse($date)->format('d/m/Y');
+        return $this->belongsToMany(Items::class)->withPivot('point', 'items_price', 'items_quantity', 'items_sum', 'created_at');
+    }
+
+    public function pivot()
+    {
+        return $this->hasOne(ItemsSupply::class);
     }
 
 }

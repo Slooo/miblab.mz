@@ -33,6 +33,10 @@ h2 {
   opacity:1;
 }
 
+.dropdown-menu--lg {
+    width:300px;
+}
+
 /* ---------------- Form search --------------- */
 
 .form-search

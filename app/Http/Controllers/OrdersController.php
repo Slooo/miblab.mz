@@ -45,19 +45,44 @@ class OrdersController extends Controller
 
 	# orders date
 	public function date(Request $request)
-	{
-		$orders = Orders::whereHas('pivot', function($query) use($request)
+	{		
+		$dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->format('Y-m-d');
+		$dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->format('Y-m-d');
+
+		$orders = Orders::whereHas('pivot', function($query) use($dateStart, $dateEnd)
 			{
-				$query->whereBetween('created_at', [$request->date_start, $request->date_end]);
-			})->get();
-		return view('orders.index', compact('orders'));
+				$query->whereBetween('created_at', [$dateStart, $dateEnd]);
+			})->orderBy('id', 'desc')->get();
+
+		$data = []; $extra = []; $i = 0;
+
+		if(count($orders) > 0)
+		{
+			foreach($orders as $row):
+				$i++;
+				$data[$i]['id'] = $row->id;
+				$data[$i]['date'] = $row->pivot->date_format;
+				$data[$i]['sum'] = number_format($row->sum, 0, ' ', ' ');
+				$data[$i]['sum_discount'] = number_format($row->sum_discount, 0, ' ', ' ');
+				$data[$i]['type'] = ($row->type == 1 ? 'Налично' : 'Безналично');
+			endforeach;
+
+			$extra['totalSum'] = number_format(array_sum(array_column($data, 'sum')), 0, ' ', ' ');
+			$extra['totalSumDiscount'] = number_format(array_sum(array_column($data, 'sum_discount')), 0, ' ', ' ');
+			$status = 1;
+		} else {
+			$data = 'Нет данных за период';
+			$status = 0;
+		}
+
+		return response()->json(['status' => $status, 'data' => $data, 'extra' => $extra]);
 	}
 
 	# create
-	public function store(OrderRequest $request)
+	public function store(Request $request)
 	{
 		$orders = new Orders;
-		$order = $orders::create(['price' => $request->price, 'type' => $request->type]);
+		$order = $orders::create(['sum' => $request->sum, 'sum_discount' => $request->sum, 'type' => $request->type]);
 
 		$json = json_decode($request->items, true);
 
@@ -66,7 +91,7 @@ class OrdersController extends Controller
 			$orders->items()->sync([$row['id'] => ['orders_id' => $order->id, 'point' => Auth::user()->point, 'items_price' => $row['price'], 'items_quantity' => $row['quantity'], 'items_sum' => $row['sum']]]);
 		}
 
-		$url = '<strong><a href="'.url('order/'.$order->id).'">Заказ успешно оформлен</a></strong>';
+		$url = '<strong><a href="'.url('cashier/order/'.$order->id).'">Заказ успешно оформлен</a></strong>';
 		return response()->json(['status' => 1, 'message' => $url]);
 	}
 

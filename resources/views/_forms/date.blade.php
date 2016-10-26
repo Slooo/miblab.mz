@@ -21,7 +21,7 @@
 		</div>
 	</div>
 
-	<button type="submit" class="btn btn-primary btn-sm" id="js-order--date-range">Показать</button>
+	<button type="button" class="btn btn-primary btn-sm" id="js-settings--date-range">Показать</button>
 
 {{ Form::close() }}
 </div>

@@ -44,13 +44,34 @@ class CostsController extends Controller
     public function date(Request $request)
     {
         $ccosts = CCosts::find($request->id)->name;
-        $costs = Costs::whereHas('pivot', function($query) use($request)
+        $dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->format('Y-m-d');
+        $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->format('Y-m-d');
+
+        $costs = Costs::whereHas('pivot', function($query) use($dateStart, $dateEnd)
             {
                 $query->where('ccosts_id', $request->id)
-                      ->whereBetween('date', [$request->date_start, $request->date_end]);
+                      ->whereBetween('date', [$dateStart, $dateEnd]);
             })->get();
 
-        return view('costs.costs', compact('ccosts', 'costs'));
+        $data = []; $extra = []; $i = 0;
+
+        if(count($costs) > 0)
+        {
+            foreach($costs as $row):
+                $i++;
+                $data[$i]['date'] = $row->pivot->date_format;
+                $data[$i]['sum']  = number_format($row->sum, 0, ' ', ' ');
+            endforeach;
+
+            $extra['totalSum'] = number_format(array_sum(array_column($data, 'sum')), 0, ' ', ' ');
+            $status = 1;
+        } else {
+            $data = 'Нет расходов за период';
+            $status = 0;
+        }
+
+        return response()->json(['status' => $status, 'data' => $data, 'extra' => $extra]);
+
     }
 
     # create page

@@ -3,8 +3,8 @@
 */
 
 // order url
-$('.js-order--url').click(function(e){
+$('body').on('click', '.js-order--url', function(e){
 	e.preventDefault();
 	var url = $(this).data('url');
-    window.location=url;
+    window.location = url;
 });

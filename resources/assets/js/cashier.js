@@ -26,7 +26,7 @@ $('#js-item--search').keyup(function(e){
 	if(barcode.length > 10)
 	{
 		$.ajax({
-			url:      'search',
+			url:      base_url + segment1 + '/items/search',
 			type:     'POST',
 			dataType: 'json',
 			data:     data,
@@ -48,6 +48,7 @@ $('#js-item--search').keyup(function(e){
 					var data = JSON.stringify(answer.items);
 					var json = JSON.parse(data);
 					OrderItemPaste(json);
+					console.log(json);
 				}
 		    },
 
@@ -114,14 +115,16 @@ $('body').on("click", ".js-order--remove", function(){
 $('body').on('click', '#js-order--create', function(e){
 	e.preventDefault();
 
-	var json = JSON.parse(localStorage.getItem('items'));
-	var total = json.total;
-	var type  = json.type;
-	var items = JSON.stringify(json.items);
-	var data  = {'price':total, 'type':type, 'items':items};
+	var json, sum, sumDiscount, type, items, data;
+
+	json  = JSON.parse(localStorage.getItem('items'));
+	sum   = json.sum;
+	type  = json.type;
+	items = JSON.stringify(json.items);
+	data  = {'sum':sum, 'type':type, 'items':items};
 
 	$.ajax({
-		url 	 : base_url + 'cashier/order',
+		url 	 : base_url + segment1 + '/order',
 		type 	 : 'POST',
 		dataType : 'json',
 		data  	 : data,

@@ -65,15 +65,15 @@ function OrderUpdate(here)
 	localStorage.setItem('order-table', $('.order-table').html());
 }
 
-// get total
+// get sum && sum_discount
 function OrderTotalPrice(){
 	var json = JSON.parse(localStorage.getItem('items'));
-	var total = json.items.reduce(function(sum, current) {
+	var sum = json.items.reduce(function(sum, current) {
 	  return sum + current.sum;
 	}, 0);
 
-	$('#order-total').html(total);
-	json.total = total;
+	$('#order-sum').html(sum);
+	json.sum = sum;
 	localStorage.setItem('items', JSON.stringify(json));
 }
 
@@ -87,7 +87,7 @@ function OrderItemAdd(data)
 		items = [];
 		json.items = items;
 		json.items.push(data);
-		json.total = data.price * data.quantity;
+		json.sum = data.price * data.quantity;
 		localStorage.setItem('items', JSON.stringify(json));
 	} else {
 		json = JSON.parse(localStorage.getItem('items'));
@@ -195,6 +195,66 @@ $(document).ready(function() {
 // datepicker
 $(function () {
 	$('#datetimepicker, #datetimepicker2').datetimepicker(
-		{language : 'ru', useSeconds : true, format: 'YYYY-MM-DD'}
+		{language : 'ru', useSeconds : true, format: 'DD/MM/YYYY'}
 	);
+});
+
+// date range
+$('#js-settings--date-range').click(function(e){
+	e.preventDefault();
+
+	var dateStart, dateEnd, data, url, segments, html, json;
+
+	dateStart = $('#date_start').val();
+	dateEnd   = $('#date_end').val();
+	data 	  = {'dateStart':dateStart, 'dateEnd':dateEnd};
+
+	$.ajax({
+		url:     base_url + segment1 + '/' + segment2 + '/date',
+		type:     "PATCH",
+		dataType: "json",
+		data: data,
+
+		beforeSend: function(){
+			$('.dropdown').removeClass('open');
+	        LoaderStart();
+	    },
+
+		success: function(answer) {
+
+			if(answer.status == 0)
+			{
+				$('.table').addClass('hidden');
+				$('.col-footer').addClass('hidden');
+				$('.col-body').append('<h2>'+answer.data+'</h2>');
+			}
+
+			if(answer.status == 1)
+			{
+				html = "";
+				json = JSON.stringify(answer.data);
+				data = JSON.parse(json);
+
+				for(row in data)
+				{
+					html += '<tr>';
+					html += '<td class="js-order--url" data-url="/'+segment1+'/order/'+data[row].id+'">'+data[row].id+'</td>';
+					html += '<td>'+data[row].date+'</td>';
+					html += '<td>'+data[row].sum+'</td>';
+					html += '<td>'+data[row].sum_discount+'</td>';
+					html += '<td>'+data[row].type+'</td>';
+					html += '</tr>';
+				}
+
+				$('.col-body h2').remove();
+				$('.table').removeClass('hidden');
+				$('.col-footer').removeClass('hidden');
+				$('.table tbody').html(html);
+				$('.totalSum').html('Итого: ' + answer.extra.totalSum + ' &#8381;');
+				$('.totalSumDiscount').html('Итого со скидкой: ' + answer.extra.totalSumDiscount + ' &#8381;');
+			}
+	    }
+	}).complete(function() {
+	    LoaderStop();
+	});
 });

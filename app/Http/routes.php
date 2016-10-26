@@ -30,10 +30,15 @@ Route::group(['middleware' => ['auth', 'cashier'], 'prefix' => 'cashier'], funct
 	#get
 	Route::get('items/search', 'ItemsController@cashier');
 	Route::get('orders', 'OrdersController@index');
+	Route::get('order/{id}', 'OrdersController@show');
+
+	#patch
+	Route::patch('orders/date', 'OrdersController@date');
 
 	# post
 	Route::post('items/barcode', 'ItemsController@barcode');
 	Route::post('items/search', 'ItemsController@search');
+	Route::post('order', 'OrdersController@store');
 
 	#resource
 	Route::resource('items', 'ItemsController');
@@ -53,13 +58,13 @@ Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin'], function(
 
 	# patch
 	Route::patch('items/status', 'ItemsController@status');
+	Route::patch('orders/date', 'OrdersController@date');
+	Route::patch('costs/date', 'CostsController@date');
+	Route::patch('supply/date', 'SupplyController@date');
 
 	# post
 	Route::post('items/barcode/generate', 'ItemsController@barcode_generate');
 	Route::post('items/search', 'ItemsController@search');
-	Route::post('orders/date', 'OrdersController@date');
-	Route::post('supply/date', 'SupplyController@date');
-	Route::post('costs/date', 'CostsController@date');
 
 	# resource
 	Route::resource('items', 'ItemsController');

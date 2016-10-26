@@ -39,11 +39,18 @@ $(document).ready(function(){
 				<button class="btn btn-default js-order--type" value="0">Безналично</button>
 			</div>
 		</div>
-		<div class="col-md-12 order-total"><strong>Итого: </strong><span id="order-total"></span></div>
-		<hr>
+			<div class="col-md-12">
+				<hr>
+				<strong>Итого: </strong><span id="order-sum"></span>
+				<br>
+				<strong>Итого со скидкой: </strong><span id="order-sumDiscount"></span>
+				<hr>
+			</div>
 
 		<div class="col-md-12">
-			<button class="btn btn-primary" id="js-order--create">Оформить заказ</button>
+			<button class="btn btn-primary" 
+			id="js-{{ $url = (Request::segment(1) == 'admin' ? 'supply' : 'order') }}--create">Создать</button>
+			<hr>
 		</div>
 	</div>
 
