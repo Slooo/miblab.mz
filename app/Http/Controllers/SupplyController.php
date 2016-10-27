@@ -63,7 +63,7 @@ class SupplyController extends Controller
             $query->whereBetween('created_at', [$dateStart, $dateEnd]);
         })->orderBy('id', 'desc')->get();
 
-        $data = []; $extra = []; $i = 0;
+        $data = []; $total = []; $extra = []; $i = 0;
 
         if(count($supply) > 0)
         {
@@ -74,10 +74,13 @@ class SupplyController extends Controller
                 $data[$i]['sum'] = number_format($row->sum, 0, ' ', ' ');
                 $data[$i]['sum_discount'] = number_format($row->sum_discount, 0, ' ', ' ');
                 $data[$i]['type'] = ($row->type == 1 ? 'Налично' : 'Безналично');
+
+                $total[$i]['sum'] = $row->sum;
+                $total[$i]['sumDiscount'] = $row->sum_discount; 
             endforeach;
 
-            $extra['totalSum'] = number_format(array_sum(array_column($data, 'sum')), 0, ' ', ' ');
-            $extra['totalSumDiscount'] = number_format(array_sum(array_column($data, 'sum_discount')), 0, ' ', ' ');
+            $extra['totalSum'] = number_format(array_sum(array_column($total, 'sum')), 0, ' ', ' ');
+            $extra['totalSumDiscount'] = number_format(array_sum(array_column($total, 'sumDiscount')), 0, ' ', ' ');
             $status = 1;
         } else {
             $data = 'Нет данных за период';

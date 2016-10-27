@@ -107,7 +107,7 @@
         base_url = '{{ url('/') }}/';
         segment1 = '{{ Request::segment(1) }}/';   
         segment2 = '{{ Request::segment(2) }}/';
-        segment3 = '{{ Request::segment(3) }}/';
+        segment3 = '{{ Request::segment(3) }}';
     </script>
     <script src="{{ elixir('js/app.js') }}"></script>
     @yield('script')

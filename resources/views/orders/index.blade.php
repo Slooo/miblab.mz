@@ -25,7 +25,7 @@
 			<tbody>
 				@foreach($orders as $row)
 				<tr>
-					<td class="js-order--url" data-url="{{ url(Request::segment(1).'/'.Request::segment(2).'/'.$row->id) }}">{{ $row->id }}</td>
+					<td class="js-url--link" data-url="{{ url(Request::segment(1).'/'.Request::segment(2).'/'.$row->id) }}">{{ $row->id }}</td>
 					<td>{{ $row->pivot->date_format }}</td>
 					<td>{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
 					<td>{{ number_format($totalSumDiscount[] = $row->sum_discount, 0, ' ', ' ') }}</td>

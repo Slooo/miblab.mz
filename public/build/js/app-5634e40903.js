@@ -200,6 +200,9 @@ $(function () {
 });
 
 // date range
+
+// сделать costs orders supply для каждого парсить по разному.
+
 $('#js-settings--date-range').click(function(e){
 	e.preventDefault();
 
@@ -207,7 +210,7 @@ $('#js-settings--date-range').click(function(e){
 
 	dateStart = $('#date_start').val();
 	dateEnd   = $('#date_end').val();
-	data 	  = {'dateStart':dateStart, 'dateEnd':dateEnd};
+	data 	  = {'dateStart':dateStart, 'dateEnd':dateEnd, 'id':segment3};
 
 	$.ajax({
 		url:     base_url + segment1 + segment2 + 'date',
@@ -222,6 +225,8 @@ $('#js-settings--date-range').click(function(e){
 
 		success: function(answer) {
 
+			$('.col-body h2').remove();
+
 			if(answer.status == 0)
 			{
 				$('.table').addClass('hidden');
@@ -234,29 +239,49 @@ $('#js-settings--date-range').click(function(e){
 				html = "";
 				json = JSON.stringify(answer.data);
 				data = JSON.parse(json);
-
-				for(row in data)
-				{
-					html += '<tr>';
-					html += '<td class="js-order--url" data-url="'+base_url + segment1 + segment2 + data[row].id+'">'+data[row].id+'</td>';
-					html += '<td>'+data[row].date+'</td>';
-					html += '<td>'+data[row].sum+'</td>';
-					html += '<td>'+data[row].sum_discount+'</td>';
-					html += '<td>'+data[row].type+'</td>';
-					html += '</tr>';
-				}
-
-				$('.col-body h2').remove();
+				
 				$('.table').removeClass('hidden');
 				$('.col-footer').removeClass('hidden');
+
+				if(segment2 != 'costs/')
+				{
+					for(row in data)
+					{
+						html += '<tr>';
+						html += '<td class="js-url--link" data-url="'+base_url + segment1 + segment2 + data[row].id+'">'+data[row].id+'</td>';
+						html += '<td>'+data[row].date+'</td>';
+						html += '<td>'+data[row].sum+'</td>';
+						html += '<td>'+data[row].sum_discount+'</td>';
+						html += '<td>'+data[row].type+'</td>';
+						html += '</tr>';
+					}
+
+					$('.totalSumDiscount').html('Итого со скидкой: ' + answer.extra.totalSumDiscount + ' &#8381;');
+				
+				} else {
+					for(row in data)
+					{
+						html += '<tr>';
+						html += '<td>'+data[row].date+'</td>';
+						html += '<td>'+data[row].sum+'</td>';
+						html += '</tr>';
+					}
+				}
+
 				$('.table tbody').html(html);
 				$('.totalSum').html('Итого: ' + answer.extra.totalSum + ' &#8381;');
-				$('.totalSumDiscount').html('Итого со скидкой: ' + answer.extra.totalSumDiscount + ' &#8381;');
 			}
 	    }
 	}).complete(function() {
 	    LoaderStop();
 	});
+});
+
+//link url
+$('body').on('click', '.js-url--link', function(e){
+	e.preventDefault();
+	var url = $(this).data('url');
+    window.location = url;
 });
 /*
 	------- ITEMS FUNCTION ------- 
@@ -686,13 +711,6 @@ $('body').on('click', '#js-item--barcode-create', function(e){
 /*
 	------- ORDERS FUNCTION ------- 
 */
-
-// order url
-$('body').on('click', '.js-order--url', function(e){
-	e.preventDefault();
-	var url = $(this).data('url');
-    window.location = url;
-});
 
 // create order and supply
 $('body').on('click', '#js-order-and-supply--create', function(e){

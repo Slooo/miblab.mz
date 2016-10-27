@@ -54,7 +54,7 @@ class OrdersController extends Controller
 				$query->whereBetween('created_at', [$dateStart, $dateEnd]);
 			})->orderBy('id', 'desc')->get();
 
-		$data = []; $extra = []; $i = 0;
+		$data = []; $total = []; $extra = []; $i = 0;
 
 		if(count($orders) > 0)
 		{
@@ -65,10 +65,13 @@ class OrdersController extends Controller
 				$data[$i]['sum'] = number_format($row->sum, 0, ' ', ' ');
 				$data[$i]['sum_discount'] = number_format($row->sum_discount, 0, ' ', ' ');
 				$data[$i]['type'] = ($row->type == 1 ? 'Налично' : 'Безналично');
+
+				$total[$i]['sum'] = $row->sum;
+				$total[$i]['sumDiscount'] = $row->sum_discount;
 			endforeach;
 
-			$extra['totalSum'] = number_format(array_sum(array_column($data, 'sum')), 0, ' ', ' ');
-			$extra['totalSumDiscount'] = number_format(array_sum(array_column($data, 'sum_discount')), 0, ' ', ' ');
+			$extra['totalSum'] = number_format(array_sum(array_column($total, 'sum')), 0, ' ', ' ');
+			$extra['totalSumDiscount'] = number_format(array_sum(array_column($total, 'sumDiscount')), 0, ' ', ' ');
 			$status = 1;
 		} else {
 			$data = 'Нет данных за период';
@@ -148,16 +151,16 @@ class OrdersController extends Controller
 
 	    # sum 30 days
 	    /*
-	    $sum30Days = Orders::whereHas('items', function ($query) use($date) {
-	    		$query->whereBetween('items_orders.created_at', [Carbon::today()->subDays(29), $date]);
-	    	})->sum('sum');
+	    $sum30Days = Orders::whereHas('pivot', function($query) use ($date){
+	    	$query->whereBetween('created_at', [Carbon::today()->subDays(29), $date]);
+	    })->sum('sum');
 		*/
-	
+		
 	    $sum30Days = DB::table('items_orders AS io')
 	            ->LeftJoin('orders AS o', 'o.id', '=', 'io.orders_id')
 	            ->whereBetween('io.created_at', [Carbon::today()->subDays(29), $date])
 	            ->sum('o.sum');
-
+		
 
 	    # week sum 30 days
 	    foreach($dateWeek as $row):

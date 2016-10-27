@@ -2,13 +2,6 @@
 	------- ORDERS FUNCTION ------- 
 */
 
-// order url
-$('body').on('click', '.js-order--url', function(e){
-	e.preventDefault();
-	var url = $(this).data('url');
-    window.location = url;
-});
-
 // create order and supply
 $('body').on('click', '#js-order-and-supply--create', function(e){
 	e.preventDefault();

@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests;
-use App\CCosts;
-use App\Costs;
+use Carbon\Carbon;
 use Auth;
 use DB;
+
+#models
+use App\CCosts;
+use App\Costs;
+
 
 class CostsController extends Controller
 {
@@ -47,23 +51,25 @@ class CostsController extends Controller
         $dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->format('Y-m-d');
         $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->format('Y-m-d');
 
-        $costs = Costs::whereHas('pivot', function($query) use($dateStart, $dateEnd)
+        $costs = Costs::whereHas('pivot', function($query) use($request, $dateStart, $dateEnd)
             {
                 $query->where('ccosts_id', $request->id)
                       ->whereBetween('date', [$dateStart, $dateEnd]);
             })->get();
 
-        $data = []; $extra = []; $i = 0;
+        $data = []; $total = []; $extra = []; $i = 0;
 
         if(count($costs) > 0)
         {
             foreach($costs as $row):
                 $i++;
-                $data[$i]['date'] = $row->pivot->date_format;
+                $data[$i]['date'] = $row->date_format;
                 $data[$i]['sum']  = number_format($row->sum, 0, ' ', ' ');
+
+                $total[$i]['sum'] = $row->sum;
             endforeach;
 
-            $extra['totalSum'] = number_format(array_sum(array_column($data, 'sum')), 0, ' ', ' ');
+            $extra['totalSum'] = number_format(array_sum(array_column($total, 'sum')), 0, ' ', ' ');
             $status = 1;
         } else {
             $data = 'Нет расходов за период';
