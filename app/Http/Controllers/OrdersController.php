@@ -45,7 +45,7 @@ class OrdersController extends Controller
 
 	# orders date
 	public function date(Request $request)
-	{		
+	{
 		$dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->format('Y-m-d');
 		$dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->format('Y-m-d');
 
