@@ -195,7 +195,7 @@ $(document).ready(function() {
 // datepicker
 $(function () {
 	$('#datetimepicker, #datetimepicker2').datetimepicker(
-		{language : 'ru', useSeconds : true, format: 'DD/MM/YYYY'}
+		{locale: 'ru', format: 'DD/MM/YYYY'}
 	);
 });
 
@@ -210,7 +210,7 @@ $('#js-settings--date-range').click(function(e){
 	data 	  = {'dateStart':dateStart, 'dateEnd':dateEnd};
 
 	$.ajax({
-		url:     base_url + segment1 + '/' + segment2 + '/date',
+		url:     base_url + segment1 + segment2 + 'date',
 		type:     "PATCH",
 		dataType: "json",
 		data: data,
@@ -238,7 +238,7 @@ $('#js-settings--date-range').click(function(e){
 				for(row in data)
 				{
 					html += '<tr>';
-					html += '<td class="js-order--url" data-url="/'+segment1+'/order/'+data[row].id+'">'+data[row].id+'</td>';
+					html += '<td class="js-order--url" data-url="'+base_url + segment1 + segment2 + data[row].id+'">'+data[row].id+'</td>';
 					html += '<td>'+data[row].date+'</td>';
 					html += '<td>'+data[row].sum+'</td>';
 					html += '<td>'+data[row].sum_discount+'</td>';

@@ -47,7 +47,8 @@
                     <!-- Authentication Links -->
                     @if (Auth::guest())
                     @else
-                        @if (Request::is('admin/*') || Request::is('manage/*' || Request::is('cashier/orders')))
+                        @if (Request::is('*/orders') || Request::is('*/costs/*') || Request::is('admin/supply'))
+
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                                 настройки <span class="caret"></span>
@@ -104,20 +105,12 @@
     <script>
     var base_url, segment1, segment2, segment3;
         base_url = '{{ url('/') }}/';
-        segment1 = '{{ Request::segment(1) }}';   
-        segment2 = '{{ Request::segment(2) }}';
-        segment3 = '{{ Request::segment(3) }}';
+        segment1 = '{{ Request::segment(1) }}/';   
+        segment2 = '{{ Request::segment(2) }}/';
+        segment3 = '{{ Request::segment(3) }}/';
     </script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="{{ elixir('js/app.js') }}"></script>
     @yield('script')
-
-<!-- THIS REPLACE -->
-<style>
-.dropdown-menu--lg {
-    width:300px;
-}
-</style>
 
 </body>
 </html>

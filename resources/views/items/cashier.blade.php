@@ -49,7 +49,7 @@ $(document).ready(function(){
 
 		<div class="col-md-12">
 			<button class="btn btn-primary" 
-			id="js-{{ $url = (Request::segment(1) == 'admin' ? 'supply' : 'order') }}--create">Создать</button>
+			id="js-order-and-supply--create">Создать</button>
 			<hr>
 		</div>
 	</div>

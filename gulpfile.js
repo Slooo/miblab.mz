@@ -19,27 +19,27 @@ elixir(function(mix) {
 	.styles([
 		'../bower/bootstrap/dist/css/bootstrap.min.css',
 		'../bower/font-awesome/css/font-awesome.min.css',
-		'bootstrap-datetimepicker.min.css',
+		'../bower/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css',
 		'main.css', 
 		], 'public/css/app.css')
 
 	// скрипты
 	.scripts([
-		'main.js', 
-		'cashier.js', 
-		'costs.js', 
+		'main.js',
+		'items.js',
 		'orders.js',
 		'supply.js',
-		'items.js',
+		'costs.js',
 		'settings.js',
 		], 'public/js/app.js')
 
 	// библиотеки
 	.scripts([
 		'../bower/jquery/jquery.min.js',
-		'moment-with-locales.min.js', 
-		'bootstrap-datetimepicker.min.js', 
-		'jquery.numeric.min.js'
+		'../bower/bootstrap/dist/js/bootstrap.min.js',
+		'../bower/moment/min/moment-with-locales.min.js',
+		'../bower/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',
+		'../bower/jquery-numeric/dist/jquery-numeric.js',
 		], 'public/js/libs.js')
 
 	.version(['css/app.css', 'js/app.js', 'js/libs.js'])

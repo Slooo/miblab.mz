@@ -56,8 +56,35 @@ class SupplyController extends Controller
     # get range date
     public function date(Request $request)
     {
-    	$supply = Supply::whereBetween('created_at', [$request->date_start, $request->date_end])->get();
-    	return view('supply.index', compact('supply'));
+        $dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->format('Y-m-d');
+        $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->format('Y-m-d');
+
+    	$supply = Supply::whereHas('pivot', function($query) use($dateStart, $dateEnd){
+            $query->whereBetween('created_at', [$dateStart, $dateEnd]);
+        })->orderBy('id', 'desc')->get();
+
+        $data = []; $extra = []; $i = 0;
+
+        if(count($supply) > 0)
+        {
+            foreach($supply as $row):
+                $i++;
+                $data[$i]['id'] = $row->id;
+                $data[$i]['date'] = $row->pivot->date_format;
+                $data[$i]['sum'] = number_format($row->sum, 0, ' ', ' ');
+                $data[$i]['sum_discount'] = number_format($row->sum_discount, 0, ' ', ' ');
+                $data[$i]['type'] = ($row->type == 1 ? 'Налично' : 'Безналично');
+            endforeach;
+
+            $extra['totalSum'] = number_format(array_sum(array_column($data, 'sum')), 0, ' ', ' ');
+            $extra['totalSumDiscount'] = number_format(array_sum(array_column($data, 'sum_discount')), 0, ' ', ' ');
+            $status = 1;
+        } else {
+            $data = 'Нет данных за период';
+            $status = 0;
+        }
+
+        return response()->json(['status' => $status, 'data' => $data, 'extra' => $extra]);
     }
 
 }

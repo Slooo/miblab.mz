@@ -91,7 +91,7 @@ class OrdersController extends Controller
 			$orders->items()->sync([$row['id'] => ['orders_id' => $order->id, 'point' => Auth::user()->point, 'items_price' => $row['price'], 'items_quantity' => $row['quantity'], 'items_sum' => $row['sum']]]);
 		}
 
-		$url = '<strong><a href="'.url('cashier/order/'.$order->id).'">Заказ успешно оформлен</a></strong>';
+		$url = '<strong><a href="'.url('cashier/orders/'.$order->id).'">Заказ успешно оформлен</a></strong>';
 		return response()->json(['status' => 1, 'message' => $url]);
 	}
 
