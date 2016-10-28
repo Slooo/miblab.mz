@@ -16,8 +16,6 @@ class CreateCcostsCostsTable extends Migration
             $table->increments('id');
             $table->integer('ccosts_id');
             $table->integer('costs_id')->unsigned()->index();
-            $table->integer('point');
-            $table->timestamps();
         });
     }
 

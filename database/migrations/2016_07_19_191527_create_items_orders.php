@@ -20,8 +20,6 @@ class CreateItemsOrders extends Migration
             $table->string('items_quantity');
             $table->string('items_sum');
             $table->integer('orders_id')->unsigned()->index();
-            $table->integer('point');
-            $table->timestamps();
         });
     }
 

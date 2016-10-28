@@ -16,10 +16,7 @@ class SupplyController extends Controller
 	# index page
     public function index()
     {
-    	$supply = Supply::whereHas('pivot', function($query){
-            $query->where('point', Auth::user()->point);
-        })->get();
-
+    	$supply = Supply::where('point', Auth::user()->point)->get();
     	return view('supply.index', compact('supply'));
     }
 
@@ -34,12 +31,12 @@ class SupplyController extends Controller
     {
         # изменять количество у товара
         $model = new Supply;
-        $supply = $model::create(['sum' => $request->sum, 'sum_discount' => $request->sum, 'type' => $request->type]);
+        $supply = $model::create(['sum' => $request->sum, 'sum_discount' => $request->sum, 'type' => $request->type, 'point' => Auth::user()->point]);
         $json = json_decode($request->items, true);
 
         foreach($json as $row)
         {
-            $model->items()->sync([$row['id'] => ['supply_id' => $supply->id, 'point' => Auth::user()->point, 'items_price' => $row['price'], 'items_quantity' => $row['quantity'], 'items_sum' => $row['sum']]]);
+            $model->items()->sync([$row['id'] => ['supply_id' => $supply->id, 'items_price' => $row['price'], 'items_quantity' => $row['quantity'], 'items_sum' => $row['sum']]]);
         }
 
         $url = '<strong><a href="'.url('admin/supply/'.$supply->id).'">Приход товаров внесен</a></strong>';
@@ -56,12 +53,10 @@ class SupplyController extends Controller
     # get range date
     public function date(Request $request)
     {
-        $dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->format('Y-m-d');
-        $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->format('Y-m-d');
+        $dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->addDay(1)->format('Y-m-d');
+        $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->addDay(1)->format('Y-m-d');
 
-    	$supply = Supply::whereHas('pivot', function($query) use($dateStart, $dateEnd){
-            $query->whereBetween('created_at', [$dateStart, $dateEnd]);
-        })->orderBy('id', 'desc')->get();
+    	$supply = Supply::whereBetween('created_at', [$dateStart, $dateEnd])->orderBy('id', 'desc')->get();
 
         $data = []; $total = []; $extra = []; $i = 0;
 
@@ -70,7 +65,7 @@ class SupplyController extends Controller
             foreach($supply as $row):
                 $i++;
                 $data[$i]['id'] = $row->id;
-                $data[$i]['date'] = $row->pivot->date_format;
+                $data[$i]['date'] = $row->date_format;
                 $data[$i]['sum'] = number_format($row->sum, 0, ' ', ' ');
                 $data[$i]['sum_discount'] = number_format($row->sum_discount, 0, ' ', ' ');
                 $data[$i]['type'] = ($row->type == 1 ? 'Налично' : 'Безналично');

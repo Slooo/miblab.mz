@@ -11,7 +11,7 @@ class Supply extends Model
 	protected $table = 'supply';
 	
     protected $fillable = [
-        'id', 'sum', 'sum_discount', 'type',
+        'id', 'sum', 'sum_discount', 'type', 'point',
     ];
 
     public $timestamps = false;
@@ -20,7 +20,7 @@ class Supply extends Model
 
     public function items()
     {
-        return $this->belongsToMany(Items::class)->withPivot('point', 'items_price', 'items_quantity', 'items_sum', 'created_at');
+        return $this->belongsToMany(Items::class)->withPivot('items_price', 'items_quantity', 'items_sum');
     }
 
     public function pivot()
@@ -28,4 +28,8 @@ class Supply extends Model
         return $this->hasOne(ItemsSupply::class);
     }
 
+    public function getDateFormatAttribute()
+    {
+        return Carbon::parse($this->attributes['created_at'])->format('d/m/Y');
+    }
 }

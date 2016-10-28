@@ -20,8 +20,6 @@ class CreateItemsSupply extends Migration
             $table->string('items_quantity');
             $table->string('items_sum');
             $table->integer('supply_id')->unsigned()->index();
-            $table->integer('point');
-            $table->timestamps();
         });
     }
 

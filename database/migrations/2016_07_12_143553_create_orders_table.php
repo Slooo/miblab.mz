@@ -17,6 +17,8 @@ class CreateOrdersTable extends Migration
             $table->string('sum');
             $table->string('sum_discount');
             $table->integer('type');
+            $table->integer('point');
+            $table->timestamps();
         });
     }
 

@@ -25,12 +25,10 @@ class OrdersController extends Controller
 		# manage | all points
 		if(Auth::user()->point == 0)
 		{
-			$orders = Orders::has('pivot')->orderBy('id', 'desc')->get();
+			$orders = Orders::orderBy('id', 'desc')->get();
 		# admin, cashier | one points
 		} else {
-			$orders = Orders::whereHas('pivot', function ($query) {
-			  $query->where('point', Auth::user()->point);
-			})->orderBy('id', 'desc')->get();
+			$orders = Orders::where('point', Auth::user()->point)->orderBy('id', 'desc')->get();
 		}
 
 		return view('orders.index', compact('orders'));
@@ -46,13 +44,10 @@ class OrdersController extends Controller
 	# orders date
 	public function date(Request $request)
 	{		
-		$dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->format('Y-m-d');
-		$dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->format('Y-m-d');
+		$dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->addDay(1)->format('Y-m-d');
+		$dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->addDay(1)->format('Y-m-d');
 
-		$orders = Orders::whereHas('pivot', function($query) use($dateStart, $dateEnd)
-			{
-				$query->whereBetween('created_at', [$dateStart, $dateEnd]);
-			})->orderBy('id', 'desc')->get();
+		$orders = Orders::whereBetween('created_at', [$dateStart, $dateEnd])->orderBy('id', 'desc')->get();
 
 		$data = []; $total = []; $extra = []; $i = 0;
 
@@ -61,7 +56,7 @@ class OrdersController extends Controller
 			foreach($orders as $row):
 				$i++;
 				$data[$i]['id'] = $row->id;
-				$data[$i]['date'] = $row->pivot->date_format;
+				$data[$i]['date'] = $row->date_format;
 				$data[$i]['sum'] = number_format($row->sum, 0, ' ', ' ');
 				$data[$i]['sum_discount'] = number_format($row->sum_discount, 0, ' ', ' ');
 				$data[$i]['type'] = ($row->type == 1 ? 'Налично' : 'Безналично');
@@ -85,13 +80,13 @@ class OrdersController extends Controller
 	public function store(Request $request)
 	{
 		$orders = new Orders;
-		$order = $orders::create(['sum' => $request->sum, 'sum_discount' => $request->sum, 'type' => $request->type]);
+		$order = $orders::create(['sum' => $request->sum, 'sum_discount' => $request->sum, 'type' => $request->type, 'point' => Auth::user()->point]);
 
 		$json = json_decode($request->items, true);
 
 		foreach($json as $row)
 		{
-			$orders->items()->sync([$row['id'] => ['orders_id' => $order->id, 'point' => Auth::user()->point, 'items_price' => $row['price'], 'items_quantity' => $row['quantity'], 'items_sum' => $row['sum']]]);
+			$orders->items()->sync([$row['id'] => ['orders_id' => $order->id, 'items_price' => $row['price'], 'items_quantity' => $row['quantity'], 'items_sum' => $row['sum']]]);
 		}
 
 		$url = '<strong><a href="'.url('cashier/orders/'.$order->id).'">Заказ успешно оформлен</a></strong>';
@@ -143,10 +138,9 @@ class OrdersController extends Controller
 	    foreach($points as $row):
 	    	$i++;
 	    	$sumMonthPoint[$i]['point'] = $row->point;
-		    $sumMonthPoint[$i]['sum'] = Orders::whereHas('pivot', function ($query) use($row, $days30) {
-		      $query->where('point', $row->point)
-		      		->whereDate('created_at', '>=', $days30);
-		    })->sum('sum');
+		    $sumMonthPoint[$i]['sum'] = Orders::where('point', $row->point)
+								      		->whereDate('created_at', '>=', $days30)
+								      		->sum('sum');
 	    endforeach;
 
 	    # sum 30 days
@@ -156,11 +150,14 @@ class OrdersController extends Controller
 	    })->sum('sum');
 		*/
 		
+	    $sum30Days = Orders::whereBetween('created_at', [Carbon::today()->subDays(29), $date])->sum('sum');
+
+	    /*
 	    $sum30Days = DB::table('items_orders AS io')
 	            ->LeftJoin('orders AS o', 'o.id', '=', 'io.orders_id')
 	            ->whereBetween('io.created_at', [Carbon::today()->subDays(29), $date])
 	            ->sum('o.sum');
-		
+		*/
 
 	    # week sum 30 days
 	    foreach($dateWeek as $row):
@@ -169,8 +166,8 @@ class OrdersController extends Controller
 			$sum = DB::table('items_orders AS io')
 		            ->select(DB::raw("SUM(o.sum) AS sum_week"))
 		            ->LeftJoin('orders AS o', 'o.id', '=', 'io.orders_id')
-		            ->whereDate('io.created_at', '=', $row->format('Y-m-d'))
-		            ->groupBy('io.created_at')
+		            ->whereDate('o.created_at', '=', $row->format('Y-m-d'))
+		            ->groupBy('o.created_at')
 		            ->first();
 
             if(count($sum) > 0)

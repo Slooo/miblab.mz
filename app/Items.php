@@ -14,7 +14,7 @@ class Items extends Model
 
     public function orders()
     {
-        return $this->belongsToMany(Orders::class)->withPivot('point', 'items_price', 'items_quantity', 'items_sum', 'created_at');
+        return $this->belongsToMany(Orders::class)->withPivot('items_price', 'items_quantity', 'items_sum');
     }
 
     public function pivot()

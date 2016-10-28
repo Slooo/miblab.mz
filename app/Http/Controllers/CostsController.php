@@ -48,8 +48,8 @@ class CostsController extends Controller
     public function date(Request $request)
     {
         $ccosts = CCosts::find($request->id)->name;
-        $dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->format('Y-m-d');
-        $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->format('Y-m-d');
+        $dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->addDay(1)->format('Y-m-d');
+        $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->addDay(1)->format('Y-m-d');
 
         $costs = Costs::whereHas('pivot', function($query) use($request, $dateStart, $dateEnd)
             {
@@ -91,9 +91,10 @@ class CostsController extends Controller
     public function store(Request $request)
     {
     	$costs = new Costs;
+        $request['point'] = Auth::user()->point;
     	$row = $costs::create($request->all());
     	$costs->ccosts()
-        ->sync([$request->ccosts_id => ['costs_id' => $row->id, 'point' => Auth::user()->point]]);
+        ->sync([$request->ccosts_id => ['costs_id' => $row->id]]);
 
         $url = '<strong><a href="'.url('costs/'.$request->ccosts_id).'">Расходы внесены</a></strong>';
     	return response()->json(['status' => 1, 'message' => $url]);            
