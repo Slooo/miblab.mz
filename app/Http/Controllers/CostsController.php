@@ -91,13 +91,12 @@ class CostsController extends Controller
     public function store(Request $request)
     {
     	$costs = new Costs;
-        $request['point'] = Auth::user()->point;
+        $request['date'] = Carbon::createFromFormat('d/m/Y', $request['date'])->format('Y-m-d');
     	$row = $costs::create($request->all());
     	$costs->ccosts()
         ->sync([$request->ccosts_id => ['costs_id' => $row->id]]);
 
-        $url = '<strong><a href="'.url('costs/'.$request->ccosts_id).'">Расходы внесены</a></strong>';
-    	return response()->json(['status' => 1, 'message' => $url]);            
+    	return response()->json(['status' => 1, 'message' => $request->ccosts_id]);      
     }
 
     # update

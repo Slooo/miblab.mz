@@ -11,7 +11,7 @@ class Costs extends Model
     protected $table = 'costs';
 
     protected $fillable = [
-        'id', 'sum', 'date', 'point'
+        'id', 'sum', 'date',
     ];
 
     protected $dates = ['date', 'created_at', 'updated_at'];
