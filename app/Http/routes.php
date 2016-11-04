@@ -16,8 +16,11 @@ Route::get('/', function() {
 		    break;
 
 		    case 2:
-		    return redirect('cashier/items/search');
+		    return redirect('cashier/orders');
 		    break;
+
+		    case 3:
+		    return redirect('igor/analytics');
 		}
 	} else {
 		return redirect('login');
@@ -28,43 +31,31 @@ Route::get('/', function() {
 Route::group(['middleware' => ['auth', 'cashier'], 'prefix' => 'cashier'], function()
 {
 	#get
-	Route::get('items/search', 'ItemsController@cashier');
+	Route::get('items', 'ItemsController@index');
+	Route::get('orders/create', 'OrdersController@create');
 	Route::get('orders', 'OrdersController@index');
 	Route::get('orders/{id}', 'OrdersController@show');
 
 	#patch
 	Route::patch('orders/date', 'OrdersController@date');
+	Route::patch('items/barcode/generate', 'ItemsController@barcode_generate');
+	Route::patch('items/search', 'ItemsController@search');
 
 	# post
 	Route::post('items/barcode', 'ItemsController@barcode');
-	Route::post('items/search', 'ItemsController@search');
 	Route::post('orders', 'OrdersController@store');
-
-	#resource
-	Route::resource('items', 'ItemsController');
 });
 
 # Admin
 Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin'], function()
 {
-	# get
-	Route::get('items', 'ItemsController@index');
-	Route::get('items/create', 'ItemsController@create');
-	Route::get('costs', 'CostsController@index');
-	Route::get('costs/create', 'CostsController@create');
-	Route::get('orders', 'OrdersController@index');
-	Route::get('supply', 'SupplyController@index');
-	Route::get('supply/create', 'SupplyController@create');
-
 	# patch
 	Route::patch('items/status', 'ItemsController@status');
 	Route::patch('orders/date', 'OrdersController@date');
 	Route::patch('costs/date', 'CostsController@date');
 	Route::patch('supply/date', 'SupplyController@date');
-
-	# post
-	Route::post('items/barcode/generate', 'ItemsController@barcode_generate');
-	Route::post('items/search', 'ItemsController@search');
+	Route::patch('items/barcode/generate', 'ItemsController@barcode_generate');
+	Route::patch('items/search', 'ItemsController@search');
 
 	# resource
 	Route::resource('items', 'ItemsController');
@@ -78,15 +69,43 @@ Route::group(['middleware' => ['auth', 'manage'], 'prefix' => 'manage'], functio
 {
 	# get
 	Route::get('analytics', 'OrdersController@analytics');
-	Route::get('orders', 'OrdersController@index');
-	Route::get('costs', 'CostsController@index');
 
-	#post
-	Route::post('orders/date', 'OrdersController@date');
-	Route::post('costs/date', 'CostsController@date');
+	# patch
+	Route::patch('items/status', 'ItemsController@status');
+	Route::patch('orders/date', 'OrdersController@date');
+	Route::patch('costs/date', 'CostsController@date');
+	Route::patch('supply/date', 'SupplyController@date');
+	Route::patch('items/barcode/generate', 'ItemsController@barcode_generate');
+	Route::patch('items/search', 'ItemsController@search');
 
 	# resource
 	Route::resource('items', 'ItemsController');
 	Route::resource('orders', 'OrdersController');
 	Route::resource('costs', 'CostsController');
+	Route::resource('supply', 'SupplyController');
+});
+
+# Igor
+Route::group(['middleware' => ['auth', 'igor'], 'prefix' => 'igor'], function()
+{
+	# get
+	Route::get('analytics', 'OrdersController@analytics');
+	Route::get('items/search', 'ItemsController@cashier');
+
+	# patch
+	Route::patch('items/status', 'ItemsController@status');
+	Route::patch('orders/date', 'OrdersController@date');
+	Route::patch('costs/date', 'CostsController@date');
+	Route::patch('supply/date', 'SupplyController@date');
+	Route::patch('items/barcode/generate', 'ItemsController@barcode_generate');
+	Route::patch('items/search', 'ItemsController@search');
+
+	#post
+	Route::post('items/barcode', 'ItemsController@barcode');
+
+	#resource
+	Route::resource('items', 'ItemsController');
+	Route::resource('orders', 'OrdersController');
+	Route::resource('costs', 'CostsController');
+	Route::resource('supply', 'SupplyController');
 });

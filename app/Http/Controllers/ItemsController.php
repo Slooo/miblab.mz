@@ -22,12 +22,6 @@ class ItemsController extends Controller
         return view('items.items', compact('items'));
     }
 
-    # cashier page
-    public function cashier()
-    {
-        return view('items.cashier');
-    }
-
     # search item barcode
     public function search(ItemsRequest $request)
     {

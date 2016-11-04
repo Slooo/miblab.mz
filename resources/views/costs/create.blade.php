@@ -5,7 +5,7 @@
 <div class="row">
 
 	<div class="col-md-12">
-		<h2>Учёт расходов</h2>
+		<h2>Расходы</h2>
 		<hr>
 	</div>
 

@@ -32,13 +32,13 @@ class CostsController extends Controller
         {
             $costs = Costs::whereHas('pivot', function($query) use($id){
                 $query->where('ccosts_id', $id);
-            })->get();
+            })->orderBy('id', 'desc')->get();
         # admin, cashier | one points
         } else {
             $costs = Costs::whereHas('pivot', function($query) use($id){
                 $query->where('ccosts_id', $id)
                       ->where('point', Auth::user()->point);
-            })->get();
+            })->orderBy('id', 'desc')->get();
         }
 
     	return view('costs.costs', compact('ccosts', 'costs'));
@@ -55,7 +55,7 @@ class CostsController extends Controller
             {
                 $query->where('ccosts_id', $request->id)
                       ->whereBetween('date', [$dateStart, $dateEnd]);
-            })->get();
+            })->orderBy('id', 'desc')->get();
 
         $data = []; $total = []; $extra = []; $i = 0;
 
@@ -98,5 +98,47 @@ class CostsController extends Controller
 
         $url = '<strong><a href="'.url('costs/'.$request->ccosts_id).'">Расходы внесены</a></strong>';
     	return response()->json(['status' => 1, 'message' => $url]);            
+    }
+
+    # update
+    public function update(Request $request, $id)
+    {
+        $col = $request->col;
+        $val = $request->val;
+        $data = [];
+
+        $costs = Costs::find($request->id);
+        $costs->$col = $val;
+        $costs->save();
+
+        $totalSum = CCosts::find($id)->costs()->sum('sum');
+
+        $data['value'] = number_format($val, 0, ' ', ' ');
+        $data['totalSum'] = number_format($totalSum, 0, ' ', ' ');
+
+        return response()->json(['status' => 1, 'message' => 'Обновлено', 'data' => $data]);
+    }
+
+    # delete
+    public function destroy(Request $request, $id)
+    {
+        $costs = Costs::find($request->id);
+        $data = [];
+
+        $count = CCosts::find($id)->costs()->count();
+        if($count == 1)
+        {
+            $status = 'redirect';
+            $costs->delete();
+            $costs->ccosts()->detach();
+        } else {
+            $status = 1;
+            $costs->delete();
+            $costs->ccosts()->detach();
+            $sum = CCosts::find($id)->costs()->sum('sum');
+            $data['totalSum'] = number_format($sum, 0, ' ', ' ');
+        }
+
+        return response()->json(['status' => $status, 'message' => 'Удалено', 'data' => $data]);
     }
 }

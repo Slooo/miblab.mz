@@ -10,14 +10,15 @@ use Carbon\Carbon;
 
 # models
 use App\Supply;
+use App\ItemsSupply;
 
 class SupplyController extends Controller
 {
-	# index page
+    # index page
     public function index()
     {
-    	$supply = Supply::where('point', Auth::user()->point)->get();
-    	return view('supply.index', compact('supply'));
+        $supply = Supply::where('point', Auth::user()->point)->get();
+        return view('supply.index', compact('supply'));
     }
 
     # create page
@@ -39,8 +40,7 @@ class SupplyController extends Controller
             $model->items()->sync([$row['id'] => ['supply_id' => $supply->id, 'items_price' => $row['price'], 'items_quantity' => $row['quantity'], 'items_sum' => $row['sum']]]);
         }
 
-        $url = '<strong><a href="'.url('admin/supply/'.$supply->id).'">Приход товаров внесен</a></strong>';
-        return response()->json(['status' => 1, 'message' => $url]);
+        return response()->json(['status' => 1, 'message' => $supply->id]);
     }
 
     # get one supply
@@ -50,13 +50,81 @@ class SupplyController extends Controller
         return view('supply.items', compact('supply', 'id'));
     }
 
+    # update
+    public function update(Request $request, $id)
+    {
+        $col = $request->col;
+        $val = $request->val;
+        $data = [];
+
+        $itemsSupply = ItemsSupply::find($request->id);
+        $itemsSupply->$col = $val;
+        $sum = $itemsSupply->items_sum = $itemsSupply->items_price * $itemsSupply->items_quantity;
+        $itemsSupply->save();
+
+        $supply = Supply::find($id);
+        $totalSum = $supply->items()->sum('items_sum');
+        $supply->sum = $totalSum;
+        $supply->sum_discount = $totalSum;
+        $supply->save();
+
+        $data['value'] = number_format($val, 0, ' ', ' ');
+        $data['sum'] = number_format($sum, 0, ' ', ' ');
+        $data['totalSum'] = number_format($totalSum, 0, ' ', ' ');
+        $data['totalSumDiscount'] = number_format($totalSum, 0, ' ', ' ');
+
+        return response()->json(['status' => 1, 'message' => 'Обновлено', 'data' => $data]);
+    }
+
+    # delete
+    public function destroy(Request $request, $id)
+    {
+        $supply = Supply::find($id);
+
+        $type = $request->type;
+        $id_pivot = $request->id;
+
+        $data = [];
+
+        switch ($request['type']) {
+            case 'main':
+                $supply->delete();
+                $supply->items()->detach();
+                $status = 'redirect';
+            break;
+            case 'pivot':
+                $count = ItemsSupply::where('supply_id', $id)->count();
+
+                if($count == 1)
+                {
+                    ItemsSupply::find($id_pivot)->delete();
+                    $supply->delete();
+                    $status = 'redirect';
+                } else {
+                    ItemsSupply::find($id_pivot)->delete();
+                    $totalSum = $supply->items()->sum('items_sum');
+                    $supply->sum = $totalSum;
+                    $supply->sum_discount = $totalSum;
+                    $supply->save();
+
+                    $data['totalSum'] = number_format($totalSum, 0, ' ', ' ');
+                    $data['totalSumDiscount'] = number_format($totalSum, 0, ' ', ' ');
+                    $status = 1;
+                }
+                #$supply->items()->detach($id_pivot);
+            break;
+        }
+
+        return response()->json(['status' => $status, 'message' => 'Удалено', 'data' => $data]);
+    }
+
     # get range date
     public function date(Request $request)
     {
         $dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->addDay(1)->format('Y-m-d');
         $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->addDay(1)->format('Y-m-d');
 
-    	$supply = Supply::whereBetween('created_at', [$dateStart, $dateEnd])->orderBy('id', 'desc')->get();
+        $supply = Supply::whereBetween('created_at', [$dateStart, $dateEnd])->orderBy('id', 'desc')->get();
 
         $data = []; $total = []; $extra = []; $i = 0;
 
@@ -84,5 +152,4 @@ class SupplyController extends Controller
 
         return response()->json(['status' => $status, 'data' => $data, 'extra' => $extra]);
     }
-
 }

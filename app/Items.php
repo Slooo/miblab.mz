@@ -14,7 +14,12 @@ class Items extends Model
 
     public function orders()
     {
-        return $this->belongsToMany(Orders::class)->withPivot('items_price', 'items_quantity', 'items_sum');
+        return $this->belongsToMany(Orders::class)->withPivot('id', 'items_price', 'items_quantity', 'items_sum');
+    }
+
+    public function supply()
+    {
+        return $this->belongsToMany(Supply::class)->withPivot('id', 'items_price', 'items_quantity', 'items_sum');
     }
 
     public function pivot()

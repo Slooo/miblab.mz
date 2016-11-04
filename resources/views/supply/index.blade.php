@@ -19,17 +19,19 @@
 					<th>Сумма &#8381;</th>
 					<th>Сумма со скидкой &#8381;</th>
 					<th>Тип оплаты</th>
+					<th>Удалить</th>
 				</tr>
 			</thead>	
 			
 			<tbody>
 				@foreach($supply as $row)
-				<tr>
-					<td class="js-url--link" data-url="{{ url(Request::segment(1).'/supply/'.$row->id) }}">{{ $row->id }}</td>
-					<td>{{ $row->date_format }}</td>
-					<td>{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
-					<td>{{ number_format($totalSumDiscount[] = $row->sum_discount, 0, ' ', ' ') }}</td>
-					<td>{{ ($row->type == 1 ? 'Налично' : 'Безналично') }}</td>
+				<tr data-id="{{ $row->id }}" data-type="main">
+					<td class="col-md-2 js-url--link" data-url="{{ url(Request::segment(1).'/supply/'.$row->id) }}">{{ $row->id }}</td>
+					<td class="col-md-1">{{ $row->date_format }}</td>
+					<td class="col-md-3">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
+					<td class="col-md-3">{{ number_format($totalSumDiscount[] = $row->sum_discount, 0, ' ', ' ') }}</td>
+					<td class="col-md-2">{{ ($row->type == 1 ? 'Налично' : 'Безналично') }}</td>
+					<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>
 				</tr>
 				@endforeach
 			</tbody>

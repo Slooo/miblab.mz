@@ -44,4 +44,14 @@ class User extends Authenticatable
         }
     }
 
+    public function isIgor()
+    {
+        if($this->status == 3)
+        {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

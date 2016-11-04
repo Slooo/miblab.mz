@@ -35,7 +35,7 @@ $('body').on('click', '#js-order-and-supply--create', function(e){
 			if(answer.status == 1)
 			{
 				OrderClear();
-				AnswerSuccess(answer.message);
+				AnswerSuccess('<strong><a href="'+base_url+segment1+url+'/'+answer.message+'">Успешно создано</a></strong>');
 			}
 	    },
 

@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Auth;
 
-class Cashier
+class Igor
 {
     /**
      * Handle an incoming request.
@@ -16,11 +16,11 @@ class Cashier
      */
     public function handle($request, Closure $next)
     {
-        if ( Auth::check() && Auth::user()->isCashier() )
+        if ( Auth::check() && Auth::user()->isIgor() )
         {
             return $next($request);
         }
 
-        return redirect('cashier/orders');    
+        return redirect('cashier/search');    
     }
 }

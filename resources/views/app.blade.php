@@ -8,7 +8,7 @@
     <meta name="keywords" content="mz" />
     <meta name="_token" content="{{ csrf_token() }}">
     <title>Касса</title>
-	
+    
     <!-- Styles -->
     <link rel="stylesheet" href="{{ elixir('css/app.css') }}">
 
@@ -47,8 +47,17 @@
                     <!-- Authentication Links -->
                     @if (Auth::guest())
                     @else
-                        @if (Request::is('*/orders') || Request::is('*/costs/*') || Request::is('admin/supply'))
+                        <?php $status = Auth::user()->status;?>
 
+                        <!-- Create links -->
+                        @if($status == 2 || $status == 3 && Request::is('*/orders'))
+                            <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/create') }}">создать</a></li>
+                        @elseif(Request::is('*/supply') || Request::is('*/costs'))
+                            <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/create') }}">создать</a></li>
+                        @endif
+
+                        <!-- Settings links -->
+                        @if(Request::is('*/orders') || Request::is('*/costs/*') || Request::is('*/supply'))
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                                 настройки <span class="caret"></span>
@@ -62,6 +71,7 @@
                         </li>
                         @endif
 
+                        <!-- Menu links -->
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                                 {{ Auth::user()->username }} <span class="caret"></span>
@@ -69,20 +79,25 @@
 
                             <ul class="dropdown-menu" role="menu">
                             @if(Auth::user()->status == 2)
-                                <li><a href="{{ url('cashier/items/search') }}">Поиск товаров</a></li>
+                                <li><a href="{{ url('cashier/items') }}">Товары</a></li>
                                 <li><a href="{{ url('cashier/orders') }}">Заказы</a></li>
                             @elseif(Auth::user()->status == 1)
-                                <li><a href="{{ url('admin/items') }}">Все товары</a></li>
-                                <li><a href="{{ url('admin/items/create') }}">Добавить товар</a></li>
-                                <li><a href="{{ url('admin/costs') }}">Учет расходов</a></li>
-                                <li><a href="{{ url('admin/costs/create') }}">Добавить расходы</a></li>
+                                <li><a href="{{ url('admin/items') }}">Товары</a></li>
                                 <li><a href="{{ url('admin/orders') }}">Заказы</a></li>
-                                <li><a href="{{ url('admin/supply/create') }}">Добавить приход</a></li>
                                 <li><a href="{{ url('admin/supply') }}">Приходы</a></li>
+                                <li><a href="{{ url('admin/costs') }}">Расходы</a></li>
                             @elseif(Auth::user()->status == 0)
-                                <li><a href="{{ url('manage/analytics') }}">Аналитика</a></li>
+                                <li><a href="{{ url('manage/items') }}">Товары</a></li>
                                 <li><a href="{{ url('manage/orders') }}">Заказы</a></li>
-                                <li><a href="{{ url('manage/costs') }}">Учет расходов</a></li>
+                                <li><a href="{{ url('manage/supply') }}">Приходы</a></li>
+                                <li><a href="{{ url('manage/costs') }}">Расходы</a></li>
+                                <li><a href="{{ url('manage/analytics') }}">Аналитика</a></li>
+                            @elseif(Auth::user()->status == 3)
+                                <li><a href="{{ url('igor/items') }}">Товары</a></li>
+                                <li><a href="{{ url('igor/orders') }}">Заказы</a></li>
+                                <li><a href="{{ url('igor/supply') }}">Приходы</a></li>
+                                <li><a href="{{ url('igor/costs') }}">Расходы</a></li>
+                                <li><a href="{{ url('igor/analytics') }}">Аналитика</a></li>
                             @endif
                                 <li><a href="{{ url('/logout') }}"><i class="fa fa-btn fa-sign-out"></i>Выйти</a></li>
                             </ul>
@@ -96,7 +111,7 @@
     <!-- Content -->
     <div class="container">
         <div class="row">
-        	<div id="alert"></div>
+            <div id="alert"></div>
         </div>
         @yield('content')
     </div>

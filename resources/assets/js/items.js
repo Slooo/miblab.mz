@@ -100,7 +100,7 @@ $('#js-item--barcode').focusout(function() {
 	{
 		$.ajax({
 			url:     base_url + segment1 + 'items/search',
-			type:     "POST",
+			type:     "PATCH",
 			dataType: "json",
 			data: data,
 
@@ -226,8 +226,8 @@ $('#js-item--print-review').click(function(e){
 	var data = {'barcode':barcode};
 
 	$.ajax({
-		url 	 : base_url + 'admin/items/barcode/generate',
-		type 	 : 'POST',
+		url 	 : base_url + segment1+ 'items/barcode/generate',
+		type 	 : 'PATCH',
 		dataType : 'json',
 		data 	 : data,
 
@@ -301,7 +301,7 @@ $('#js-item--search').keyup(function(e){
 	{
 		$.ajax({
 			url:      base_url + segment1 + 'items/search',
-			type:     'POST',
+			type:     'PATCH',
 			dataType: 'json',
 			data:     data,
 
@@ -322,7 +322,6 @@ $('#js-item--search').keyup(function(e){
 					var data = JSON.stringify(answer.items);
 					var json = JSON.parse(data);
 					OrderItemPaste(json);
-					console.log(json);
 				}
 		    },
 

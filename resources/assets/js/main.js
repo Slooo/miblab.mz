@@ -283,3 +283,125 @@ $('body').on('click', '.js-url--link', function(e){
 	var url = $(this).data('url');
     window.location = url;
 });
+
+// delete costs, orders, supply, items
+$('body').on('click', '.js--delete', function(e){
+	e.preventDefault();
+
+	var here, id, type, data;
+
+	here = $(this);
+	id = here.parents('tr').data('id');
+	type = here.parents('tr').data('type');
+	data = {'id' : id, 'type' : type};
+
+	if(segment3 == '')
+	{
+		segment3 = id;
+	}
+
+	$.ajax({
+		url:      base_url + segment1 + segment2 + segment3,
+		type:     'delete',
+		dataType: 'json',
+		data:     data,
+
+		beforeSend: function(){
+	        LoaderStart();
+	    },
+
+		success: function(answer) {
+			if(answer.status == 0)
+			{
+				AnswerError('Не удалось выполнить удаление');
+			}
+
+			if(answer.status == 1)
+			{
+				here.parents('tr').remove();
+				if($('strong').hasClass('totalSumDiscount'))
+				{
+					$('.totalSumDiscount').html('Итого со скидкой: ' + answer.data.totalSumDiscount + ' &#8381;');					
+				}
+
+				$('.totalSum').html('Итого: ' + answer.data.totalSum + ' &#8381;');
+				AnswerInfo('Удалено');
+			}
+
+			if(answer.status == 'redirect')
+			{
+				window.location.href = base_url + segment1 + segment2;
+			}
+	    },
+
+	    error: function(answer) {
+	    	AnswerError('Ошибка запроса');
+	    }
+
+	}).complete(function() {
+			LoaderStop();
+		});
+});
+
+// update costs, supply
+$('.js--update').on('click', function(){
+	var here, data, type;
+	here = $(this);
+	data = here.text().replace(/\s+/g, '');
+	type = here.data('type');
+	here.html('<input type="text" data-type="'+type+'" value="'+data+'">');
+	here.attr('id', 'js--update');
+	here.find('input').numeric().focus();
+});
+
+// update costs, supply
+$(document).on('focusout', 'td#js--update input', function(){
+	var here, id, val, col, data;
+
+	here = $(this);
+	id = here.parents('tr').data('id');
+	val = here.val().replace(/\s+/g, '');
+	col = here.data('type');
+
+	data = {'id':id, 'col':col, 'val':val};
+
+	if(val.length > 0) {
+		$.ajax({
+			url:     base_url + segment1 + segment2 + segment3,
+			type:     "patch",
+			dataType: "json",
+			data: data,
+
+			beforeSend: function(){
+		        LoaderStart();
+		    },
+
+			success: function(answer) {
+
+				if(answer.status == 0)
+				{
+					AnswerError(answer.message);
+				}
+
+				if(answer.status == 1)
+				{
+					$('.totalSumDiscount').html('Итого со скидкой: ' + answer.data.totalSumDiscount + ' &#8381;');
+					$('.totalSum').html('Итого: ' + answer.data.totalSum + ' &#8381;');
+
+					here.parents('tr').find('.sum').text(answer.data.sum);
+					here.parent('td').removeAttr('id').text(answer.data.value);
+
+					AnswerSuccess(answer.message);
+				}
+
+		    },
+
+		    error: function(answer) {
+		    	AnswerError('Ошибка запроса');
+		    }
+
+		}).complete(function() {
+		    LoaderStop();
+		});
+	}
+});

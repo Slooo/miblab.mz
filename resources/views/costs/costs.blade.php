@@ -16,13 +16,15 @@
 				<tr>
 					<th>Дата</th>
 					<th>Сумма &#8381;</th>
+					<th>Удалить</th>
 				</tr>
 			</thead>
 			<tbody>
 				@foreach($costs as $row)
-				<tr>
-					<td>{{ $row->date_format }}</td>
-					<td>{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
+				<tr data-id="{{ $row->id }}" data-type="pivot">
+					<td class="col-md-1" data-type="sum">{{ $row->date_format }}</td>
+					<td class="col-md-10 js--update" data-type="sum">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
+					<td class="col-md-1"><button class="js--delete btn btn-circle btn-danger"><li class="fa fa-remove"></li></button></td>
 				</tr>
 				@endforeach
 			</tbody>

@@ -20,7 +20,7 @@ class Supply extends Model
 
     public function items()
     {
-        return $this->belongsToMany(Items::class)->withPivot('items_price', 'items_quantity', 'items_sum');
+        return $this->belongsToMany(Items::class)->withPivot('id', 'items_price', 'items_quantity', 'items_sum');
     }
 
     public function pivot()

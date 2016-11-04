@@ -34,6 +34,12 @@ class OrdersController extends Controller
 		return view('orders.index', compact('orders'));
 	}
 
+	# cashier page
+	public function create()
+	{
+	    return view('items.cashier');
+	}
+
 	# items order
 	public function show($id)
 	{
@@ -89,8 +95,7 @@ class OrdersController extends Controller
 			$orders->items()->sync([$row['id'] => ['orders_id' => $order->id, 'items_price' => $row['price'], 'items_quantity' => $row['quantity'], 'items_sum' => $row['sum']]]);
 		}
 
-		$url = '<strong><a href="'.url('cashier/orders/'.$order->id).'">Заказ успешно оформлен</a></strong>';
-		return response()->json(['status' => 1, 'message' => $url]);
+		return response()->json(['status' => 1, 'message' => $order->id]);
 	}
 
 	# manage analytics
