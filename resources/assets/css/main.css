@@ -149,6 +149,11 @@ h2 {
   text-align:right;
 }
 
+td.analytics--point {
+  font-weight: bold;
+  text-align: center;
+}
+
 /* ---------------- Items print --------------- */
 
 @media print {

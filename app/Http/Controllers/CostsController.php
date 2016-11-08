@@ -47,6 +47,8 @@ class CostsController extends Controller
     # costs range date
     public function date(Request $request)
     {
+        $data = []; $total = []; $extra = []; $i = 0;
+
         $ccosts = CCosts::find($request->id)->name;
         $dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->addDay(1)->format('Y-m-d');
         $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->addDay(1)->format('Y-m-d');
@@ -57,12 +59,11 @@ class CostsController extends Controller
                       ->whereBetween('date', [$dateStart, $dateEnd]);
             })->orderBy('id', 'desc')->get();
 
-        $data = []; $total = []; $extra = []; $i = 0;
-
         if(count($costs) > 0)
         {
             foreach($costs as $row):
                 $i++;
+                $data[$i]['id']   = $row->id;
                 $data[$i]['date'] = $row->date_format;
                 $data[$i]['sum']  = number_format($row->sum, 0, ' ', ' ');
 

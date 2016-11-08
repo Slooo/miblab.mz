@@ -54,11 +54,11 @@
 				<th>Печать</th>
 			</tr>
 			@foreach($items as $row)
-			<tr data-id="{{ $row->id }}">
+			<tr data-id="{{ $row->id }}" data-type="pivot">
 				<td>{{ $row->barcode }}</td>
 				<td data-type="name">{{ $row->name }}</td>
-				<td @if(Auth::user()->status != 2) class="js-item--update" data-type="price" @endif >{{ number_format($row->price, 0, ' ', ' ') }}</td>
-				<td @if(Auth::user()->status != 2) class="js-item--update" data-type="quantity" @endif >{{ $row->quantity }}</td>
+				<td @if(Auth::user()->status != 2) class="js--update" data-type="price" @endif >{{ number_format($row->price, 0, ' ', ' ') }}</td>
+				<td @if(Auth::user()->status != 2) class="js--update" data-type="quantity" @endif >{{ $row->quantity }}</td>
 				<td>
 				@if($row->status == 1)
 					<button class="btn @if(Auth::user()->status != 2) js-item--status @endif btn-circle btn-success" @if(Auth::user()->status != 2) data-id="{{ $row->id }}" data-status="1" @endif><i class="fa fa-check"></i></button>

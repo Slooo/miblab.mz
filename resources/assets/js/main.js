@@ -28,9 +28,11 @@ function OrderClear()
 // update order
 function OrderUpdate(here)
 {
-	var parents 	= here.parents('tr');
-	var item 	 	= parents.data('item');
-	var placeholder = here.attr('placeholder');
+	var parents, item, placeholder, price, quantity, sum;
+
+	parents 	= here.parents('tr');
+	item 	 	= parents.data('item');
+	placeholder = here.attr('placeholder');
 
 	if(here.val().length == 0)
 	{
@@ -49,17 +51,17 @@ function OrderUpdate(here)
 
 	if(here.parent('td').hasClass('js-order--update-price'))
 	{
-		var price = Number(here.val());
-		var quantity = parents.find('.js-order--update-quantity').text();
+		price = Number(here.val());
+		quantity = parents.find('.js-order--update-quantity').text();
 	}
 
 	if(here.parent('td').hasClass('js-order--update-quantity'))
 	{
-		var price = parents.find('.js-order--update-price').text();
-		var quantity = Number(here.val());
+		price = parents.find('.js-order--update-price').text();
+		quantity = Number(here.val());
 	}
 
-	var sum = OrderItemUpdate(item, price, quantity);
+	sum = OrderItemUpdate(item, price, quantity);
 	parents.find('.js-order--sum').html(sum);
 	here.parent('td').html(here.val());
 	localStorage.setItem('order-table', $('.order-table').html());
@@ -67,8 +69,10 @@ function OrderUpdate(here)
 
 // get sum && sum_discount
 function OrderTotalPrice(){
-	var json = JSON.parse(localStorage.getItem('items'));
-	var sum = json.items.reduce(function(sum, current) {
+	var json, sum;
+	
+	json = JSON.parse(localStorage.getItem('items'));
+	sum = json.items.reduce(function(sum, current) {
 	  return sum + current.sum;
 	}, 0);
 
@@ -99,8 +103,11 @@ function OrderItemAdd(data)
 // update item
 function OrderItemUpdate(item, price, quantity)
 {
-	var json = JSON.parse(localStorage.getItem('items'));
-	var sum = Number(price * quantity);
+	var json, sum;
+
+	json = JSON.parse(localStorage.getItem('items'));
+	sum  = Number(price * quantity);
+
 	json.items[item].price = price;
 	json.items[item].quantity = quantity;
 	json.items[item].sum = sum;
@@ -169,25 +176,25 @@ function LoaderStop()
 // answer success
 function AnswerSuccess(answer)
 {
-	$('#alert').removeClass().addClass('alert alert-success').html(answer);	
+	$('#alert').removeClass().addClass('alert alert-success').html('<strong>'+answer+'</strong>');		
 }
 
 // answer error
-function AnswerError(answer)
+function AnswerError()
 {
-	$('#alert').removeClass().addClass('alert alert-danger').html(answer);			
+	$('#alert').removeClass().addClass('alert alert-danger').html('<strong>Ошибка запроса</strong>');	
 }
 
 // answer info
 function AnswerInfo(answer)
 {
-	$('#alert').removeClass().addClass('alert alert-info').html(answer);	
+	$('#alert').removeClass().addClass('alert alert-info').html('<strong>'+answer+'</strong>');	
 }
 
 // answer warning
 function AnswerWarning(answer)
 {
-	$('#alert').removeClass().addClass('alert alert-warning').html(answer);	
+	$('#alert').removeClass().addClass('alert alert-warning').html('<strong>'+answer+'</strong>');	
 }
 
 $(document).ready(function() {
@@ -199,10 +206,7 @@ $(function () {
 	);
 });
 
-// date range
-
-// сделать costs orders supply для каждого парсить по разному.
-
+// DATE RANGE
 $('#js-settings--date-range').click(function(e){
 	e.preventDefault();
 
@@ -210,13 +214,13 @@ $('#js-settings--date-range').click(function(e){
 
 	dateStart = $('#date_start').val();
 	dateEnd   = $('#date_end').val();
-	data 	  = {'dateStart':dateStart, 'dateEnd':dateEnd, 'id':segment3};
+	data 	  = {'dateStart' : dateStart, 'dateEnd' : dateEnd, 'id' : segment3};
 
 	$.ajax({
-		url:     base_url + segment1 + segment2 + 'date',
-		type:     "PATCH",
-		dataType: "json",
-		data: data,
+		url 	 : base_url + segment1 + segment2 + 'date',
+		type 	 : "patch",
+		dataType : "json",
+		data 	 : data,
 
 		beforeSend: function(){
 			$('.dropdown').removeClass('open');
@@ -247,23 +251,23 @@ $('#js-settings--date-range').click(function(e){
 				{
 					for(row in data)
 					{
-						html += '<tr>';
-						html += '<td class="js-url--link" data-url="'+base_url + segment1 + segment2 + data[row].id+'">'+data[row].id+'</td>';
-						html += '<td>'+data[row].date+'</td>';
-						html += '<td>'+data[row].sum+'</td>';
-						html += '<td>'+data[row].sum_discount+'</td>';
-						html += '<td>'+data[row].type+'</td>';
+						html += '<tr data-id="'+data[row].id+'" data-type="main">';
+						html += '<td class="col-md-2 js-url--link" data-url="'+base_url + segment1 + segment2 + data[row].id+'">'+data[row].id+'</td>';
+						html += '<td class="col-md-1">'+data[row].date+'</td>';
+						html += '<td class="col-md-3">'+data[row].sum+'</td>';
+						html += '<td class="col-md-3">'+data[row].sum_discount+'</td>';
+						html += '<td class="col-md-2">'+data[row].type+'</td>';
+						html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
 						html += '</tr>';
 					}
 
-					$('.totalSumDiscount').html('Итого со скидкой: ' + answer.extra.totalSumDiscount + ' &#8381;');
-				
 				} else {
 					for(row in data)
 					{
-						html += '<tr>';
-						html += '<td>'+data[row].date+'</td>';
-						html += '<td>'+data[row].sum+'</td>';
+						html += '<tr data-id="'+data[row].id+'" data-type="pivot">';
+						html += '<td class="col-md-1">'+data[row].date+'</td>';
+						html += '<td class="col-md-10">'+data[row].sum+'</td>';
+						html += '<td class="col-md-1"><button class="js--delete btn btn-circle btn-danger"><li class="fa fa-remove"></li></button></td>';
 						html += '</tr>';
 					}
 				}
@@ -271,106 +275,56 @@ $('#js-settings--date-range').click(function(e){
 				$('.table tbody').html(html);
 				$('.totalSum').html('Итого: ' + answer.extra.totalSum + ' &#8381;');
 			}
+	    },
+
+	    error: function(answer) {
+	    	AnswerError();
 	    }
+
 	}).complete(function() {
 	    LoaderStop();
 	});
 });
 
-//link url
+// link url
 $('body').on('click', '.js-url--link', function(e){
 	e.preventDefault();
 	var url = $(this).data('url');
     window.location = url;
 });
 
-// delete costs, orders, supply, items
-$('body').on('click', '.js--delete', function(e){
-	e.preventDefault();
-
-	var here, id, type, data;
-
-	here = $(this);
-	id = here.parents('tr').data('id');
-	type = here.parents('tr').data('type');
-	data = {'id' : id, 'type' : type};
-
-	if(segment3 == '')
-	{
-		segment3 = id;
-	}
-
-	$.ajax({
-		url:      base_url + segment1 + segment2 + segment3,
-		type:     'delete',
-		dataType: 'json',
-		data:     data,
-
-		beforeSend: function(){
-	        LoaderStart();
-	    },
-
-		success: function(answer) {
-			if(answer.status == 0)
-			{
-				AnswerError('Не удалось выполнить удаление');
-			}
-
-			if(answer.status == 1)
-			{
-				here.parents('tr').remove();
-				if($('strong').hasClass('totalSumDiscount'))
-				{
-					$('.totalSumDiscount').html('Итого со скидкой: ' + answer.data.totalSumDiscount + ' &#8381;');					
-				}
-
-				$('.totalSum').html('Итого: ' + answer.data.totalSum + ' &#8381;');
-				AnswerInfo('Удалено');
-			}
-
-			if(answer.status == 'redirect')
-			{
-				window.location.href = base_url + segment1 + segment2;
-			}
-	    },
-
-	    error: function(answer) {
-	    	AnswerError('Ошибка запроса');
-	    }
-
-	}).complete(function() {
-			LoaderStop();
-		});
-});
-
-// update costs, supply
+// CHANGE UPDATE => costs | supply | items
 $('.js--update').on('click', function(){
 	var here, data, type;
+
 	here = $(this);
 	data = here.text().replace(/\s+/g, '');
 	type = here.data('type');
+
 	here.html('<input type="text" data-type="'+type+'" value="'+data+'">');
 	here.attr('id', 'js--update');
 	here.find('input').numeric().focus();
 });
 
-// update costs, supply
+// UPDATE => costs | supply | items
 $(document).on('focusout', 'td#js--update input', function(){
 	var here, id, val, col, data;
 
 	here = $(this);
-	id = here.parents('tr').data('id');
-	val = here.val().replace(/\s+/g, '');
-	col = here.data('type');
+	id   = here.parents('tr').data('id');
+	val  = here.val().replace(/\s+/g, '');
+	col  = here.data('type');
 
-	data = {'id':id, 'col':col, 'val':val};
+	data = {'id' : id, 'col' : col, 'val' : val};
+
+	segment3 = (segment3 == '' ? id : segment3);
 
 	if(val.length > 0) {
 		$.ajax({
-			url:     base_url + segment1 + segment2 + segment3,
-			type:     "patch",
-			dataType: "json",
-			data: data,
+			url 	 : base_url + segment1 + segment2 + segment3,
+			type 	 : "patch",
+			dataType : "json",
+			data 	 : data,
 
 			beforeSend: function(){
 		        LoaderStart();
@@ -380,13 +334,16 @@ $(document).on('focusout', 'td#js--update input', function(){
 
 				if(answer.status == 0)
 				{
-					AnswerError(answer.message);
+					AnswerError();
 				}
 
 				if(answer.status == 1)
 				{
-					$('.totalSumDiscount').html('Итого со скидкой: ' + answer.data.totalSumDiscount + ' &#8381;');
-					$('.totalSum').html('Итого: ' + answer.data.totalSum + ' &#8381;');
+					if($('strong').hasClass('totalSum') || $('strong').hasClass('totalSumDiscount'))
+					{
+						$('.totalSumDiscount').html('Итого со скидкой: ' + answer.data.totalSumDiscount + ' &#8381;');
+						$('.totalSum').html('Итого: ' + answer.data.totalSum + ' &#8381;');						
+					}
 
 					here.parents('tr').find('.sum').text(answer.data.sum);
 					here.parent('td').removeAttr('id').text(answer.data.value);
@@ -397,11 +354,67 @@ $(document).on('focusout', 'td#js--update input', function(){
 		    },
 
 		    error: function(answer) {
-		    	AnswerError('Ошибка запроса');
+		    	AnswerError();
 		    }
 
 		}).complete(function() {
 		    LoaderStop();
 		});
 	}
+});
+
+// DELETE => costs | orders | supply | items
+$('body').on('click', '.js--delete', function(e){
+	e.preventDefault();
+
+	var here, id, type, data;
+
+	here = $(this);
+	id   = here.parents('tr').data('id');
+	type = here.parents('tr').data('type');
+	data = {'id' : id, 'type' : type};
+
+	segment3 = (segment3 == '' ? id : segment3);
+
+	$.ajax({
+		url 	 : base_url + segment1 + segment2 + segment3,
+		type 	 : 'delete',
+		dataType : 'json',
+		data 	 : data,
+
+		beforeSend: function(){
+	        LoaderStart();
+	    },
+
+		success: function(answer) {
+			if(answer.status == 0)
+			{
+				AnswerError();
+			}
+
+			if(answer.status == 1)
+			{
+				here.parents('tr').remove();
+				if($('strong').hasClass('totalSumDiscount') || $('strong').hasClass('totalSum'))
+				{
+					$('.totalSum').html('Итого: ' + answer.data.totalSum + ' &#8381;');
+					$('.totalSumDiscount').html('Итого со скидкой: ' + answer.data.totalSumDiscount + ' &#8381;');					
+				}
+
+				AnswerInfo(answer.message);
+			}
+
+			if(answer.status == 'redirect')
+			{
+				window.location.href = base_url + segment1 + segment2;
+			}
+	    },
+
+	    error: function(answer) {
+	    	AnswerError();
+	    }
+
+	}).complete(function() {
+			LoaderStop();
+		});
 });

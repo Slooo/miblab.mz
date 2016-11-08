@@ -23,7 +23,7 @@ class ItemsController extends Controller
     }
 
     # search item barcode
-    public function search(ItemsRequest $request)
+    public function search(Request $request)
     {
         # this admin
         #if(Auth::user()->status == 1)
@@ -45,7 +45,8 @@ class ItemsController extends Controller
     # send the barcode admin (new item)
     public function barcode(Request $request)
     {
-        $item = Items::get()->where('barcode', $request->barcode);        
+        $item = Items::get()->where('barcode', $request->barcode);
+        //if no item or create laravel basic function    
         if(count($item) > 0)
         {
             return response()->json(['status' => 0, 'message' => 'Штрихкод существует']);
@@ -74,9 +75,16 @@ class ItemsController extends Controller
     # update
     public function update($id, Request $request)
     {
+        $col = $request->col;
+        $val = $request->val;
+        $data = [];
+
         $item = Items::findOrFail($id);
-        $item->update($request->all());
-        return response()->json(['status' => 1, 'message' => 'Товар обновлен']);
+        $item->$col = $val;
+        $item->save();
+
+        $data['value'] = number_format($val, 0, ' ', ' ');
+        return response()->json(['status' => 1, 'message' => 'Обновлено', 'data' => $data]);
     }
 
     # create page
@@ -86,11 +94,11 @@ class ItemsController extends Controller
     }
 
     # create
-    public function store(ItemsRequest $request)
+    public function store(Request $request)
     {
         $request['point'] = Auth::user()->point;
         Items::create($request->all());
-        return response()->json(['status' => 1, 'message' => 'Товар создан']);
+        return response()->json(['status' => 1, 'message' => 'Создано']);
     }
 
     # generate barcode

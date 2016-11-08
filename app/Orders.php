@@ -15,8 +15,6 @@ class Orders extends Model
         'id', 'sum', 'sum_discount', 'type', 'point',
     ];
 
-    public $timestamps = false;
-
     public function items()
     {
         return $this->belongsToMany(Items::class)->withPivot('id', 'items_price', 'items_quantity', 'items_sum');

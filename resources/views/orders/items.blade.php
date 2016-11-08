@@ -34,6 +34,7 @@
 		<hr>
 		<strong>Итого: {{ number_format($order->sum, 0, ' ', ' ') }} &#8381;</strong><br>
 		<strong>Итого со скидкой: {{ number_format($order->sum_discount, 0, ' ', ' ') }} &#8381;</strong>
+		<hr>
 	</div>
 	
 </div>

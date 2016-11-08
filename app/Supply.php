@@ -11,12 +11,10 @@ class Supply extends Model
 	protected $table = 'supply';
 	
     protected $fillable = [
-        'id', 'sum', 'sum_discount', 'type', 'point',
+        'id', 'sum', 'sum_discount', 'type', 'point', 'created_at', 'updated_at',
     ];
 
-    public $timestamps = false;
-
-    protected $dates = ['date'];
+    protected $dates = ['created_at', 'updated_at', 'date'];
 
     public function items()
     {

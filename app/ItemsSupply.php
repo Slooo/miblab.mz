@@ -9,4 +9,6 @@ use Carbon\Carbon;
 class ItemsSupply extends Model
 {
 	protected $table = 'items_supply';
+
+	public $timestamps = false;
 }

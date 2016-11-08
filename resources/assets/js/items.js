@@ -2,75 +2,28 @@
 	------- ITEMS FUNCTION ------- 
 */
 
-// update price item
-$('.js-item--update').on('click', function(){
-	var here = $(this);
-	var data = here.text();
-	var type = here.data('type');
-	here.html('<input type="text" data-type="'+type+'" value="'+data+'">');
-	here.attr('id', 'js-item--update');
-	here.find('input').numeric().focus();
-});
-
-// update item
-$(document).on('focusout', 'td#js-item--update input', function(){
-	var here = $(this);
-	var id = here.parents('tr').attr('item');
-	var value = here.val();
-	var type = here.data('type');
-
-	var data = {};
-	data[type] = value;
-
-	$.ajax({
-		url:     'items/' + id,
-		type:     "PATCH",
-		dataType: "json",
-		data: data,
-
-		beforeSend: function(){
-	        LoaderStart();
-	    },
-
-		success: function(answer) {
-
-			if(answer.status == 0)
-			{
-				AnswerError(answer.message);
-			}
-
-			if(answer.status == 1)
-			{
-				here.parent('td').removeAttr('id').html(value);
-				AnswerSuccess(answer.message);
-			}
-
-	    }
-	}).complete(function() {
-	    LoaderStop();
-	});
-});
-
 // update status
 $('body').on('click', '.js-item--status', function(e){
 	e.preventDefault();
-	var btn = $(this);
-	var status = btn.attr('data-status');
-	var id = btn.attr('data-id');
-	var data = {'id':id, 'status':status}
+
+	var btn, status, id, data;
+
+	btn    = $(this);
+	status = btn.attr('data-status');
+	id 	   = btn.attr('data-id');
+	data   = {'id':id, 'status':status}
 
 	$.ajax({
-		url:     'items/status',
-		type:     "PATCH",
-		dataType: "json",
-		data: data,
+		url 	 : base_url + segment1 + segment2 + 'status',
+		type 	 : "patch",
+		dataType : "json",
+		data 	 : data,
 
 		beforeSend: function(){
 	        LoaderStart();
 	    },
 
 		success: function(answer) {
-
 			if(answer.status == 0)
 			{
 				btn.removeClass('btn-success').addClass('btn-danger');
@@ -84,8 +37,12 @@ $('body').on('click', '.js-item--status', function(e){
 				btn.html('<i class="fa fa-check"></i>');
 				btn.attr('data-status', answer.status);
 			}
+	    },
 
+	    error: function(answer) {
+	    	AnswerError();
 	    }
+
 	}).complete(function() {
 	    LoaderStop();
 	});
@@ -93,14 +50,17 @@ $('body').on('click', '.js-item--status', function(e){
 
 // search item
 $('#js-item--barcode').focusout(function() {
-	var barcode = $(this).val();
-	var data = {'barcode':barcode}
+
+	var barcode, data, json, item;
+
+	barcode = $(this).val();
+	data = {'barcode':barcode}
 
 	if(barcode)
 	{
 		$.ajax({
-			url:     base_url + segment1 + 'items/search',
-			type:     "PATCH",
+			url:     base_url + segment1 + segment2 + 'search',
+			type:     "patch",
 			dataType: "json",
 			data: data,
 
@@ -118,8 +78,8 @@ $('#js-item--barcode').focusout(function() {
 
 				if(answer.status == 1)
 				{
-					var json = JSON.stringify(answer.items);
-					var item = JSON.parse(json);
+					json = JSON.stringify(answer.items);
+					item = JSON.parse(json);
 
 					$('#item_id').val(item.id);
 					$('#name').val(item.name);
@@ -128,6 +88,10 @@ $('#js-item--barcode').focusout(function() {
 					$('#js-item--sbm').text('Обновить');
 					AnswerWarning('<strong>'+answer.message+'</strong>. Будет обновлен');
 				}
+		    },
+
+		    error: function(answer) {
+		    	AnswerError();
 		    }
 
 		}).complete(function() {
@@ -139,26 +103,29 @@ $('#js-item--barcode').focusout(function() {
 // create & update item
 $('body').on('click', '#js-item--sbm', function(e){
 	e.preventDefault();
-	var data = $('#form_item').serialize();
-	var id = $('#item_id').val();
+
+	var data, id, url, type;
+	
+	data = $('#form_item').serialize();
+	id 	 = $('#item_id').val();
 
 	if(id == 0)
 	{
 		//create
 		url = base_url + segment1 + segment2;
-		type = "POST";
+		type = "post";
 
 	} else {
 		//update
 		url = id;
-		type = "PATCH";
+		type = "patch";
 	}
 
 	$.ajax({
-		url:      url,
-		type:     type,
-		dataType: "json",
-		data: 	  data,
+		url 	 : url,
+		type 	 : type,
+		dataType : "json",
+		data 	 : data,
 
 		beforeSend: function(){
 	        LoaderStart();
@@ -168,18 +135,18 @@ $('body').on('click', '#js-item--sbm', function(e){
 
 			if(answer.status == 0)
 			{
-				AnswerError('<strong>'+answer.message+'</strong>');
+				AnswerError(answer.message);
 			}
 
 			if(answer.status == 1)
 			{
-				AnswerInfo('<strong>'+answer.message+'</strong>');
+				AnswerInfo(answer.message);
 			}
 
 	    },
 
 	    error: function(answer) {
-	    	AnswerError('<strong>Ошибка!</strong> Заполните поля');
+	    	AnswerError();
 	    }
 
 	}).complete(function() {
@@ -202,7 +169,7 @@ $('#print-modal').on('shown.bs.modal', function () {
     $('#print-quantity').numeric({decimal: false, negative: false}).focus();
 });
 
-// if qty = 0 return 1
+// if qty = 0 return 1 вставить везде
 $('#print-quantity').keyup(function(){
 	if($(this).val() == '0'){
 		$(this).val(1);
@@ -218,16 +185,20 @@ $('#js-item--print-cancel').click(function(e){
 
 // generate barcode
 $('#js-item--print-review').click(function(e){
+
 	$('#print-modal').modal('hide');
 	$('.row').addClass('hidden');
-	var html = "";
-	var barcode = $('#js-item--print-review').val();
-	var quantity = $('#print-quantity').val();
-	var data = {'barcode':barcode};
+
+	var html, barcode, quantity, data, json, item;
+
+	html 	 = "";
+	barcode  = $('#js-item--print-review').val();
+	quantity = $('#print-quantity').val();
+	data 	 = {'barcode':barcode};
 
 	$.ajax({
-		url 	 : base_url + segment1+ 'items/barcode/generate',
-		type 	 : 'PATCH',
+		url 	 : base_url + segment1 + segment2 + 'barcode/generate',
+		type 	 : 'patch',
 		dataType : 'json',
 		data 	 : data,
 
@@ -238,8 +209,8 @@ $('#js-item--print-review').click(function(e){
 		success: function(answer) {
 			if(answer.status == 1)
 			{
-				var json = JSON.stringify(answer.item);
-				var item = JSON.parse(json);
+				json = JSON.stringify(answer.item);
+				item = JSON.parse(json);
 				for (i = 0; i < quantity; i++) {
 					html += '<div class="box">';
 					html += '<div class="header">ИП Зибарева С.С.</div>';
@@ -258,7 +229,7 @@ $('#js-item--print-review').click(function(e){
 	    },
 
 	    error: function(answer) {
-	    	AnswerError('Укажите тип оплаты');
+	    	AnswerError();
 		}
 
 	}).complete(function() {
@@ -278,14 +249,17 @@ $('body').on('click', '#js-print', function(e){
 
 // type order
 $('body').on('click', '.js-order--type', function(e){
-	var btn = $(this);
-	var type = Number(btn.val());
+	
+	var btn, type, json;
+
+	btn  = $(this);
+	type = Number(btn.val());
 
 	if(localStorage){
 		localStorage['order-type-index'] = $(this).index();
 	}
 
-	var json = JSON.parse(localStorage.getItem('items'));
+	json = JSON.parse(localStorage.getItem('items'));
 	json.type = type;
 	localStorage.setItem('items', JSON.stringify(json));
 	OrderTypeActive(btn);
@@ -294,16 +268,19 @@ $('body').on('click', '.js-order--type', function(e){
 // search item
 $('#js-item--search').keyup(function(e){
 	e.preventDefault();
-	var barcode = $(this).val();
-	var data = {'barcode':barcode}
+
+	var barcode, data, json;
+
+	barcode = $(this).val();
+	data 	= {'barcode':barcode}
 
 	if(barcode.length > 10)
 	{
 		$.ajax({
-			url:      base_url + segment1 + 'items/search',
-			type:     'PATCH',
-			dataType: 'json',
-			data:     data,
+			url 	 : base_url + segment1 + 'items/search',
+			type 	 : 'patch',
+			dataType : 'json',
+			data 	 : data,
 
 			beforeSend: function(){
 		        LoaderStart();
@@ -312,21 +289,21 @@ $('#js-item--search').keyup(function(e){
 			success: function(answer) {
 				if(answer.status == 0)
 				{
-					AnswerError('<button id="js-item--barcode-create" class="btn btn-danger">Отправить штрихкод</button>');
+					AnswerWarning('<button id="js-item--barcode-create" class="btn btn-danger">Отправить штрихкод</button>');
 				}
 
 				if(answer.status == 1)
 				{
 					$('.order').removeClass('hidden');
 					$('#alert').removeClass().html('');
-					var data = JSON.stringify(answer.items);
-					var json = JSON.parse(data);
+					data = JSON.stringify(answer.items);
+					json = JSON.parse(data);
 					OrderItemPaste(json);
 				}
 		    },
 
 		    error: function(answer) {
-		    	AnswerError('Введите штрихкод');
+		    	AnswerError();
 		    }
 
 		}).complete(function() {
@@ -337,8 +314,11 @@ $('#js-item--search').keyup(function(e){
 
 // select update item order
 $(document).on('click', '.js-order--update', function(){
-	var here = $(this);
-	var data = here.text();
+	var here, data;
+	
+	here = $(this);
+	data = here.text();
+
 	here.html('<input type="text" id="js-order--update" placeholder="'+data+'">');
 	$("#js-order--update").numeric();
 	here.find('input').focus();
@@ -358,14 +338,17 @@ $(document).on('focusout', '#js-order--update', function(){
 
 // delete item order
 $('body').on("click", ".js-order--remove", function(){
-	var parents  = $(this).parents('tr');
-	var item  	 = parents.data('item');
-	var price 	 = parents.find('.js-order--price').val();
-	var quantity = parents.find('.js-order--quantity').val();
-	var count 	 = $('.order-table tbody tr').length;
-	var json 	 = JSON.parse(localStorage.getItem('items'));
 
-	var index = json.items.findIndex(function(array, i){
+	var parents, item, price, quantity, count, json, index;
+
+	parents  = $(this).parents('tr');
+	item  	 = parents.data('item');
+	price 	 = parents.find('.js-order--price').val();
+	quantity = parents.find('.js-order--quantity').val();
+	count 	 = $('.order-table tbody tr').length;
+	json 	 = JSON.parse(localStorage.getItem('items'));
+
+	index = json.items.findIndex(function(array, i){
 	   	return array.item === item
 	});
 
@@ -387,14 +370,16 @@ $('body').on("click", ".js-order--remove", function(){
 $('body').on('click', '#js-item--barcode-create', function(e){
 	e.preventDefault();
 
-	var barcode = $('#item-search').val();
-	var data = {'barcode':barcode}
+	var barcode, data;
+	
+	barcode = $('#js--item-search').val();
+	data  	= {'barcode':barcode}
 
 	$.ajax({
-		url:     'cashier/barcode',
-		type:     "POST",
-		dataType: "json",
-		data: data,
+		url 	 : base_url + segment1 + 'items/barcode',
+		type 	 : 'post',
+		dataType : 'json',
+		data 	 : data,
 
 		beforeSend: function(){
 	        LoaderStart();
@@ -415,7 +400,7 @@ $('body').on('click', '#js-item--barcode-create', function(e){
 	    },
 
 	    error: function(answer) {
-	    	AnswerSuccess('Ошибка');
+	    	AnswerError();
 	    }
 
 	}).complete(function() {

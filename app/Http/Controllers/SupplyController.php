@@ -17,7 +17,7 @@ class SupplyController extends Controller
     # index page
     public function index()
     {
-        $supply = Supply::where('point', Auth::user()->point)->get();
+        $supply = Supply::where('point', Auth::user()->point)->orderBy('id', 'desc')->get();
         return view('supply.index', compact('supply'));
     }
 
@@ -32,12 +32,27 @@ class SupplyController extends Controller
     {
         # изменять количество у товара
         $model = new Supply;
-        $supply = $model::create(['sum' => $request->sum, 'sum_discount' => $request->sum, 'type' => $request->type, 'point' => Auth::user()->point]);
+
+        $supply = $model::create([
+            'sum'          => $request->sum, 
+            'sum_discount' => $request->sum, 
+            'type'         => $request->type, 
+            'point'        => Auth::user()->point,
+            'created_at'   => Carbon::now(),
+        ]);
+
         $json = json_decode($request->items, true);
 
         foreach($json as $row)
         {
-            $model->items()->sync([$row['id'] => ['supply_id' => $supply->id, 'items_price' => $row['price'], 'items_quantity' => $row['quantity'], 'items_sum' => $row['sum']]]);
+            $model->items()->sync([
+                $row['id'] => [
+                    'supply_id' => $supply->id, 
+                    'items_price' => $row['price'], 
+                    'items_quantity' => $row['quantity'], 
+                    'items_sum' => $row['sum']
+                ]
+            ]);
         }
 
         return response()->json(['status' => 1, 'message' => $supply->id]);
@@ -121,12 +136,13 @@ class SupplyController extends Controller
     # get range date
     public function date(Request $request)
     {
+
+        $data = []; $total = []; $extra = []; $i = 0;
+
         $dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->addDay(1)->format('Y-m-d');
         $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->addDay(1)->format('Y-m-d');
 
         $supply = Supply::whereBetween('created_at', [$dateStart, $dateEnd])->orderBy('id', 'desc')->get();
-
-        $data = []; $total = []; $extra = []; $i = 0;
 
         if(count($supply) > 0)
         {

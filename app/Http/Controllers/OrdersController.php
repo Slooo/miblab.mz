@@ -16,6 +16,7 @@ use App\User;
 use App\CCosts;
 use App\Costs;
 use App\Items;
+use App\Supply;
 
 class OrdersController extends Controller
 {
@@ -86,13 +87,26 @@ class OrdersController extends Controller
 	public function store(Request $request)
 	{
 		$orders = new Orders;
-		$order = $orders::create(['sum' => $request->sum, 'sum_discount' => $request->sum, 'type' => $request->type, 'point' => Auth::user()->point]);
+		$order = $orders::create([
+			'sum' 		   => $request->sum, 
+			'sum_discount' => $request->sum, 
+			'type' 		   => $request->type, 
+			'point'		   => Auth::user()->point,
+			'created_at'   => Carbon::now(),
+		]);
 
 		$json = json_decode($request->items, true);
 
 		foreach($json as $row)
 		{
-			$orders->items()->sync([$row['id'] => ['orders_id' => $order->id, 'items_price' => $row['price'], 'items_quantity' => $row['quantity'], 'items_sum' => $row['sum']]]);
+			$orders->items()->sync([
+				$row['id'] => [
+					'orders_id' 	 => $order->id, 
+					'items_price' 	 => $row['price'], 
+					'items_quantity' => $row['quantity'], 
+					'items_sum' 	 => $row['sum']
+				]
+			]);
 		}
 
 		return response()->json(['status' => 1, 'message' => $order->id]);
@@ -102,11 +116,11 @@ class OrdersController extends Controller
 	public function analytics()
 	{
 	    # settings
-	    $i = -1; $sumAll = []; $sumMonth = []; $sumMonthPoint = []; $sumWeek = []; $dateWeek = [];
+	    $i = -1; $sumAll = []; $sumMonth = []; $sumMonthPoint = []; $sumAllKeyPoint = []; $sumWeek = []; $dateWeek = [];
 
 	    $date 	= Carbon::now();
-	    $month  = $date->startOfMonth();
-	    $days30 = Carbon::today()->subDays(30);
+	    $month  = Carbon::now()->startOfMonth();
+	    $days30 = Carbon::today()->subDays(29);
 
 	    $start  = Carbon::today()->subDay(29);
 	    for ($i = 0; $i < 30; $i++) {
@@ -148,21 +162,45 @@ class OrdersController extends Controller
 								      		->sum('sum');
 	    endforeach;
 
-	    # sum 30 days
-	    /*
-	    $sum30Days = Orders::whereHas('pivot', function($query) use ($date){
-	    	$query->whereBetween('created_at', [Carbon::today()->subDays(29), $date]);
-	    })->sum('sum');
-		*/
-		
-	    $sum30Days = Orders::whereBetween('created_at', [Carbon::today()->subDays(29), $date])->sum('sum');
+	    # sum 30 days Orders
+	    $sum30DaysOrders = Orders::whereBetween('created_at', [$days30, $date])->sum('sum');
 
-	    /*
-	    $sum30Days = DB::table('items_orders AS io')
-	            ->LeftJoin('orders AS o', 'o.id', '=', 'io.orders_id')
-	            ->whereBetween('io.created_at', [Carbon::today()->subDays(29), $date])
-	            ->sum('o.sum');
-		*/
+	    # sum 30 days Supply
+	    $sum30DaysSupply = Supply::whereBetween('created_at', [$days30, $date])->sum('sum');
+
+	    # key performance indicators
+	    $sumAllOrders = Orders::sum('sum');
+	    $sumAllCosts  = Costs::sum('sum');
+	    $sumAllSupply = Supply::sum('sum');
+	    $sumAllItemsPrice  = Items::sum('price');
+	    $sumAllItemsQuantity = Items::sum('quantity');
+	    $sumAllStock = $sumAllItemsPrice * $sumAllItemsQuantity;
+	    $sumAllProfit = $sumAllOrders - $sumAllCosts;
+
+	    $sumAllKey = [
+	    	'orders' => $sumAllOrders, 
+	    	'costs'  => $sumAllCosts, 
+	    	'supply' => $sumAllSupply,
+	    	'stock'  => $sumAllStock,
+	    	'profit' => $sumAllProfit
+	    ];
+
+	    # key performance indicators in point
+	    foreach($points as $row):
+	    	$i++;
+	    	$sumAllPointOrders = Orders::where('point', $row->point)->sum('sum');
+	    	$sumAllPointCosts = Costs::where('point', $row->point)->sum('sum');
+	    	$sumAllPointItemsPrice = Items::where('point', $row->point)->sum('price');
+	    	$sumAllPointItemsQuantity = Items::where('point', $row->point)->sum('quantity');
+
+	    	$sumAllKeyPoint[$row->point]['orders'] = $sumAllPointOrders;
+	    	$sumAllKeyPoint[$row->point]['costs']  = $sumAllPointCosts;
+	    	$sumAllKeyPoint[$row->point]['supply'] = Supply::where('point', $row->point)->sum('sum');
+	    	$sumAllKeyPoint[$row->point]['stock']  = $sumAllPointItemsPrice * $sumAllPointItemsQuantity;
+	    	$sumAllKeyPoint[$row->point]['profit'] = $sumAllPointOrders - $sumAllPointCosts;    	
+	    endforeach;
+
+	   # dd($sumAllKeyPoint);
 
 	    # week sum 30 days
 	    foreach($dateWeek as $row):
@@ -184,7 +222,9 @@ class OrdersController extends Controller
 	    endforeach;
 
 	    return view('orders.analytics', compact(
-	        'sumAll', 'sumMonth', 'sumMonthPoint', 'sum30Days', 'sumWeek'
+	        'sumAll', 'sumMonth', 'sumMonthPoint', 
+	        'sumAllKey', 'sumAllKeyPoint',
+	        'sum30DaysOrders', 'sum30DaysSupply', 'sumWeek'
 	        ));
 	}
 }

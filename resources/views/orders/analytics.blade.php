@@ -57,6 +57,71 @@
 				</tr>
 			</tbody>
 		</table>
+
+		<table class="table table-bordered analytics-table">
+			<thead>
+				<tr>
+					<th colspan="2">Ключевые показатели</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td class="col-md-9">Прибыль</td>
+					<td class="col-md-3 analytics--number-format">{{ number_format($sumAllKey['profit'], 0, ' ', ' ') }}</td>
+				</tr>
+				<tr>
+					<td class="col-md-9">Продажи</td>
+					<td class="col-md-3 analytics--number-format">{{ number_format($sumAllKey['orders'], 0, ' ', ' ') }}</td>
+				</tr>
+				<tr>
+					<td class="col-md-9">Расходы</td>
+					<td class="col-md-3 analytics--number-format">{{ number_format($sumAllKey['costs'], 0, ' ', ' ') }}</td>
+				</tr>
+				<tr>
+					<td class="col-md-9">Закупка</td>
+					<td class="col-md-3 analytics--number-format">{{ number_format($sumAllKey['supply'], 0, ' ', ' ') }}</td>
+				</tr>
+				<tr>
+					<td class="col-md-9">Склад</td>
+					<td class="col-md-3 analytics--number-format">{{ number_format($sumAllKey['stock'], 0, ' ', ' ') }}</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<table class="table table-bordered analytics-table">
+			<thead>
+				<tr>
+					<th colspan="2">Ключевые показатели (по точкам)</th>
+				</tr>
+			</thead>
+			<tbody>
+			@foreach($sumAllKeyPoint as $key => $row)
+			<tr>
+				<td class="analytics--point" colspan="2">Точка #{{ $key }}</td>
+			</tr>
+			<tr>
+				<td class="col-md-9">Прибыль</td>
+				<td class="col-md-3 analytics--number-format">{{ number_format($row['profit'], 0, ' ', ' ') }}</td>
+			</tr>
+			<tr>
+				<td class="col-md-9">Продажи</td>
+				<td class="col-md-3 analytics--number-format">{{ number_format($row['orders'], 0, ' ', ' ') }}</td>
+			</tr>
+			<tr>
+				<td class="col-md-9">Расходы</td>
+				<td class="col-md-3 analytics--number-format">{{ number_format($row['costs'], 0, ' ', ' ') }}</td>
+			</tr>
+			<tr>
+				<td class="col-md-9">Закупка</td>
+				<td class="col-md-3 analytics--number-format">{{ number_format($row['supply'], 0, ' ', ' ') }}</td>
+			</tr>
+			<tr>
+				<td class="col-md-9">Продажи</td>
+				<td class="col-md-3 analytics--number-format">{{ number_format($row['stock'], 0, ' ', ' ') }}</td>
+			</tr>
+			@endforeach
+			</tbody>
+		</table>
 	</div>
 
 	<div class="col-md-6">
@@ -64,12 +129,14 @@
 			<tbody>
 				<tr>
 					<td class="col-md-9">Закупка за 30 дней</td>
-					<td class="col-md-3 analytics--number-format"></td>
+					<td class="col-md-3 analytics--number-format">
+						{{ number_format($sum30DaysSupply, 0, ' ', ' ') }}
+					</td>
 				</tr>
 				<tr>
 					<td class="col-md-9">Реализация за 30 дней</td>
 					<td class="col-md-3 analytics--number-format">
-						{{ number_format($sum30Days, 0, ' ', ' ') }}
+						{{ number_format($sum30DaysOrders, 0, ' ', ' ') }}
 					</td>
 				</tr>
 			</tbody>
@@ -152,5 +219,4 @@
 	</div>
 
 </div>
-
 @stop

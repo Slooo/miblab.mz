@@ -12,18 +12,14 @@ $('body').on('click', '#js-order-and-supply--create', function(e){
 	sum   = json.sum;
 	type  = json.type;
 	items = JSON.stringify(json.items);
-	data  = {'sum':sum, 'type':type, 'items':items};
-
-	url = segment2.substring(0, segment2.length - 1)
-
-	if(url != 'supply')
-	{
-		url = 'orders';
-	}
+	data  = {'sum' : sum, 'type' : type, 'items' : items};
+	url   = segment2.substring(0, segment2.length - 1)
+	
+	url = (url != 'supply' ? 'orders' : 'supply');
 
 	$.ajax({
 		url 	 : base_url + segment1 + url,
-		type 	 : 'POST',
+		type 	 : 'post',
 		dataType : 'json',
 		data  	 : data,
 
@@ -35,12 +31,12 @@ $('body').on('click', '#js-order-and-supply--create', function(e){
 			if(answer.status == 1)
 			{
 				OrderClear();
-				AnswerSuccess('<strong><a href="'+base_url+segment1+url+'/'+answer.message+'">Успешно создано</a></strong>');
+				AnswerSuccess('<a href="'+base_url + segment1 + url + '/' + answer.message +'">Создано</a>');
 			}
 	    },
 
 	    error: function(answer) {
-	    	AnswerError('Укажите тип оплаты');
+	    	AnswerError();
 		}
 
 	}).complete(function() {

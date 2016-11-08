@@ -9,4 +9,6 @@ use Carbon\Carbon;
 class ItemsOrders extends Model
 {
 	protected $table = 'items_orders';
+
+	public $timestamps = false;
 }
