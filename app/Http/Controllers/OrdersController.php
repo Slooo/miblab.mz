@@ -236,8 +236,6 @@ class OrdersController extends Controller
 	    	$sumAllKeyPoint[$row->point]['profit'] = $sumAllPointOrders - $sumAllPointCosts;    	
 	    endforeach;
 
-	   # dd($sumAllKeyPoint);
-
 	    # week sum 30 days
 	    foreach($dateWeek as $row):
 		    $i++;
@@ -261,6 +259,6 @@ class OrdersController extends Controller
 	        'sumAll', 'sumMonth', 'sumMonthPoint', 
 	        'sumAllKey', 'sumAllKeyPoint',
 	        'sum30DaysOrders', 'sum30DaysSupply', 'sumWeek'
-	        ));
+	    ));
 	}
 }
