@@ -21,6 +21,11 @@ class Supply extends Model
         return $this->belongsToMany(Items::class)->withPivot('id', 'items_price', 'items_quantity', 'items_sum');
     }
 
+    public function stock()
+    {
+        return $this->hasOne(Stock::class);
+    }
+
     public function pivot()
     {
         return $this->hasOne(ItemsSupply::class);

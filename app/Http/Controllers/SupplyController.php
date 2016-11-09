@@ -11,6 +11,7 @@ use Carbon\Carbon;
 # models
 use App\Supply;
 use App\ItemsSupply;
+use App\Stock;
 
 class SupplyController extends Controller
 {
@@ -30,8 +31,9 @@ class SupplyController extends Controller
     # create
     public function store(Request $request)
     {
-        # изменять количество у товара
         $model = new Supply;
+
+        $items_id = [];
 
         $supply = $model::create([
             'sum'          => $request->sum, 
@@ -43,7 +45,7 @@ class SupplyController extends Controller
 
         $json = json_decode($request->items, true);
 
-        foreach($json as $row)
+        foreach($json as $key => $row)
         {
             $model->items()->sync([
                 $row['id'] => [
@@ -53,6 +55,39 @@ class SupplyController extends Controller
                     'items_sum' => $row['sum']
                 ]
             ]);
+
+            $items_id[$row['id']] = $row['id']; 
+        }
+
+        // add stock
+        foreach($items_id as $id)
+        {
+            $new_quantity = ItemsSupply::LeftJoin('supply AS s', 's.id', '=', 'supply_id')
+                                ->where('s.point', Auth::user()->point)
+                                ->where('supply_id', $supply->id)
+                                ->where('items_id', $id)
+                                ->sum('items_quantity');
+
+            $stock = Stock::where('items_id', $id)->where('point', Auth::user()->point)->get();
+
+            if(count($stock) > 0)
+            {
+                foreach($stock as $row):
+
+                    $old_quantity = $row->items_quantity;
+                    $quantity = $old_quantity + $new_quantity;
+
+                    Stock::where('items_id', $id)
+                            ->where('point', Auth::user()->point)
+                            ->update(['items_quantity' => $quantity]);
+                endforeach;
+            } else {
+                Stock::create([
+                    'items_id' => $id,
+                    'items_quantity' => $new_quantity,
+                    'point' => Auth::user()->point
+                ]);
+            }
         }
 
         return response()->json(['status' => 1, 'message' => $supply->id]);

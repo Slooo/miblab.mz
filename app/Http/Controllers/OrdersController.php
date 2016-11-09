@@ -17,6 +17,8 @@ use App\CCosts;
 use App\Costs;
 use App\Items;
 use App\Supply;
+use App\Stock;
+use App\ItemsOrders;
 
 class OrdersController extends Controller
 {
@@ -87,6 +89,9 @@ class OrdersController extends Controller
 	public function store(Request $request)
 	{
 		$orders = new Orders;
+
+		$items_id = [];
+
 		$order = $orders::create([
 			'sum' 		   => $request->sum, 
 			'sum_discount' => $request->sum, 
@@ -107,6 +112,36 @@ class OrdersController extends Controller
 					'items_sum' 	 => $row['sum']
 				]
 			]);
+
+			$items_id[$row['id']] = $row['id'];
+		}
+
+		// remove qty stock
+		foreach($items_id as $id)
+		{
+		    $new_quantity = ItemsOrders::LeftJoin('orders AS o', 'o.id', '=', 'orders_id')
+		                        ->where('o.point', Auth::user()->point)
+		                        ->where('orders_id', $order->id)
+		                        ->where('items_id', $id)
+		                        ->sum('items_quantity');
+
+		    $stock = Stock::where('items_id', $id)->where('point', Auth::user()->point)->get();
+
+		    foreach($stock as $row):
+
+			    $old_quantity = $row->items_quantity;
+				$quantity = $old_quantity - $new_quantity;
+
+				if($quantity <= 0) {
+					Stock::where('items_id', $id)
+							->where('point', Auth::user()->point)
+							->delete();
+				} else {
+					Stock::where('items_id', $id)
+							->where('point', Auth::user()->point)
+							->update(['items_quantity' => $quantity]);
+				}
+		    endforeach;
 		}
 
 		return response()->json(['status' => 1, 'message' => $order->id]);
@@ -116,7 +151,8 @@ class OrdersController extends Controller
 	public function analytics()
 	{
 	    # settings
-	    $i = -1; $sumAll = []; $sumMonth = []; $sumMonthPoint = []; $sumAllKeyPoint = []; $sumWeek = []; $dateWeek = [];
+	    $i = -1; $sumAll = []; $sumMonth = []; $sumMonthPoint = []; 
+	    $sumAllKey = []; $sumAllKeyPoint = []; $sumWeek = []; $dateWeek = [];
 
 	    $date 	= Carbon::now();
 	    $month  = Carbon::now()->startOfMonth();
@@ -173,7 +209,7 @@ class OrdersController extends Controller
 	    $sumAllCosts  = Costs::sum('sum');
 	    $sumAllSupply = Supply::sum('sum');
 	    $sumAllItemsPrice  = Items::sum('price');
-	    $sumAllItemsQuantity = Items::sum('quantity');
+	    $sumAllItemsQuantity = Items::sum('price');
 	    $sumAllStock = $sumAllItemsPrice * $sumAllItemsQuantity;
 	    $sumAllProfit = $sumAllOrders - $sumAllCosts;
 
@@ -190,8 +226,8 @@ class OrdersController extends Controller
 	    	$i++;
 	    	$sumAllPointOrders = Orders::where('point', $row->point)->sum('sum');
 	    	$sumAllPointCosts = Costs::where('point', $row->point)->sum('sum');
-	    	$sumAllPointItemsPrice = Items::where('point', $row->point)->sum('price');
-	    	$sumAllPointItemsQuantity = Items::where('point', $row->point)->sum('quantity');
+	    	$sumAllPointItemsPrice = Items::sum('price');
+	    	$sumAllPointItemsQuantity = Items::sum('price');
 
 	    	$sumAllKeyPoint[$row->point]['orders'] = $sumAllPointOrders;
 	    	$sumAllKeyPoint[$row->point]['costs']  = $sumAllPointCosts;

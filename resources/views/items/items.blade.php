@@ -49,7 +49,6 @@
 				<th>Штрихкод</th>
 				<th>Наименование</th>
 				<th>Цена &#8381; / шт.</th>
-				<th>Количество</th>
 				<th>Статус</th>
 				<th>Печать</th>
 			</tr>
@@ -58,7 +57,6 @@
 				<td>{{ $row->barcode }}</td>
 				<td data-type="name">{{ $row->name }}</td>
 				<td @if(Auth::user()->status != 2) class="js--update" data-type="price" @endif >{{ number_format($row->price, 0, ' ', ' ') }}</td>
-				<td @if(Auth::user()->status != 2) class="js--update" data-type="quantity" @endif >{{ $row->quantity }}</td>
 				<td>
 				@if($row->status == 1)
 					<button class="btn @if(Auth::user()->status != 2) js-item--status @endif btn-circle btn-success" @if(Auth::user()->status != 2) data-id="{{ $row->id }}" data-status="1" @endif><i class="fa fa-check"></i></button>

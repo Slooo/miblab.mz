@@ -9,7 +9,7 @@ class Items extends Model
     protected $table = 'items';
   	
     protected $fillable = [
-        'id', 'barcode', 'name', 'price', 'quantity', 'status', 'point',
+        'id', 'barcode', 'name', 'price', 'status', 'point',
     ];
 
     public function orders()
