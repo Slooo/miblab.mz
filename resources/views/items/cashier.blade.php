@@ -39,13 +39,26 @@ $(document).ready(function(){
 				<button class="btn btn-default js-order--type" value="0">Безналично</button>
 			</div>
 		</div>
+
+		@if(isset($counterparty))
 			<div class="col-md-12">
-				<hr>
-				<strong>Итого: </strong><span id="order-sum"></span>
-				<br>
-				<strong>Итого со скидкой: </strong><span id="order-sumDiscount"></span>
-				<hr>
+			<hr>
+				<select class="js-supply--counterparty">
+					<option selected="selected" disabled="disabled">Контрагент</option>
+				@foreach($counterparty as $row)
+					<option value={{ $row->id }}>{{ $row->name }}</option>
+				@endforeach
+				</select>
 			</div>
+		@endif
+
+		<div class="col-md-12">
+			<hr>
+			<strong>Итого: </strong><span id="order-sum"></span>
+			<br>
+			<strong>Итого со скидкой: </strong><span id="order-sumDiscount"></span>
+			<hr>
+		</div>
 
 		<div class="col-md-12">
 			<button class="btn btn-primary" 

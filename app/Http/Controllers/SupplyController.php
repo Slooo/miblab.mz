@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use App\Supply;
 use App\ItemsSupply;
 use App\Stock;
+use App\Counterparty;
 
 class SupplyController extends Controller
 {
@@ -25,7 +26,8 @@ class SupplyController extends Controller
     # create page
     public function create()
     {
-        return view('items.cashier');
+        $counterparty = Counterparty::all();
+        return view('items.cashier', compact('counterparty'));
     }
 
     # create
@@ -38,7 +40,8 @@ class SupplyController extends Controller
         $supply = $model::create([
             'sum'          => $request->sum, 
             'sum_discount' => $request->sum, 
-            'type'         => $request->type, 
+            'type'         => $request->type,
+            'counterparty_id' => $request->counterparty,
             'point'        => Auth::user()->point,
             'created_at'   => Carbon::now(),
         ]);

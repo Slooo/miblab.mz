@@ -265,6 +265,17 @@ $('body').on('click', '.js-order--type', function(e){
 	OrderTypeActive(btn);
 });
 
+// counterparty
+$('body').on('change', '.js-supply--counterparty', function(e){
+
+	var here, json;
+
+	here = Number($("option:selected", this).val());
+	json = JSON.parse(localStorage.getItem('items'));
+	json.counterparty = here;
+	localStorage.setItem('items', JSON.stringify(json));
+});
+
 // search item
 $('#js-item--search').keyup(function(e){
 	e.preventDefault();
