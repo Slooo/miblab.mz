@@ -40,6 +40,7 @@ Route::group(['middleware' => ['auth', 'cashier'], 'prefix' => 'cashier'], funct
 	Route::patch('orders/date', 'OrdersController@date');
 	Route::patch('items/barcode/generate', 'ItemsController@barcode_generate');
 	Route::patch('items/search', 'ItemsController@search');
+	Route::patch('stock/quantity', 'ItemsController@stock_quantity');
 
 	# post
 	Route::post('items/barcode', 'ItemsController@barcode');
@@ -89,10 +90,13 @@ Route::group(['middleware' => ['auth', 'manage'], 'prefix' => 'manage'], functio
 Route::group(['middleware' => ['auth', 'igor'], 'prefix' => 'igor'], function()
 {
 	# get
+	Route::get('discount', 'MainController@show_discount');
+
 	Route::get('analytics', 'OrdersController@analytics');
 	Route::get('items/search', 'ItemsController@cashier');
 
 	# patch
+	Route::patch('discount', 'MainController@update_discount');
 	Route::patch('items/status', 'ItemsController@status');
 	Route::patch('orders/date', 'OrdersController@date');
 	Route::patch('costs/date', 'CostsController@date');

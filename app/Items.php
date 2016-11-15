@@ -26,4 +26,9 @@ class Items extends Model
     {
         return $this->hasOne(ItemsOrders::class);
     }
+
+    public function stock()
+    {
+        return $this->hasOne(Stock::class);
+    }
 }

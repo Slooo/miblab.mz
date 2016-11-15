@@ -10,7 +10,7 @@ var CashierPageLoad = function CashierPageLoad()
 		$('.order').addClass('hidden');
 		$('#js-item--search').val('').focus();
 	} else {
-		OrderTotalPrice();
+		OrderTotalSum();
 		OrderTypeActive($('.js-order--type').eq(localStorage['order-type-index']));
 		$('.order-table').removeClass('hidden').html(localStorage.getItem('order-table'));
 	}
@@ -25,62 +25,6 @@ function OrderClear()
 	CashierPageLoad();
 }
 
-// update order
-function OrderUpdate(here)
-{
-	var parents, item, placeholder, price, quantity, sum;
-
-	parents 	= here.parents('tr');
-	item 	 	= parents.data('item');
-	placeholder = here.attr('placeholder');
-
-	if(here.val().length == 0)
-	{
-		if(placeholder.length > 0)
-		{
-			here.val(placeholder);
-		} else {
-			here.val(1);
-		}
-	}
-
-	if(here.val() == 0)
-	{
-		here.val(1);
-	}
-
-	if(here.parent('td').hasClass('js-order--update-price'))
-	{
-		price = Number(here.val());
-		quantity = parents.find('.js-order--update-quantity').text();
-	}
-
-	if(here.parent('td').hasClass('js-order--update-quantity'))
-	{
-		price = parents.find('.js-order--update-price').text();
-		quantity = Number(here.val());
-	}
-
-	sum = OrderItemUpdate(item, price, quantity);
-	parents.find('.js-order--sum').html(sum);
-	here.parent('td').html(here.val());
-	localStorage.setItem('order-table', $('.order-table').html());
-}
-
-// get sum && sum_discount
-function OrderTotalPrice(){
-	var json, sum;
-	
-	json = JSON.parse(localStorage.getItem('items'));
-	sum = json.items.reduce(function(sum, current) {
-	  return sum + current.sum;
-	}, 0);
-
-	$('#order-sum').html(sum);
-	json.sum = sum;
-	localStorage.setItem('items', JSON.stringify(json));
-}
-
 // push item
 function OrderItemAdd(data)
 {
@@ -91,63 +35,177 @@ function OrderItemAdd(data)
 		items = [];
 		json.items = items;
 		json.items.push(data);
-		json.sum = data.price * data.quantity;
+		json.totalSum = data.price * data.quantity;
 		localStorage.setItem('items', JSON.stringify(json));
 	} else {
 		json = JSON.parse(localStorage.getItem('items'));
 		json.items.push(data);
 		localStorage.setItem('items', JSON.stringify(json));
 	}
+
+	OrderTotalSum();
+}
+
+// update order
+function OrderUpdate(here)
+{
+	var parents, item, placeholder, price, quantity, sum;
+
+	parents 	= here.parents('tr');
+	item 	 	= parents.data('item');
+	placeholder = here.attr('placeholder');
+	value 		= Number(here.val());
+
+	// return before value
+	if(value.length == 0)
+	{
+		if(placeholder.length > 0)
+		{
+			here.val(placeholder);
+		} else {
+			here.val(1);
+		}
+	}
+
+	// if 0 return 1
+	if(value == 0)
+	{
+		here.val(1);
+	}
+
+	// if here = price
+	if(here.parent('td').hasClass('js-order--update-price'))
+	{
+		price = value;
+		quantity = Number(parents.find('.js-order--update-quantity').text());
+	}
+
+	// if here = quantity
+	if(here.parent('td').hasClass('js-order--update-quantity'))
+	{
+		price = Number(parents.find('.js-order--update-price').text());
+		quantity = value;
+	}
+
+	// update item
+	OrderItemUpdate(here, item, price, quantity);
+}
+
+// order total sum
+function OrderTotalSum()
+{
+	json = JSON.parse(localStorage.getItem('items'));
+	totalSum = json.items.reduce(function(sum, current) {
+		return sum + current.sum;
+	}, 0);
+
+	json.totalSum = totalSum;
+	localStorage.setItem('items', JSON.stringify(json));
+	$('#order-sum').html(totalSum);
 }
 
 // update item
-function OrderItemUpdate(item, price, quantity)
+function OrderItemUpdate(here, item, price, quantity)
 {
-	var json, sum;
+	var json, sum, product;
 
 	json = JSON.parse(localStorage.getItem('items'));
-	sum  = Number(price * quantity);
 
+	// qty in stock
+	max_qty = json.items[item].stock;
+
+	// check quantity update with max qty in stock
+	qty = (quantity <= max_qty ? quantity : max_qty);
+
+	sum = price * qty;
+
+	// set item
 	json.items[item].price = price;
-	json.items[item].quantity = quantity;
+	json.items[item].quantity = qty;
 	json.items[item].sum = sum;
+
+	// save items
 	localStorage.setItem('items', JSON.stringify(json));
-	OrderTotalPrice();
-	return sum
+
+	OrderTotalSum();
+	
+	// save item
+	product = $('*[data-item="'+item+'"]');
+	product.find('.js-order--sum').html(sum);
+
+	// save all
+	localStorage.setItem('order-table', $('.order-table').html());
+
+	// return value input
+	if(here && here.parent('td').hasClass('js-order--update-price'))
+	{
+		here.parent('td').html(price);		
+	}
+
+	if(here && here.parent('td').hasClass('js-order--update-quantity'))
+	{
+		here.parent('td').html(qty);		
+	}
 }
 
-// order items paste
+// order items paste in html
 function OrderItemPaste(json)
 {
 	var html, item, id, price, quantity, data;
 
 	item = $('.order-table tbody tr').length;
 
-	for(post in json)
-	{
-		html += '<tr data-item="'+item+'">';
-		html += '<td>'+json[post].barcode+'</td>';
-		html += '<td>'+json[post].name+'</td>';
-		html += '<td class="js-order--update js-order--update-price">'+json[post].price+'</td>';
-		html += '<td class="js-order--update js-order--update-quantity">1</td>';
-		html += '<td class="js-order--sum">'+json[post].price+'</td>';
-		html += '<td><button type="button" class="btn btn-xs btn-danger js-order--remove"><i class="fa fa-remove"></i></button></td>';
-		html += '</tr>';
+	html += '<tr data-item="'+item+'" data-id="'+json.id+'">';
+	html += '<td>'+json.barcode+'</td>';
+	html += '<td>'+json.name+'</td>';
+	html += '<td class="js-order--update js-order--update-price">'+json.price+'</td>';
+	html += '<td class="js-order--update js-order--update-quantity">1</td>';
+	html += '<td class="js-order--sum">'+json.price+'</td>';
+	html += '<td><button type="button" class="btn btn-xs btn-danger js-order--remove"><i class="fa fa-remove"></i></button></td>';
+	html += '</tr>';
 
-		data = {
-			item	 : item,
-			id 		 : json[post].id,
-			price    : Number(json[post].price),
-			quantity : 1,
-			sum 	 : Number(json[post].price)
-		}
-
-		OrderItemAdd(data);
+	// save object in localStorage
+	data = {
+		id 		 : json.id,
+		item	 : item,
+		barcode  : json.barcode,
+		price    : Number(json.price),
+		quantity : 1,
+		sum 	 : Number(json.price),
+		stock 	 : Number(json.stock)
 	}
+
+	OrderItemAdd(data);
 
 	$('.order-table table tbody').append(html);
 	localStorage.setItem('order-table', $('.order-table').html());
 	CashierPageLoad();
+}
+
+// remove dublicate qty stock
+function removeDuplicates(arr, prop) {
+	var new_arr = [];
+	var lookup  = {};
+
+	for (var i in arr) {
+		lookup[arr[i][prop]] = arr[i];
+	}
+
+	for (i in lookup) {
+		new_arr.push(lookup[i]);
+	}
+
+	return new_arr;
+}
+
+// find element in array to object
+function functiontofindIndexByKeyValue(arraytosearch, key, valuetosearch) {
+	for (var i = 0; i < arraytosearch.length; i++) {
+ 		if (arraytosearch[i][key] == valuetosearch) {
+			return i;
+		}
+	}
+	return 'z';
 }
 
 // active button

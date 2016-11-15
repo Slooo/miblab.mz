@@ -9,6 +9,7 @@ use App\Http\Requests;
 use Auth;
 use Carbon\Carbon;
 use DB;
+use Storage;
 
 #models
 use App\Orders;
@@ -85,6 +86,25 @@ class OrdersController extends Controller
 		return response()->json(['status' => $status, 'data' => $data, 'extra' => $extra]);
 	}
 
+	// storage/app/settings.json
+	private function get_discount($sum)
+	{
+		$file = Storage::disk('local')->get('settings.json');
+		$data = json_decode($file, true);
+
+		$discount = 0;
+		foreach($data['discount'] as $row)
+		{
+			if($sum >= $row['sum'])
+			{
+				$discount = $sum * $row['percent'] / 100;
+			}
+		}
+
+		$sum_discount = $sum - $discount;
+		return $sum_discount;
+	}
+
 	# create
 	public function store(Request $request)
 	{
@@ -92,9 +112,12 @@ class OrdersController extends Controller
 
 		$items_id = [];
 
+		// get discount
+		$sum_discount = $this->get_discount($request->totalSum);
+
 		$order = $orders::create([
-			'sum' 		   => $request->sum, 
-			'sum_discount' => $request->sum, 
+			'sum' 		   => $request->totalSum, 
+			'sum_discount' => $sum_discount, 
 			'type' 		   => $request->type, 
 			'point'		   => Auth::user()->point,
 			'created_at'   => Carbon::now(),
@@ -208,8 +231,14 @@ class OrdersController extends Controller
 	    $sumAllOrders = Orders::sum('sum');
 	    $sumAllCosts  = Costs::sum('sum');
 	    $sumAllSupply = Supply::sum('sum');
-	    $sumAllItemsPrice  = Items::sum('price');
-	    $sumAllItemsQuantity = Items::sum('price');
+
+	    $sumAllItemsPrice  = DB::table('stock AS s')
+	    						->select('s.price')
+	    						->LeftJoin('items AS i', 'i.id', '=', 'items_id')
+	    						->sum('i.price');
+
+	    $sumAllItemsQuantity = Stock::sum('items_quantity');
+
 	    $sumAllStock = $sumAllItemsPrice * $sumAllItemsQuantity;
 	    $sumAllProfit = $sumAllOrders - $sumAllCosts;
 
@@ -226,8 +255,14 @@ class OrdersController extends Controller
 	    	$i++;
 	    	$sumAllPointOrders = Orders::where('point', $row->point)->sum('sum');
 	    	$sumAllPointCosts = Costs::where('point', $row->point)->sum('sum');
-	    	$sumAllPointItemsPrice = Items::sum('price');
-	    	$sumAllPointItemsQuantity = Items::sum('price');
+
+	    	$sumAllPointItemsPrice = DB::table('stock AS s')
+	    							->select('s.price')
+	    							->LeftJoin('items AS i', 'i.id', '=', 'items_id')
+	    							->where('point', $row->point)
+	    							->sum('i.price');
+
+	    	$sumAllPointItemsQuantity = Stock::where('point', $row->point)->sum('items_quantity');
 
 	    	$sumAllKeyPoint[$row->point]['orders'] = $sumAllPointOrders;
 	    	$sumAllKeyPoint[$row->point]['costs']  = $sumAllPointCosts;

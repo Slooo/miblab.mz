@@ -12,6 +12,7 @@ use DNS1D;
 
 # models
 use App\Items;
+use App\Stock;
 
 class ItemsController extends Controller
 {
@@ -31,16 +32,40 @@ class ItemsController extends Controller
          #   $items = Items::where('barcode', $request->barcode)->first();
         # this cashier
         #} else {
-            $items = Items::where('barcode', $request->barcode)->where('status', 1)->get();
         #}
 
-        if (count($items) > 0)
+        $items = [];
+        $quantity = 0;
+        
+        $items = Items::where('barcode', $request->barcode)->where('status', 1)->first();
+
+        if(count($items) > 0)
         {
-            return response()->json(['status' => 1, 'message' => 'Товар найден', 'items' => $items]);            
+            $stock = Stock::select('items_quantity')->where('items_id', $items->id)->first();
+            if(count($stock) > 0)
+            {
+                $status = 1;
+                $message = 'Товар найдет';
+                $items['stock'] = $stock->items_quantity;
+            } else {
+                $status = 0;
+                $message = 'Товар отсутствует на складе';
+            }
+
         } else {
-            return response()->json(['status' => 0, 'message' => 'Товар не найден']);       
+            $status = 0;
+            $message = 'Товар не найдет';
         }
+
+        return response()->json(['status' => $status, 'message' => $message, 'items' => $items]);
    	}
+
+    # get max quantity
+    public function stock_quantity(Request $request)
+    {
+        $quantity = Stock::select('items_quantity')->where('items_id', $request->id)->first();
+        return response()->json(['status' => 1, 'quantity' => $quantity]);
+    }
     
     # send the barcode admin (new item)
     public function barcode(Request $request)

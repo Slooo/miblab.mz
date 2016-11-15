@@ -4,14 +4,14 @@
 
 <script>
 $(document).ready(function(){
-	$('#js-item--search').focus();
+	$('#js-item--search').numeric().focus();
 });
 </script>
 
 <div class="row">
 
 	<div class="col-md-8 col-md-offset-4">
-		{{ Form::text('barcode', null, ['id' => 'js-item--search', 'class' => 'form-search', 'placeholder' => 'введите штрихкод...']) }}
+		{{ Form::text('barcode', null, ['id' => 'js-item--search', 'class' => 'form-search', 'max' => '15', 'placeholder' => 'введите штрихкод...']) }}
 	</div>
 
 	<!-- Order items -->
@@ -55,8 +55,6 @@ $(document).ready(function(){
 		<div class="col-md-12">
 			<hr>
 			<strong>Итого: </strong><span id="order-sum"></span>
-			<br>
-			<strong>Итого со скидкой: </strong><span id="order-sumDiscount"></span>
 			<hr>
 		</div>
 

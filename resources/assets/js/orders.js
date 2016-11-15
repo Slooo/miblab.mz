@@ -9,11 +9,11 @@ $('body').on('click', '#js-order-and-supply--create', function(e){
 	var json, sum, sumDiscount, type, counterparty, items, data;
 
 	json  = JSON.parse(localStorage.getItem('items'));
-	sum   = json.sum;
+	totalSum = json.totalSum;
 	type  = json.type;
 	counterparty = json.counterparty;
 	items = JSON.stringify(json.items);
-	data  = {'sum' : sum, 'type' : type, 'counterparty' : counterparty, 'items' : items};
+	data  = {'totalSum' : totalSum, 'type' : type, 'counterparty' : counterparty, 'items' : items};
 	url   = segment2.substring(0, segment2.length - 1)
 	
 	url = (url != 'supply' ? 'orders' : 'supply');

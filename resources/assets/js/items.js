@@ -78,8 +78,7 @@ $('#js-item--barcode').focusout(function() {
 
 				if(answer.status == 1)
 				{
-					json = JSON.stringify(answer.items);
-					item = JSON.parse(json);
+					item = JSON.parse(JSON.stringify(answer.items));
 
 					$('#item_id').val(item.id);
 					$('#name').val(item.name);
@@ -276,50 +275,99 @@ $('body').on('change', '.js-supply--counterparty', function(e){
 	localStorage.setItem('items', JSON.stringify(json));
 });
 
+// check if barcode
+function checkBarcode(barcode)
+{
+	var status, item, price, quantity, sum, parents
+
+	json = JSON.parse(localStorage.getItem('items'));
+
+	// if null items
+	if(json == null)
+	{
+		status = null;
+	} else {
+
+		// get item in array to items obejct
+		item = functiontofindIndexByKeyValue(json.items, 'barcode', barcode);
+		
+		// if dublicate
+		if(item >= 0)
+		{
+			$status = item;
+
+			// qty in stock
+			max_qty = json.items[item].stock;
+			qty = json.items[item].quantity + 1;
+			price = json.items[item].price;
+
+			// check quantity update with max qty in stock
+			quantity = (qty <= max_qty ? qty : max_qty);
+
+			$('table tr').removeClass('info');
+			parents = $('*[data-item="'+item+'"]').addClass('info');
+			parents.find('.js-order--update-quantity').html(quantity);
+			OrderItemUpdate(false, item, price, quantity);
+
+		} else {
+
+			// create new item
+			item = null;
+		}
+
+		status = item;
+	}
+
+	return status;
+}
+
 // search item
 $('#js-item--search').keyup(function(e){
 	e.preventDefault();
 
-	var barcode, data, json;
+	var barcode, data, json, quantity, unique;
 
 	barcode = $(this).val();
 	data 	= {'barcode':barcode}
 
 	if(barcode.length > 10)
 	{
-		$.ajax({
-			url 	 : base_url + segment1 + 'items/search',
-			type 	 : 'patch',
-			dataType : 'json',
-			data 	 : data,
+		if(checkBarcode(barcode) === null)
+		{
+			$.ajax({
+				url 	 : base_url + segment1 + 'items/search',
+				type 	 : 'patch',
+				dataType : 'json',
+				data 	 : data,
 
-			beforeSend: function(){
-		        LoaderStart();
-		    },
+				beforeSend: function(){
+			        LoaderStart();
+			    },
 
-			success: function(answer) {
-				if(answer.status == 0)
-				{
-					AnswerWarning('<button id="js-item--barcode-create" class="btn btn-danger">Отправить штрихкод</button>');
-				}
+				success: function(answer) {
+					if(answer.status == 0)
+					{
+						AnswerWarning('<button id="js-item--barcode-create" class="btn btn-danger">Отправить штрихкод</button>');
+					}
 
-				if(answer.status == 1)
-				{
-					$('.order').removeClass('hidden');
-					$('#alert').removeClass().html('');
-					data = JSON.stringify(answer.items);
-					json = JSON.parse(data);
-					OrderItemPaste(json);
-				}
-		    },
+					if(answer.status == 1)
+					{
+						$('.order').removeClass('hidden');
+						$('#alert').removeClass().html('');
 
-		    error: function(answer) {
-		    	AnswerError();
-		    }
+						json = JSON.parse(JSON.stringify(answer.items));
+						OrderItemPaste(json);
+					}
+			    },
 
-		}).complete(function() {
-				LoaderStop();
-			});
+			    error: function(answer) {
+			    	AnswerError();
+			    }
+
+			}).complete(function() {
+					LoaderStop();
+				});
+		}
 	}
 });
 
@@ -331,6 +379,7 @@ $(document).on('click', '.js-order--update', function(){
 	data = here.text();
 
 	here.html('<input type="text" id="js-order--update" placeholder="'+data+'">');
+
 	$("#js-order--update").numeric();
 	here.find('input').focus();
 });
@@ -372,8 +421,8 @@ $('body').on("click", ".js-order--remove", function(){
 	{
 		OrderClear();
 	} else {
+		OrderTotalSum();
 		localStorage.setItem('order-table', $('.order-table').html());
-		OrderTotalPrice();
 	}
 });
 

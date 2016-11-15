@@ -50,8 +50,10 @@
                         <?php $status = Auth::user()->status;?>
 
                         <!-- Create links -->
-                        @if($status == 2 || $status == 3 && Request::is('*/orders'))
+                        @if(Request::is('cashier/orders'))
                             <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/create') }}">создать</a></li>
+                        @elseif($status == 3 || $status == 2 && Request::is('*/orders'))
+                            <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/create') }}">создать</a></li>                        
                         @elseif(Request::is('*/supply') || Request::is('*/costs'))
                             <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/create') }}">создать</a></li>
                         @endif

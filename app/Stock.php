@@ -12,4 +12,10 @@ class Stock extends Model
         'items_id', 'items_quantity', 'point',
     ];
 
+    public function items()
+	{
+        return $this->hasOne(Items::class);
+    }
+
+
 }
