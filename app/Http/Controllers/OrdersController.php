@@ -9,15 +9,10 @@ use App\Http\Requests;
 use Auth;
 use Carbon\Carbon;
 use DB;
-use Storage;
+use Session;
 
 #models
 use App\Orders;
-use App\User;
-use App\CCosts;
-use App\Costs;
-use App\Items;
-use App\Supply;
 use App\Stock;
 use App\ItemsOrders;
 
@@ -27,28 +22,226 @@ class OrdersController extends Controller
 	public function index()
 	{
 		# manage | all points
-		if(Auth::user()->point == 0)
+		if(Auth::user()->points_id == 0)
 		{
 			$orders = Orders::orderBy('id', 'desc')->get();
 		# admin, cashier | one points
 		} else {
-			$orders = Orders::where('point', Auth::user()->point)->orderBy('id', 'desc')->get();
+			$orders = Orders::where('points_id', Auth::user()->points_id)->orderBy('id', 'desc')->get();
 		}
 
 		return view('orders.index', compact('orders'));
 	}
 
-	# cashier page
-	public function create()
-	{
-	    return view('items.cashier');
-	}
-
+	
 	# items order
 	public function show($id)
 	{
 		$order = Orders::findOrFail($id);
 		return view('orders.items', compact('order', 'id'));
+	}
+
+	# cashier page
+	public function create()
+	{
+		$discounts = \App\Discounts::all();
+	    return view('orders.create', compact('discounts'));
+	}
+
+	# create
+	public function store(Request $request)
+	{
+		$orders = new Orders;
+		$items_id = [];
+
+		# 5% is cashier click
+		if($request->discount === true && $request->totalSum < 3000)
+		{
+			$request['totalSumDiscount'] = $request->totalSum * 5 / 100;
+		} else {
+			$request['totalSumDiscount'] = $this->get_discount($request->totalSum);
+		}
+
+		$order = $orders::create([
+			'sum' 		   => $request->totalSum, 
+			'sum_discount' => $request->totalSumDiscount, 
+			'type' 		   => $request->type, 
+			'points_id'	   => Auth::user()->points_id,
+			'created_at'   => Carbon::now(),
+		]);
+
+		$json = json_decode($request->items, true);
+
+		foreach($json as $row)
+		{
+			$orders->items()->sync([
+				$row['id'] => [
+					'orders_id' 	 => $order->id, 
+					'items_price' 	 => $row['price'], 
+					'items_quantity' => $row['quantity'], 
+					'items_sum' 	 => $row['sum']
+				]
+			]);
+
+			$items_id[$row['id']] = $row['id'];
+		}
+
+		// remove qty stock
+		foreach($items_id as $id)
+		{
+		    $new_quantity = ItemsOrders::LeftJoin('orders AS o', 'o.id', '=', 'orders_id')
+		                        ->where('o.points_id', Auth::user()->points_id)
+		                        ->where('orders_id', $order->id)
+		                        ->where('items_id', $id)
+		                        ->sum('items_quantity');
+
+		    $stock = Stock::where('items_id', $id)->where('points_id', Auth::user()->points_id)->get();
+
+		    foreach($stock as $row):
+
+			    $old_quantity = $row->items_quantity;
+				$quantity = $old_quantity - $new_quantity;
+
+				if($quantity <= 0) {
+					Stock::where('items_id', $id)
+							->where('points_id', Auth::user()->points_id)
+							->delete();
+				} else {
+					Stock::where('items_id', $id)
+							->where('points_id', Auth::user()->points_id)
+							->update(['items_quantity' => $quantity]);
+				}
+		    endforeach;
+		}
+
+		return response()->json(['status' => 1, 'message' => $order->id]);
+	}
+
+    public function update(Request $request, $id)
+    {
+		$column = $request->column;
+		$value = $request->value;
+
+		switch ($request->type) {
+			case 'pivot':
+				ItemsOrders::where('id', $id)->update([$column => $value]);
+				break;
+			case 'main':
+				Orders::where('id', $id)->update([$column => $value]);
+				break;			
+
+		}
+
+		return response()->json(['status' => 1, 'message' => 'Обновлено']);
+    }
+
+    public function delete(Request $request, $id)
+    {
+    	$status = 0;
+    	switch ($request->type)
+    	{
+    		case 'pivot':
+    			$pivot = ItemsOrders::find($id);
+    			$count = ItemsOrders::where('orders_id', $pivot->orders_id)->count();
+    			if($count == 1)
+    			{
+    				$pivot->delete();
+					$main = Orders::find($pivot->orders_id)->delete();
+
+					Session::flash('restore_pivot', $pivot);
+					Session::flash('restore_main', $main);
+
+					$status = 301;
+    			} else {
+    				$pivot->delete();
+    				Session::flash('restore_pivot', $pivot);
+
+    				$status = 1;
+    			}
+    		break;
+			case 'main':
+				$main = Orders::find($id);
+				$main->delete();
+				Session::flash('restore_main', $main);
+
+				$status = 1;
+    		break;
+    	}
+
+    	return response()->json(['status' => $status, 'message' => 'Удалено', 'data' => $id]);
+    }
+
+	public function restore()
+	{
+		if(Session::has('restore_main'))
+		{
+			$session = Session::get('restore_main');
+			$main = new Orders;
+
+			$main->id = $session->id;
+			$main->sum = $session->sum;
+			$main->sum_discount = $session->sum_discount;
+			$main->type = $session->type;
+			$main->points_id = $session->points_id;
+			$main->created_at = $session->created_at;
+			$main->updated_at = $session->updated_at;
+
+			$main->save();
+
+			$m = Orders::find($main->id)->first();
+
+			$status = 1;
+			$message = 'Восстановлено';
+			$data = $m;
+		} 
+
+		else
+
+		if(Session::has('restore_pivot'))
+		{
+			$session = Session::get('restore_pivot');
+			$pivot = new ItemsOrders;
+
+			$pivot->id = $session->id;
+			$pivot->items_id = $session->items_id;
+			$pivot->items_price = $session->items_price;
+			$pivot->items_quantity = $session->items_quantity;
+			$pivot->items_sum = $session->items_sum;
+			$pivot->orders_id = $session->orders_id;
+
+			$pivot->save();
+
+			$io = Orders::find($pivot->orders_id)->items()->where('items_orders.id', $pivot->id)->first();
+
+			$status = 2;
+			$message = 'Восстановлено';
+			$data = $io;
+		} else {
+			$data = [];
+			$status = 0;
+			$message = 'Восстановить не удалось';
+		}
+
+		//Session::reflash();
+
+		return response()->json(['status' => $status, 'message' => $message, 'data' => $data]);
+	}
+
+	private function get_discount($sum)
+	{
+		$data = \App\Discounts::all();
+
+		$discount = 0;
+		foreach($data as $row)
+		{
+			if($sum >= $row->sum)
+			{
+				$discount = $sum * $row->percent / 100;
+			}
+		}
+
+		$sum_discount = $sum - $discount;
+		return $sum_discount;
 	}
 
 	# orders date
@@ -84,216 +277,5 @@ class OrdersController extends Controller
 		}
 
 		return response()->json(['status' => $status, 'data' => $data, 'extra' => $extra]);
-	}
-
-	// storage/app/settings.json
-	private function get_discount($sum)
-	{
-		$file = Storage::disk('local')->get('settings.json');
-		$data = json_decode($file, true);
-
-		$discount = 0;
-		foreach($data['discount'] as $row)
-		{
-			if($sum >= $row['sum'])
-			{
-				$discount = $sum * $row['percent'] / 100;
-			}
-		}
-
-		$sum_discount = $sum - $discount;
-		return $sum_discount;
-	}
-
-	# create
-	public function store(Request $request)
-	{
-		$orders = new Orders;
-
-		$items_id = [];
-
-		// get discount
-		$sum_discount = $this->get_discount($request->totalSum);
-
-		$order = $orders::create([
-			'sum' 		   => $request->totalSum, 
-			'sum_discount' => $sum_discount, 
-			'type' 		   => $request->type, 
-			'point'		   => Auth::user()->point,
-			'created_at'   => Carbon::now(),
-		]);
-
-		$json = json_decode($request->items, true);
-
-		foreach($json as $row)
-		{
-			$orders->items()->sync([
-				$row['id'] => [
-					'orders_id' 	 => $order->id, 
-					'items_price' 	 => $row['price'], 
-					'items_quantity' => $row['quantity'], 
-					'items_sum' 	 => $row['sum']
-				]
-			]);
-
-			$items_id[$row['id']] = $row['id'];
-		}
-
-		// remove qty stock
-		foreach($items_id as $id)
-		{
-		    $new_quantity = ItemsOrders::LeftJoin('orders AS o', 'o.id', '=', 'orders_id')
-		                        ->where('o.point', Auth::user()->point)
-		                        ->where('orders_id', $order->id)
-		                        ->where('items_id', $id)
-		                        ->sum('items_quantity');
-
-		    $stock = Stock::where('items_id', $id)->where('point', Auth::user()->point)->get();
-
-		    foreach($stock as $row):
-
-			    $old_quantity = $row->items_quantity;
-				$quantity = $old_quantity - $new_quantity;
-
-				if($quantity <= 0) {
-					Stock::where('items_id', $id)
-							->where('point', Auth::user()->point)
-							->delete();
-				} else {
-					Stock::where('items_id', $id)
-							->where('point', Auth::user()->point)
-							->update(['items_quantity' => $quantity]);
-				}
-		    endforeach;
-		}
-
-		return response()->json(['status' => 1, 'message' => $order->id]);
-	}
-
-	# manage analytics
-	public function analytics()
-	{
-	    # settings
-	    $i = -1; $sumAll = []; $sumMonth = []; $sumMonthPoint = []; 
-	    $sumAllKey = []; $sumAllKeyPoint = []; $sumWeek = []; $dateWeek = [];
-
-	    $date 	= Carbon::now();
-	    $month  = Carbon::now()->startOfMonth();
-	    $days30 = Carbon::today()->subDays(29);
-
-	    $start  = Carbon::today()->subDay(29);
-	    for ($i = 0; $i < 30; $i++) {
-	        $dateWeek[] = $start->copy();
-	        $start->addDay();
-	    }
-
-	    # all points
-	    $points = User::select('point')->where('point', '!=', 0)->distinct()->get();
-
-	    # sum all & month
-	    foreach(CCosts::all() as $row):
-	    	$i++;
-
-	    	# sum all
-	    	$sumAll[$i]['costs'] = $row->name;
-	    	$sumAllQuery = Costs::whereHas('ccosts', function($query) use($row, $month){
-	    		$query->where('ccosts_costs.ccosts_id', $row->id);
-	    	})->sum('sum');
-
-	    	$sumAll[$i]['sum'] = (count($sumAllQuery > 0) ? $sumAllQuery : 0);
-
-	    	# sum month
-	    	$sumMonth[$i]['costs'] = $row->name;
-	    	$sumMonthQuery = Costs::whereHas('ccosts', function($query) use($row, $month){
-	    		$query->where('ccosts_costs.ccosts_id', $row->id)
-	    			  ->whereDate('date', '>=', $month);
-	    	})->sum('sum');
-
-	    	$sumMonth[$i]['sum'] = (count($sumMonthQuery > 0) ? $sumMonthQuery : 0);
-	    endforeach;
-
-	    # sum the point
-	    foreach($points as $row):
-	    	$i++;
-	    	$sumMonthPoint[$i]['point'] = $row->point;
-		    $sumMonthPoint[$i]['sum'] = Orders::where('point', $row->point)
-								      		->whereDate('created_at', '>=', $days30)
-								      		->sum('sum');
-	    endforeach;
-
-	    # sum 30 days Orders
-	    $sum30DaysOrders = Orders::whereBetween('created_at', [$days30, $date])->sum('sum');
-
-	    # sum 30 days Supply
-	    $sum30DaysSupply = Supply::whereBetween('created_at', [$days30, $date])->sum('sum');
-
-	    # key performance indicators
-	    $sumAllOrders = Orders::sum('sum');
-	    $sumAllCosts  = Costs::sum('sum');
-	    $sumAllSupply = Supply::sum('sum');
-
-	    $sumAllItemsPrice  = DB::table('stock AS s')
-	    						->select('s.price')
-	    						->LeftJoin('items AS i', 'i.id', '=', 'items_id')
-	    						->sum('i.price');
-
-	    $sumAllItemsQuantity = Stock::sum('items_quantity');
-
-	    $sumAllStock = $sumAllItemsPrice * $sumAllItemsQuantity;
-	    $sumAllProfit = $sumAllOrders - $sumAllCosts;
-
-	    $sumAllKey = [
-	    	'orders' => $sumAllOrders, 
-	    	'costs'  => $sumAllCosts, 
-	    	'supply' => $sumAllSupply,
-	    	'stock'  => $sumAllStock,
-	    	'profit' => $sumAllProfit
-	    ];
-
-	    # key performance indicators in point
-	    foreach($points as $row):
-	    	$i++;
-	    	$sumAllPointOrders = Orders::where('point', $row->point)->sum('sum');
-	    	$sumAllPointCosts = Costs::where('point', $row->point)->sum('sum');
-
-	    	$sumAllPointItemsPrice = DB::table('stock AS s')
-	    							->select('s.price')
-	    							->LeftJoin('items AS i', 'i.id', '=', 'items_id')
-	    							->where('point', $row->point)
-	    							->sum('i.price');
-
-	    	$sumAllPointItemsQuantity = Stock::where('point', $row->point)->sum('items_quantity');
-
-	    	$sumAllKeyPoint[$row->point]['orders'] = $sumAllPointOrders;
-	    	$sumAllKeyPoint[$row->point]['costs']  = $sumAllPointCosts;
-	    	$sumAllKeyPoint[$row->point]['supply'] = Supply::where('point', $row->point)->sum('sum');
-	    	$sumAllKeyPoint[$row->point]['stock']  = $sumAllPointItemsPrice * $sumAllPointItemsQuantity;
-	    	$sumAllKeyPoint[$row->point]['profit'] = $sumAllPointOrders - $sumAllPointCosts;    	
-	    endforeach;
-
-	    # week sum 30 days
-	    foreach($dateWeek as $row):
-		    $i++;
-			$sumWeek[$i]['date'] = $row->format('d/m/Y');
-			$sum = DB::table('items_orders AS io')
-		            ->select(DB::raw("SUM(o.sum) AS sum_week"))
-		            ->LeftJoin('orders AS o', 'o.id', '=', 'io.orders_id')
-		            ->whereDate('o.created_at', '=', $row->format('Y-m-d'))
-		            ->groupBy('o.created_at')
-		            ->first();
-
-            if(count($sum) > 0)
-            {
-            	$sumWeek[$i]['sum'] = $sum->sum_week;
-            } else {
-            	$sumWeek[$i]['sum'] = 0;
-            }
-	    endforeach;
-
-	    return view('orders.analytics', compact(
-	        'sumAll', 'sumMonth', 'sumMonthPoint', 
-	        'sumAllKey', 'sumAllKeyPoint',
-	        'sum30DaysOrders', 'sum30DaysSupply', 'sumWeek'
-	    ));
 	}
 }

@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddColumnCounterpartySupply extends Migration
+class CreateDiscountsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,8 +12,11 @@ class AddColumnCounterpartySupply extends Migration
      */
     public function up()
     {
-        Schema::table('supply', function (Blueprint $table) {
-            $table->string('counterparty_id')->after('type');
+        Schema::create('discounts', function (Blueprint $table) {
+            $table->increments('id');
+            $table->float('sum');
+            $table->smallInteger('percent');
+            $table->timestamps();
         });
     }
 
@@ -24,8 +27,6 @@ class AddColumnCounterpartySupply extends Migration
      */
     public function down()
     {
-        Schema::table('supply', function (Blueprint $table) {
-            $table->dropColumn('counterparty_id');
-         });
+        Schema::drop('discounts');
     }
 }

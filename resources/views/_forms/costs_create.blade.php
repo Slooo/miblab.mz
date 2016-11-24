@@ -18,7 +18,7 @@
 <div class="form-group">
 	{{ Form::label('point', 'Точка', ['class' => 'control-label']) }}
 	<div class="input-group">
-		{{ Form::text('point', null, ['class' => 'form-control', 'id' => 'point', 'size' => 2, 'placeholder' => Auth::user()->point]) }}
+		{{ Form::text('point', null, ['class' => 'form-control', 'id' => 'point', 'size' => 2, 'placeholder' => Auth::user()->points_id]) }}
 	</div>
 </div>
 

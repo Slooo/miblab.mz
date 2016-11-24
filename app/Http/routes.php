@@ -7,19 +7,19 @@ Route::get('/', function() {
 	{
 		switch(\Auth::user()->status)
 		{
-		    case 0:
-		    return redirect('manage/analytics');
-		    break;
-
 		    case 1:
-		    return redirect('admin/items');
-		    break;
-
-		    case 2:
 		    return redirect('cashier/orders');
 		    break;
 
+		    case 2:
+		    return redirect('manage/analytics');
+		    break;
+
 		    case 3:
+		    return redirect('admin/items');
+		    break;
+
+		    case 4:
 		    return redirect('igor/analytics');
 		}
 	} else {
@@ -47,9 +47,12 @@ Route::group(['middleware' => ['auth', 'cashier'], 'prefix' => 'cashier'], funct
 	Route::post('orders', 'OrdersController@store');
 });
 
-# Admin
-Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin'], function()
+# Manage
+Route::group(['middleware' => ['auth', 'manage'], 'prefix' => 'manage'], function()
 {
+	# get
+	Route::get('analytics', 'MainController@analytics');
+
 	# patch
 	Route::patch('items/status', 'ItemsController@status');
 	Route::patch('orders/date', 'OrdersController@date');
@@ -65,11 +68,11 @@ Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin'], function(
 	Route::resource('supply', 'SupplyController');
 });
 
-# Manage
-Route::group(['middleware' => ['auth', 'manage'], 'prefix' => 'manage'], function()
+# Admin
+Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin'], function()
 {
-	# get
-	Route::get('analytics', 'OrdersController@analytics');
+	# post
+	Route::post('discounts/restore', 'DiscountsController@restore');
 
 	# patch
 	Route::patch('items/status', 'ItemsController@status');
@@ -84,19 +87,17 @@ Route::group(['middleware' => ['auth', 'manage'], 'prefix' => 'manage'], functio
 	Route::resource('orders', 'OrdersController');
 	Route::resource('costs', 'CostsController');
 	Route::resource('supply', 'SupplyController');
+	Route::resource('discounts', 'DiscountsController');
 });
 
 # Igor
 Route::group(['middleware' => ['auth', 'igor'], 'prefix' => 'igor'], function()
 {
 	# get
-	Route::get('discount', 'MainController@show_discount');
-
-	Route::get('analytics', 'OrdersController@analytics');
+	Route::get('analytics', 'MainController@analytics');
 	Route::get('items/search', 'ItemsController@cashier');
 
 	# patch
-	Route::patch('discount', 'MainController@update_discount');
 	Route::patch('items/status', 'ItemsController@status');
 	Route::patch('orders/date', 'OrdersController@date');
 	Route::patch('costs/date', 'CostsController@date');
@@ -105,11 +106,19 @@ Route::group(['middleware' => ['auth', 'igor'], 'prefix' => 'igor'], function()
 	Route::patch('items/search', 'ItemsController@search');
 
 	#post
+	Route::post('orders/delete/{id}','OrdersController@delete');
+	Route::post('discounts/delete/{id}','DiscountsController@delete');
+	Route::post('costs/delete/{id}','CostsController@delete');
+
 	Route::post('items/barcode', 'ItemsController@barcode');
+	Route::post('discounts/restore', 'DiscountsController@restore');
+	Route::post('orders/restore', 'OrdersController@restore');	
+	Route::post('costs/restore', 'CostsController@restore');	
 
 	#resource
 	Route::resource('items', 'ItemsController');
 	Route::resource('orders', 'OrdersController');
 	Route::resource('costs', 'CostsController');
 	Route::resource('supply', 'SupplyController');
+	Route::resource('discounts', 'DiscountsController');
 });

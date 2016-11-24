@@ -14,9 +14,10 @@ class CreateCostsTable extends Migration
     {
         Schema::create('costs', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('sum');
+            $table->float('sum');
             $table->timestamp('date');
-            $table->integer('point')->nullable();
+            $table->integer('points_id')->nullable()->unsigned();
+            $table->foreign('points_id')->references('id')->on('points')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

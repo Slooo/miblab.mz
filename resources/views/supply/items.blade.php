@@ -39,8 +39,6 @@
 	<div class="col-md-12 col-footer">
 		<hr>
 		<strong class="totalSum">Итого: {{ number_format($supply->sum, 0, ' ', ' ') }} &#8381;</strong>
-		<br>
-		<strong class="totalSumDiscount">Итого со скидкой: {{ number_format($supply->sum_discount, 0, ' ', ' ') }} &#8381;</strong>
 		<hr>
 	</div>
 

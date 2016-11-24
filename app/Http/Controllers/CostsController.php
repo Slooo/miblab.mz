@@ -7,11 +7,11 @@ use App\Http\Requests;
 use Carbon\Carbon;
 use Auth;
 use DB;
+use Session;
 
 #models
 use App\CCosts;
 use App\Costs;
-
 
 class CostsController extends Controller
 {
@@ -25,10 +25,10 @@ class CostsController extends Controller
     # category costs
     public function show($id)
     {
-        $ccosts = CCosts::find($id)->name;
+        $ccosts = CCosts::findOrFail($id)->name;
 
         # manage | all points
-        if(Auth::user()->point == 0)
+        if(Auth::user()->points_id == 0)
         {
             $costs = Costs::whereHas('pivot', function($query) use($id){
                 $query->where('ccosts_id', $id);
@@ -37,7 +37,7 @@ class CostsController extends Controller
         } else {
             $costs = Costs::whereHas('pivot', function($query) use($id){
                 $query->where('ccosts_id', $id)
-                      ->where('point', Auth::user()->point);
+                      ->where('points_id', Auth::user()->points_id);
             })->orderBy('id', 'desc')->get();
         }
 
@@ -78,7 +78,6 @@ class CostsController extends Controller
         }
 
         return response()->json(['status' => $status, 'data' => $data, 'extra' => $extra]);
-
     }
 
     # create page
@@ -103,42 +102,67 @@ class CostsController extends Controller
     # update
     public function update(Request $request, $id)
     {
-        $col = $request->col;
-        $val = $request->val;
-        $data = [];
+        $col = $request->column;
+        $val = $request->value;
 
-        $costs = Costs::find($request->id);
+        $costs = Costs::find($id);
         $costs->$col = $val;
         $costs->save();
 
-        $totalSum = CCosts::find($id)->costs()->sum('sum');
-
-        $data['value'] = number_format($val, 0, ' ', ' ');
-        $data['totalSum'] = number_format($totalSum, 0, ' ', ' ');
-
-        return response()->json(['status' => 1, 'message' => 'Обновлено', 'data' => $data]);
+        return response()->json(['status' => 1, 'message' => 'Обновлено']);
     }
 
     # delete
-    public function destroy(Request $request, $id)
+    public function delete(Request $request, $id)
     {
-        $costs = Costs::find($request->id);
-        $data = [];
-
-        $count = CCosts::find($id)->costs()->count();
-        if($count == 1)
+        $status = 0;
+        if($request->type == 'pivot')
         {
-            $status = 'redirect';
-            $costs->delete();
-            $costs->ccosts()->detach();
-        } else {
-            $status = 1;
-            $costs->delete();
-            $costs->ccosts()->detach();
-            $sum = CCosts::find($id)->costs()->sum('sum');
-            $data['totalSum'] = number_format($sum, 0, ' ', ' ');
+            //$pivot = Costs::findOrFail($id);
+
+            $pivot = CCosts::find($request->id)->costs()->where('costs.id', $id)->first();
+            Session::flash('restore_pivot', $pivot);
+
+            $count = CCosts::find($request->id)->costs()->count();
+            if($count == 1)
+            {
+                $status = 301;
+                $pivot->delete();
+                $pivot->ccosts()->detach();
+            } else {
+                $status = 1;
+                $pivot->delete();
+                $pivot->ccosts()->detach();
+            }
         }
 
-        return response()->json(['status' => $status, 'message' => 'Удалено', 'data' => $data]);
+        return response()->json(['status' => $status, 'message' => 'Удалено', 'data' => $id]);
+    }
+
+    # restore
+    public function restore()
+    {
+        if(Session::has('restore_pivot'))
+        {
+            $data = Session::get('restore_pivot');
+            $costs = new Costs;
+
+            $costs->id = $data->id;
+            $costs->sum = $data->sum;
+            $costs->date = $data->date;
+            $costs->points_id = $data->points_id;
+
+            $costs->save();
+            $costs->ccosts()->sync([$costs->id => ['ccosts_id' => $data->pivot->ccosts_id, 'costs_id' => $costs->id]]);
+
+            $status = 1;
+            $message = 'Восстановлено';
+        } else {
+            $costs = [];
+            $status = 0;
+            $message = 'Восстановить не удалось';
+        }
+
+        return response()->json(['status' => $status, 'message' => $message, 'data' => $costs]);
     }
 }

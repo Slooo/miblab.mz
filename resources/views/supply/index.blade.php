@@ -41,8 +41,6 @@
 	<div class="col-md-12 col-footer">
 		<hr>
 		<strong class="totalSum">Итого: {{ number_format(array_sum($totalSum), 0, ' ', ' ') }} &#8381;</strong>
-		<br>
-		<strong class="totalSumDiscount">Итого со скидкой: {{ number_format(array_sum($totalSumDiscount), 0, ' ', ' ') }} &#8381;</strong>
 		<hr>
 	</div>
 

@@ -12,7 +12,7 @@ class Orders extends Model
 	protected $table = 'orders';
   	
     protected $fillable = [
-        'id', 'sum', 'sum_discount', 'type', 'point',
+        'id', 'sum', 'sum_discount', 'type', 'points_id',
     ];
 
     public function items()

@@ -34,30 +34,45 @@ class ItemsController extends Controller
         #} else {
         #}
 
-        $items = [];
-        $quantity = 0;
-        
-        $items = Items::where('barcode', $request->barcode)->where('status', 1)->first();
+        $item = Items::where('barcode', $request->barcode)->where('status', 1)->first();
 
-        if(count($items) > 0)
+        if(count($item) > 0)
         {
-            $stock = Stock::select('items_quantity')->where('items_id', $items->id)->first();
+            $stock = Stock::select('items_quantity')->where('items_id', $item->id)->first();
             if(count($stock) > 0)
             {
                 $status = 1;
-                $message = 'Товар найдет';
-                $items['stock'] = $stock->items_quantity;
+                $message = 'Товар найден';
+                $data = $item;
+                $data['stock'] = $stock->items_quantity;
             } else {
                 $status = 0;
                 $message = 'Товар отсутствует на складе';
+                $data = [];
+            }
+
+            // check barcode dublicate
+            if($request->items)
+            {
+                $json = json_decode($request->items);
+                foreach ($json->items as $value) 
+                {
+                    if($value->id == $item->id)
+                    {
+                        $status = 0;
+                        $message = 'Товар уже есть в списке';
+                        $data = $value->item;
+                    }
+                }
             }
 
         } else {
-            $status = 0;
-            $message = 'Товар не найдет';
+            $status = 2;
+            $message = 'Товар не найден';
         }
 
-        return response()->json(['status' => $status, 'message' => $message, 'items' => $items]);
+        // после orders create очистить сессию
+        return response()->json(['status' => $status, 'message' => $message, 'data' => $data]);
    	}
 
     # get max quantity
@@ -102,7 +117,6 @@ class ItemsController extends Controller
     {
         $col = $request->col;
         $val = $request->val;
-        $data = [];
 
         $item = Items::findOrFail($id);
         $item->$col = $val;
@@ -121,7 +135,6 @@ class ItemsController extends Controller
     # create
     public function store(Request $request)
     {
-        $request['point'] = Auth::user()->point;
         Items::create($request->all());
         return response()->json(['status' => 1, 'message' => 'Создано']);
     }

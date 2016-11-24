@@ -9,7 +9,7 @@ class Stock extends Model
     protected $table = 'stock';
 
     protected $fillable = [
-        'items_id', 'items_quantity', 'point',
+        'items_id', 'items_quantity', 'points_id',
     ];
 
     public function items()

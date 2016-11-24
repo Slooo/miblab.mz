@@ -14,10 +14,11 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('sum');
-            $table->string('sum_discount');
-            $table->integer('type');
-            $table->integer('point');
+            $table->float('sum');
+            $table->float('sum_discount');
+            $table->smallInteger('type');
+            $table->integer('points_id')->unsigned();
+            $table->foreign('points_id')->references('id')->on('points')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

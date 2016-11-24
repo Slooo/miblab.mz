@@ -50,12 +50,12 @@
                         <?php $status = Auth::user()->status;?>
 
                         <!-- Create links -->
-                        @if(Request::is('cashier/orders'))
+                        @if(Request::is('cashier/orders') || Request::is('igor/orders'))
                             <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/create') }}">создать</a></li>
-                        @elseif($status == 3 || $status == 2 && Request::is('*/orders'))
-                            <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/create') }}">создать</a></li>                        
-                        @elseif(Request::is('*/supply') || Request::is('*/costs'))
+                        @elseif(Request::is('*/supply') || Request::is('*/costs') || Request::is('*/items') && $status != 1)
                             <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/create') }}">создать</a></li>
+                        @elseif(Request::is('*/discounts'))
+                            <li><a href="#" data-toggle="modal" data-target="#js-modal--create">Создать</a></li>
                         @endif
 
                         <!-- Settings links -->
@@ -80,26 +80,28 @@
                             </a>
 
                             <ul class="dropdown-menu" role="menu">
-                            @if(Auth::user()->status == 2)
+                            @if(Auth::user()->status == 1)
                                 <li><a href="{{ url('cashier/items') }}">Товары</a></li>
                                 <li><a href="{{ url('cashier/orders') }}">Заказы</a></li>
-                            @elseif(Auth::user()->status == 1)
-                                <li><a href="{{ url('admin/items') }}">Товары</a></li>
-                                <li><a href="{{ url('admin/orders') }}">Заказы</a></li>
-                                <li><a href="{{ url('admin/supply') }}">Приходы</a></li>
-                                <li><a href="{{ url('admin/costs') }}">Расходы</a></li>
-                            @elseif(Auth::user()->status == 0)
+                            @elseif(Auth::user()->status == 2)
                                 <li><a href="{{ url('manage/items') }}">Товары</a></li>
                                 <li><a href="{{ url('manage/orders') }}">Заказы</a></li>
                                 <li><a href="{{ url('manage/supply') }}">Приходы</a></li>
                                 <li><a href="{{ url('manage/costs') }}">Расходы</a></li>
                                 <li><a href="{{ url('manage/analytics') }}">Аналитика</a></li>
                             @elseif(Auth::user()->status == 3)
+                                <li><a href="{{ url('admin/items') }}">Товары</a></li>
+                                <li><a href="{{ url('admin/orders') }}">Заказы</a></li>
+                                <li><a href="{{ url('admin/supply') }}">Приходы</a></li>
+                                <li><a href="{{ url('admin/costs') }}">Расходы</a></li>
+                                <li><a href="{{ url('admin/discounts') }}">Расходы</a></li>
+                            @elseif(Auth::user()->status == 4)
                                 <li><a href="{{ url('igor/items') }}">Товары</a></li>
                                 <li><a href="{{ url('igor/orders') }}">Заказы</a></li>
                                 <li><a href="{{ url('igor/supply') }}">Приходы</a></li>
                                 <li><a href="{{ url('igor/costs') }}">Расходы</a></li>
                                 <li><a href="{{ url('igor/analytics') }}">Аналитика</a></li>
+                                <li><a href="{{ url('igor/discounts') }}">Скидки</a></li>
                             @endif
                                 <li><a href="{{ url('/logout') }}"><i class="fa fa-btn fa-sign-out"></i>Выйти</a></li>
                             </ul>
@@ -114,6 +116,9 @@
     <div class="container">
         <div class="row">
             <div id="alert"></div>
+            @if(Request::is('*/discounts'))
+                @include('_forms.modals')
+            @endif
         </div>
         @yield('content')
     </div>

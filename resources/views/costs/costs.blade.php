@@ -14,6 +14,7 @@
 		<table class="table table-bordered table-striped">
 			<thead>
 				<tr>
+					<th>№</th>
 					<th>Дата</th>
 					<th>Сумма &#8381;</th>
 					<th>Удалить</th>
@@ -22,9 +23,10 @@
 			<tbody>
 				@foreach($costs as $row)
 				<tr data-id="{{ $row->id }}" data-type="pivot">
-					<td class="col-md-1" data-type="sum">{{ $row->date_format }}</td>
-					<td class="col-md-10 js--update" data-type="sum">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
-					<td class="col-md-1"><button class="js--delete btn btn-circle btn-danger"><li class="fa fa-remove"></li></button></td>
+					<td class="col-md-1">{{ $row->id }}</td>
+					<td class="col-md-1" data-column="date">{{ $row->date_format }}</td>
+					<td class="col-md-9 js--update js--sum" data-column="sum">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
+					<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>
 				</tr>
 				@endforeach
 			</tbody>

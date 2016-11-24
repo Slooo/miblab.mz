@@ -15,11 +15,11 @@ class CreateItemsOrders extends Migration
         Schema::create('items_orders', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('items_id');
-            $table->string('items_price');
-            $table->string('items_price_discount');
-            $table->string('items_quantity');
-            $table->string('items_sum');
+            $table->float('items_price');
+            $table->integer('items_quantity');
+            $table->float('items_sum');
             $table->integer('orders_id')->unsigned()->index();
+            $table->foreign('orders_id')->references('id')->on('orders')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

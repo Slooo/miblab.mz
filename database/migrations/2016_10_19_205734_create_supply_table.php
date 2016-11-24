@@ -14,10 +14,10 @@ class CreateSupplyTable extends Migration
     {
         Schema::create('supply', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('sum');
-            $table->string('sum_discount');
-            $table->integer('type');
-            $table->integer('point');
+            $table->float('sum');
+            $table->integer('counterparty_id');
+            $table->integer('points_id')->unsigned();
+            $table->foreign('points_id')->references('id')->on('points')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

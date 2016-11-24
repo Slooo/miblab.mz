@@ -6,14 +6,15 @@
 $('body').on('click', '#js-order-and-supply--create', function(e){
 	e.preventDefault();
 
-	var json, sum, sumDiscount, type, counterparty, items, data;
+	var json, sum, sumDiscount, type, discount, counterparty, items, data;
 
 	json  = JSON.parse(localStorage.getItem('items'));
 	totalSum = json.totalSum;
 	type  = json.type;
+	discount = json.discount;
 	counterparty = json.counterparty;
 	items = JSON.stringify(json.items);
-	data  = {'totalSum' : totalSum, 'type' : type, 'counterparty' : counterparty, 'items' : items};
+	data  = {'totalSum' : totalSum, 'type' : type, 'discount': discount, 'counterparty' : counterparty, 'items' : items};
 	url   = segment2.substring(0, segment2.length - 1)
 	
 	url = (url != 'supply' ? 'orders' : 'supply');

@@ -10,5 +10,9 @@ class ItemsOrders extends Model
 {
 	protected $table = 'items_orders';
 
+	protected $fillable = [
+	    'id', 'items_id', 'items_price', 'items_quantity', 'items_sum', 'orders_id'
+	];
+
 	public $timestamps = false;
 }

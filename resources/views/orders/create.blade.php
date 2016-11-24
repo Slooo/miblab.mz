@@ -4,14 +4,14 @@
 
 <script>
 $(document).ready(function(){
-	$('#js-item--search').numeric().focus();
+	$('#js-item--search').focus();
 });
 </script>
 
 <div class="row">
 
 	<div class="col-md-8 col-md-offset-4">
-		{{ Form::text('barcode', null, ['id' => 'js-item--search', 'class' => 'form-search', 'max' => '15', 'placeholder' => 'введите штрихкод...']) }}
+		<input type="number" name="barcode" id="js-item--search" class="form-search" min="10" placeholder="Введите штрихкод...">
 	</div>
 
 	<!-- Order items -->
@@ -33,12 +33,21 @@ $(document).ready(function(){
 		</div>
 		<hr>
 
+		@if(Request::is('*/orders/create'))
 		<div class="col-md-12">
 			<div class="btn-group">
 				<button class="btn btn-default js-order--type" value="1">Налично</button>
 				<button class="btn btn-default js-order--type" value="0">Безналично</button>
 			</div>
 		</div>
+
+		<div class="col-md-12">
+		<hr>
+			<div class="btn-group">
+				<button class="btn btn-default js-order--discount">Скидка 5%</button>
+			</div>
+		</div>
+		@endif
 
 		@if(isset($counterparty))
 			<div class="col-md-12">

@@ -16,11 +16,11 @@ class CreateTableCounterparty extends Migration
             $table->increments('id');
             $table->string('name');
             $table->text('description');
-            $table->string('type');
-            $table->string('phone');
+            $table->smallInteger('type');
+            $table->integer('phone');
             $table->string('email');
             $table->string('TIN');
-            $table->text('comment');
+            $table->mediumText('comment');
             $table->timestamps();
         });
     }

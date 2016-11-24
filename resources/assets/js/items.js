@@ -252,16 +252,41 @@ $('body').on('click', '.js-order--type', function(e){
 	var btn, type, json;
 
 	btn  = $(this);
-	type = Number(btn.val());
+	type = btn.val();
 
 	if(localStorage){
-		localStorage['order-type-index'] = $(this).index();
+		localStorage['order-type-index'] = btn.index();
 	}
 
 	json = JSON.parse(localStorage.getItem('items'));
 	json.type = type;
 	localStorage.setItem('items', JSON.stringify(json));
-	OrderTypeActive(btn);
+	OrderButtonActive(btn);
+});
+
+// discount order
+$('body').on('click', '.js-order--discount', function(e){
+	
+	var btn, json;
+
+	btn = $(this);
+
+	if(localStorage){
+		localStorage['order-discount-index'] = btn.index();
+	}
+
+	json = JSON.parse(localStorage.getItem('items'));
+
+	if($(this).hasClass('active'))
+	{
+		$(this).removeClass('active');
+		json.discount = false;
+	} else {
+		$(this).addClass('active');
+		json.discount = true;
+	}
+
+	localStorage.setItem('items', JSON.stringify(json));
 });
 
 // counterparty
@@ -275,65 +300,33 @@ $('body').on('change', '.js-supply--counterparty', function(e){
 	localStorage.setItem('items', JSON.stringify(json));
 });
 
-// check if barcode
-function checkBarcode(barcode)
-{
-	var status, item, price, quantity, sum, parents
+var timer;
+   $('#some_id').keyup(function () {
+       window.clearTimeout(timer);
+       if ($('#some_id').val().length > 2) {
+           timer = setTimeout(function () {
+               // тут ajax запрос
+           }, 1000);
+       }
+   });
 
-	json = JSON.parse(localStorage.getItem('items'));
-
-	// if null items
-	if(json == null)
-	{
-		status = null;
-	} else {
-
-		// get item in array to items obejct
-		item = functiontofindIndexByKeyValue(json.items, 'barcode', barcode);
-		
-		// if dublicate
-		if(item >= 0)
-		{
-			$status = item;
-
-			// qty in stock
-			max_qty = json.items[item].stock;
-			qty = json.items[item].quantity + 1;
-			price = json.items[item].price;
-
-			// check quantity update with max qty in stock
-			quantity = (qty <= max_qty ? qty : max_qty);
-
-			$('table tr').removeClass('info');
-			parents = $('*[data-item="'+item+'"]').addClass('info');
-			parents.find('.js-order--update-quantity').html(quantity);
-			OrderItemUpdate(false, item, price, quantity);
-
-		} else {
-
-			// create new item
-			item = null;
-		}
-
-		status = item;
-	}
-
-	return status;
-}
 
 // search item
 $('#js-item--search').keyup(function(e){
 	e.preventDefault();
 
-	var barcode, data, json, quantity, unique;
+	var barcode, items, data, json, quantity, unique;
+
+	window.clearTimeout(timer);
 
 	barcode = $(this).val();
-	data 	= {'barcode':barcode}
+
+	items = localStorage.getItem('items');
+	data = {'barcode':barcode, 'items':items};
 
 	if(barcode.length > 10)
 	{
-		if(checkBarcode(barcode) === null)
-		{
+		setTimeout(function(){ 
 			$.ajax({
 				url 	 : base_url + segment1 + 'items/search',
 				type 	 : 'patch',
@@ -345,7 +338,7 @@ $('#js-item--search').keyup(function(e){
 			    },
 
 				success: function(answer) {
-					if(answer.status == 0)
+					if(answer.status == 2)
 					{
 						AnswerWarning('<button id="js-item--barcode-create" class="btn btn-danger">Отправить штрихкод</button>');
 					}
@@ -355,8 +348,16 @@ $('#js-item--search').keyup(function(e){
 						$('.order').removeClass('hidden');
 						$('#alert').removeClass().html('');
 
-						json = JSON.parse(JSON.stringify(answer.items));
+						json = JSON.parse(JSON.stringify(answer.data));
 						OrderItemPaste(json);
+					}
+
+					if(answer.status == 0)
+					{
+						AnswerWarning(answer.message);
+						$('table tr').removeClass('info');
+						var parents = $('*[data-item="'+answer.data+'"]').addClass('info');
+						parents.find('.js-order--update-quantity').html(quantity);
 					}
 			    },
 
@@ -367,7 +368,7 @@ $('#js-item--search').keyup(function(e){
 			}).complete(function() {
 					LoaderStop();
 				});
-		}
+		}, 2000);
 	}
 });
 
@@ -378,9 +379,7 @@ $(document).on('click', '.js-order--update', function(){
 	here = $(this);
 	data = here.text();
 
-	here.html('<input type="text" id="js-order--update" placeholder="'+data+'">');
-
-	$("#js-order--update").numeric();
+	here.html('<input type="number" id="js-order--update" placeholder="'+data+'">');
 	here.find('input').focus();
 });
 

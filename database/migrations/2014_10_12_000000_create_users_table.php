@@ -16,8 +16,9 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('username');
             $table->string('password');
-            $table->integer('status');
-            $table->integer('point');
+            $table->smallInteger('status');
+            $table->integer('points_id')->unsigned();
+            $table->foreign('points_id')->references('id')->on('points')->onUpdate('cascade')->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();
         });

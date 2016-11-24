@@ -30,6 +30,7 @@ elixir(function(mix) {
 		'orders.js',
 		'supply.js',
 		'costs.js',
+		'discounts.js',
 		'settings.js',
 		], 'public/js/app.js')
 
