@@ -9,10 +9,10 @@ $('body').on('click', '#js-costs--create', function(e){
 	var data = $('#form_costs').serialize();
 
 	$.ajax({
-		url:      base_url + 'costs',
-		type:     'POST',
-		dataType: 'json',
-		data: 	  data,
+		url 	 : base_url + segment1 + segment2.substring(0, segment2.length - 1),
+		type 	 : 'post',
+		dataType : 'json',
+		data 	 : data,
 
 		beforeSend: function(){
 	        LoaderStart();
@@ -21,12 +21,12 @@ $('body').on('click', '#js-costs--create', function(e){
 		success: function(answer) {
 			if(answer.status == 1)
 			{
-				AnswerSuccess(answer.message);
+				AnswerSuccess('<a href="'+base_url + segment1 + segment2 + answer.message+'">Расходы внесены</a>');
 			}
 	    },
 
 	    error: function(answer) {
-	    	AnswerError('Заполните все поля');
+	    	AnswerError();
 		}
 	})
 	.complete(function() {

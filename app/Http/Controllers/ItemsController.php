@@ -12,6 +12,7 @@ use DNS1D;
 
 # models
 use App\Items;
+use App\Stock;
 
 class ItemsController extends Controller
 {
@@ -22,14 +23,8 @@ class ItemsController extends Controller
         return view('items.items', compact('items'));
     }
 
-    # cashier page
-    public function cashier()
-    {
-        return view('items.cashier');
-    }
-
     # search item barcode
-    public function search(ItemsRequest $request)
+    public function search(Request $request)
     {
         # this admin
         #if(Auth::user()->status == 1)
@@ -37,21 +32,61 @@ class ItemsController extends Controller
          #   $items = Items::where('barcode', $request->barcode)->first();
         # this cashier
         #} else {
-            $items = Items::where('barcode', $request->barcode)->where('status', 1)->get();
         #}
 
-        if (count($items) > 0)
+        $item = Items::where('barcode', $request->barcode)->where('status', 1)->first();
+
+        if(count($item) > 0)
         {
-            return response()->json(['status' => 1, 'message' => 'Товар найден', 'items' => $items]);            
+            $stock = Stock::select('items_quantity')->where('items_id', $item->id)->first();
+            if(count($stock) > 0)
+            {
+                $status = 1;
+                $message = 'Товар найден';
+                $data = $item;
+                $data['stock'] = $stock->items_quantity;
+            } else {
+                $status = 0;
+                $message = 'Товар отсутствует на складе';
+                $data = [];
+            }
+
+            // check barcode dublicate
+            if($request->items)
+            {
+                $json = json_decode($request->items);
+                foreach ($json->items as $value) 
+                {
+                    if($value->id == $item->id)
+                    {
+                        $status = 0;
+                        $message = 'Товар уже есть в списке';
+                        $data = $value->item;
+                    }
+                }
+            }
+
         } else {
-            return response()->json(['status' => 0, 'message' => 'Товар не найден']);       
+            $status = 2;
+            $message = 'Товар не найден';
         }
+
+        // после orders create очистить сессию
+        return response()->json(['status' => $status, 'message' => $message, 'data' => $data]);
    	}
+
+    # get max quantity
+    public function stock_quantity(Request $request)
+    {
+        $quantity = Stock::select('items_quantity')->where('items_id', $request->id)->first();
+        return response()->json(['status' => 1, 'quantity' => $quantity]);
+    }
     
     # send the barcode admin (new item)
     public function barcode(Request $request)
     {
-        $item = Items::get()->where('barcode', $request->barcode);        
+        $item = Items::get()->where('barcode', $request->barcode);
+        //if no item or create laravel basic function    
         if(count($item) > 0)
         {
             return response()->json(['status' => 0, 'message' => 'Штрихкод существует']);
@@ -80,9 +115,15 @@ class ItemsController extends Controller
     # update
     public function update($id, Request $request)
     {
+        $col = $request->col;
+        $val = $request->val;
+
         $item = Items::findOrFail($id);
-        $item->update($request->all());
-        return response()->json(['status' => 1, 'message' => 'Товар обновлен']);
+        $item->$col = $val;
+        $item->save();
+
+        $data['value'] = number_format($val, 0, ' ', ' ');
+        return response()->json(['status' => 1, 'message' => 'Обновлено', 'data' => $data]);
     }
 
     # create page
@@ -92,11 +133,10 @@ class ItemsController extends Controller
     }
 
     # create
-    public function store(ItemsRequest $request)
+    public function store(Request $request)
     {
-        $request['point'] = Auth::user()->point;
         Items::create($request->all());
-        return response()->json(['status' => 1, 'message' => 'Товар создан']);
+        return response()->json(['status' => 1, 'message' => 'Создано']);
     }
 
     # generate barcode

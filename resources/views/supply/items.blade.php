@@ -17,25 +17,31 @@
 				<th>Цена &#8381; / шт.</th>
 				<th>Количество / приход</th>
 				<th>Сумма</th>
+				<th>Удалить</th>
 			</tr>
 			@foreach($supply->items as $row)
-			<tr>
-				<td>{{ $row->barcode }}</td>	
-				<td>{{ $row->name }}</td>
-				<td>{{ number_format($row->pivot->items_price, 0, ' ', ' ') }}</td>
-				<td>{{ $row->pivot->items_quantity }}</td>
-				<td>{{ number_format($row->pivot->items_sum, 0, ' ', ' ') }}</td>
+			<tr data-id="{{ $row->pivot->id }}" data-type="pivot">
+				<td class="col-md-1">{{ $row->barcode }}</td>	
+				<td class="col-md-4">{{ $row->name }}</td>
+				<td class="col-md-2 js--update" data-type="items_price">
+					{{ number_format($row->pivot->items_price, 0, ' ', ' ') }}
+				</td>
+				<td class="col-md-2 js--update" data-type="items_quantity">
+					{{ $row->pivot->items_quantity }}
+				</td>
+				<td class="col-md-2 sum">{{ number_format($row->pivot->items_sum, 0, ' ', ' ') }}</td>
+				<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><i class="fa fa-remove"></i></button></td>
 			</tr>
 			@endforeach
 		</table>
 	</div>
 
-	<div class="col-md-12">
+	<div class="col-md-12 col-footer">
 		<hr>
-		<strong>Итого: {{ number_format($supply->sum, 0, ' ', ' ') }} &#8381;</strong><br>
-		<strong>Итого со скидкой: {{ number_format($supply->sum_discount, 0, ' ', ' ') }} &#8381;</strong>
+		<strong class="totalSum">Итого: {{ number_format($supply->sum, 0, ' ', ' ') }} &#8381;</strong>
+		<hr>
 	</div>
-	
+
 </div>
 
 @stop

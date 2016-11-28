@@ -16,10 +16,8 @@ class CreateItems extends Migration
             $table->increments('id');
             $table->string('barcode');
             $table->string('name');
-            $table->string('price');
-            $table->string('quantity');
-            $table->integer('status')->default(1);
-            $table->integer('point');
+            $table->float('price');
+            $table->smallInteger('status')->default(1);
             $table->timestamps();
         });
     }

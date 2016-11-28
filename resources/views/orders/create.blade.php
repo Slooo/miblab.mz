@@ -11,7 +11,7 @@ $(document).ready(function(){
 <div class="row">
 
 	<div class="col-md-8 col-md-offset-4">
-		{{ Form::text('barcode', null, ['id' => 'js-item--search', 'class' => 'form-search', 'placeholder' => 'введите штрихкод...']) }}
+		<input type="number" name="barcode" id="js-item--search" class="form-search" min="10" placeholder="Введите штрихкод...">
 	</div>
 
 	<!-- Order items -->
@@ -33,19 +33,39 @@ $(document).ready(function(){
 		</div>
 		<hr>
 
+		@if(Request::is('*/orders/create'))
 		<div class="col-md-12">
 			<div class="btn-group">
 				<button class="btn btn-default js-order--type" value="1">Налично</button>
 				<button class="btn btn-default js-order--type" value="0">Безналично</button>
 			</div>
 		</div>
-			<div class="col-md-12">
-				<hr>
-				<strong>Итого: </strong><span id="order-sum"></span>
-				<br>
-				<strong>Итого со скидкой: </strong><span id="order-sumDiscount"></span>
-				<hr>
+
+		<div class="col-md-12">
+		<hr>
+			<div class="btn-group">
+				<button class="btn btn-default js-order--discount">Скидка 5%</button>
 			</div>
+		</div>
+		@endif
+
+		@if(isset($counterparty))
+			<div class="col-md-12">
+			<hr>
+				<select class="js-supply--counterparty">
+					<option selected="selected" disabled="disabled">Контрагент</option>
+				@foreach($counterparty as $row)
+					<option value={{ $row->id }}>{{ $row->name }}</option>
+				@endforeach
+				</select>
+			</div>
+		@endif
+
+		<div class="col-md-12">
+			<hr>
+			<strong>Итого: </strong><span id="order-sum"></span>
+			<hr>
+		</div>
 
 		<div class="col-md-12">
 			<button class="btn btn-primary" 

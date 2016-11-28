@@ -7,7 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {    
     protected $fillable = [
-        'name', 'password', 'status', 'point',
+        'name', 'password', 'status', 'points_id',
     ];
 
     protected $hidden = [
@@ -15,16 +15,6 @@ class User extends Authenticatable
     ];
 
     public function isCashier()
-    {
-        if($this->status == 2)
-        {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function isAdmin()
     {
         if($this->status == 1)
         {
@@ -36,7 +26,27 @@ class User extends Authenticatable
 
     public function isManage()
     {
-        if($this->status == 0)
+        if($this->status == 2)
+        {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function isAdmin()
+    {
+        if($this->status == 3)
+        {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function isIgor()
+    {
+        if($this->status == 4)
         {
             return true;
         } else {

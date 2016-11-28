@@ -1,6 +1,6 @@
 /vendor
 /node_modules
-/public/storage
+/storage
 /public/css
 /public/js
 /resources/assets

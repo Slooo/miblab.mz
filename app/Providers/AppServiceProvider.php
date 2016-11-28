@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Response;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

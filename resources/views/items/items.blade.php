@@ -39,7 +39,7 @@
 <div class="row">
 
 	<div class="col-md-12">
-		<h2>Все товары</h2>
+		<h2>Справочник товаров</h2>
 		<hr>
 	</div>
 
@@ -49,21 +49,19 @@
 				<th>Штрихкод</th>
 				<th>Наименование</th>
 				<th>Цена &#8381; / шт.</th>
-				<th>Количество</th>
 				<th>Статус</th>
 				<th>Печать</th>
 			</tr>
 			@foreach($items as $row)
-			<tr item="{{ $row->id }}">
+			<tr data-id="{{ $row->id }}" data-type="pivot">
 				<td>{{ $row->barcode }}</td>
 				<td data-type="name">{{ $row->name }}</td>
-				<td class="js-item--update" data-type="price">{{ number_format($row->price, 0, ' ', ' ') }}</td>
-				<td class="js-item--update" data-type="quantity">{{ $row->quantity }}</td>
+				<td @if(Auth::user()->status != 2) class="js--update" data-type="price" @endif >{{ number_format($row->price, 0, ' ', ' ') }}</td>
 				<td>
 				@if($row->status == 1)
-					<button class="btn js-item--status btn-circle btn-success" data-id="{{ $row->id }}" data-status="1"><i class="fa fa-check"></i></button>
+					<button class="btn @if(Auth::user()->status != 2) js-item--status @endif btn-circle btn-success" @if(Auth::user()->status != 2) data-id="{{ $row->id }}" data-status="1" @endif><i class="fa fa-check"></i></button>
 				@elseif($row->type == 0)
-					<button class="btn js-item--status btn-circle btn-danger" data-id="{{ $row->id }}" data-status="0"><i class="fa fa-ban" aria-hidden="true"></i></button>
+					<button class="btn @if(Auth::user()->status != 2) js-item--status @endif btn-circle btn-danger" @if(Auth::user()->status != 2) data-id="{{ $row->id }}" data-status="0" @endif><i class="fa fa-ban" aria-hidden="true"></i></button>
 				@endif
 				</td>
 
@@ -75,107 +73,4 @@
 	
 </div>
 
-@stop
-
-@section('script')
-
-	<style>
-		@media print {
-		  body  * {
-		    visibility: hidden;
-		  }
-		  .print * {
-		    visibility: visible;
-		  }
-		}
-
-		.box {
-			float: left;
-			padding:10px;
-			width: 4,5cm;
-			height: 2,5cm;
-			margin: 2%;
-			border:1px solid #333;
-			border-radius:8px;
-		}
-
-		.box .header {
-			margin-top:10px;
-			text-align:center;
-		}
-
-		.box .barcode{
-			text-align:center;
-			margin-bottom:20px;
-		}
-
-		.box .barcode span {
-			position:absolute;
-			margin-top:-7px;
-			margin-left:-100px;
-			letter-spacing:10px;
-		}
-
-		.box .description {
-			border-top:1px solid #333;
-			border-bottom:1px solid #333;
-			height:22px;
-		}
-
-		.box .description span {
-			float:left;
-			width:35%;
-			margin-right:13%;
-			padding-right:1%;
-			border-right:1px solid #333;
-		}
-
-		.box .description time {
-			float:right;
-			width:35%;
-			margin-left:13%;
-			padding-left:1%;
-			border-left:1px solid #333;
-		}
-
-		.box .title {
-			width:100%;
-			text-align:left;
-			padding:5px 0px 5px 0px;
-		}
-
-		.box .footer p {
-			float:left;
-			width:40%;
-			text-align:left;
-		}
-
-		.box .footer span {
-			float:right;
-			width:60%;
-			text-align:left;
-			border-bottom:1px solid #333;
-		}
-
-		#js-item--print-edit {
-			position:fixed;
-			right:30px;
-		}
-
-		#print_frame{
-		    display: none;
-		}
-
-		.full {
-    		box-shadow: 0 0 10px #333;
-    	}
-
-		#print-modal {
-			text-align: center;
-		}
-
-		.modal-body .form-group {
-			margin-bottom:0px;
-		}
-	</style>
 @stop

@@ -19,17 +19,19 @@
 					<th>Сумма &#8381;</th>
 					<th>Сумма со скидкой &#8381;</th>
 					<th>Тип оплаты</th>
+					<th>Опции</th>
 				</tr>
 			</thead>	
-			
+
 			<tbody>
 				@foreach($orders as $row)
-				<tr>
-					<td class="js-order--url" data-url="{{ url(Request::segment(1).'/'.Request::segment(2).'/'.$row->id) }}">{{ $row->id }}</td>
-					<td>{{ $row->pivot->date_format }}</td>
-					<td>{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
-					<td>{{ number_format($totalSumDiscount[] = $row->sum_discount, 0, ' ', ' ') }}</td>
+				<tr data-id="{{ $row->id }}" data-type="main">
+					<td class="js-url--link" data-url="{{ url(Request::segment(1).'/'.Request::segment(2).'/'.$row->id) }}">{{ $row->id }}</td>
+					<td>{{ $row->date_format }}</td>
+					<td class="js--sum-discount">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
+					<td class="js--sum-discount">{{ number_format($totalSumDiscount[] = $row->sum_discount, 0, ' ', ' ') }}</td>
 					<td>{{ ($row->type == 1 ? 'Налично' : 'Безналично') }}</td>
+					<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>
 				</tr>
 				@endforeach
 			</tbody>

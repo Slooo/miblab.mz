@@ -2,35 +2,26 @@
 	------- ORDERS FUNCTION ------- 
 */
 
-// order url
-$('body').on('click', '.js-order--url', function(e){
-	e.preventDefault();
-	var url = $(this).data('url');
-    window.location = url;
-});
-
 // create order and supply
 $('body').on('click', '#js-order-and-supply--create', function(e){
 	e.preventDefault();
 
-	var json, sum, sumDiscount, type, items, data;
+	var json, sum, sumDiscount, type, discount, counterparty, items, data;
 
 	json  = JSON.parse(localStorage.getItem('items'));
-	sum   = json.sum;
+	totalSum = json.totalSum;
 	type  = json.type;
+	discount = json.discount;
+	counterparty = json.counterparty;
 	items = JSON.stringify(json.items);
-	data  = {'sum':sum, 'type':type, 'items':items};
-
-	url = segment2.substring(0, segment2.length - 1)
-
-	if(url != 'supply')
-	{
-		url = 'orders';
-	}
+	data  = {'totalSum' : totalSum, 'type' : type, 'discount': discount, 'counterparty' : counterparty, 'items' : items};
+	url   = segment2.substring(0, segment2.length - 1)
+	
+	url = (url != 'supply' ? 'orders' : 'supply');
 
 	$.ajax({
 		url 	 : base_url + segment1 + url,
-		type 	 : 'POST',
+		type 	 : 'post',
 		dataType : 'json',
 		data  	 : data,
 
@@ -42,12 +33,12 @@ $('body').on('click', '#js-order-and-supply--create', function(e){
 			if(answer.status == 1)
 			{
 				OrderClear();
-				AnswerSuccess(answer.message);
+				AnswerSuccess('<a href="'+base_url + segment1 + url + '/' + answer.message +'">Создано</a>');
 			}
 	    },
 
 	    error: function(answer) {
-	    	AnswerError('Укажите тип оплаты');
+	    	AnswerError();
 		}
 
 	}).complete(function() {

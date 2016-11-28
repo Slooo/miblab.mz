@@ -16,6 +16,13 @@
 </div>
 
 <div class="form-group">
+	{{ Form::label('point', 'Точка', ['class' => 'control-label']) }}
+	<div class="input-group">
+		{{ Form::text('point', null, ['class' => 'form-control', 'id' => 'point', 'size' => 2, 'placeholder' => Auth::user()->points_id]) }}
+	</div>
+</div>
+
+<div class="form-group">
 	{{ Form::label('category', 'Категория', ['class' => 'control-label']) }}
 	{{ Form::select('ccosts_id', $ccosts, 'S', ['class' => 'form-control', 'id' => 'category']) }}
 </div>

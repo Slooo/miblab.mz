@@ -10,10 +10,15 @@ class ItemsOrders extends Model
 {
 	protected $table = 'items_orders';
 
-	protected $dates = ['created_at', 'updated_at'];
+	protected $fillable = [
+	    'id', 'items_id', 'items_price', 'items_quantity', 'items_sum', 'orders_id'
+	];
 
-    public function getDateFormatAttribute()
-    {
-        return Carbon::parse($this->attributes['created_at'])->format('d/m/Y');
-    }
+	public $timestamps = false;
+
+	public function pivot()
+	{
+	    return $this->hasOne(Orders::class);
+	}
+
 }

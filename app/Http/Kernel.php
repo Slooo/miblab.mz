@@ -52,5 +52,6 @@ class Kernel extends HttpKernel
         'cashier' => \App\Http\Middleware\Cashier::class,
         'admin' => \App\Http\Middleware\Admin::class,
         'manage' => \App\Http\Middleware\Manage::class,
+        'igor'  => \App\Http\Middleware\Igor::class,
     ];
 }

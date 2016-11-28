@@ -21,6 +21,6 @@ class Cashier
             return $next($request);
         }
 
-        return redirect('cashier/search');    
+        return redirect('cashier/orders');    
     }
 }

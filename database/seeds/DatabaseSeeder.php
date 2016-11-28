@@ -11,7 +11,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-    	DB::unprepared(file_get_contents('./database/seeds/dump/mz_2016-10-20.sql'));
+    	DB::unprepared(file_get_contents('./database/seeds/dump/dump.sql'));
     	$this->command->info('Seed: column added successfully.');
     }
 }
