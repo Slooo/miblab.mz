@@ -170,63 +170,7 @@ class OrdersController extends Controller
 
     	return response()->json(['status' => $status, 'message' => 'Удалено', 'data' => $id]);
     }
-
-	public function restore()
-	{
-		if(Session::has('restore_main'))
-		{
-			$session = Session::get('restore_main');
-			$main = new Orders;
-
-			$main->id = $session->id;
-			$main->sum = $session->sum;
-			$main->sum_discount = $session->sum_discount;
-			$main->type = $session->type;
-			$main->points_id = $session->points_id;
-			$main->created_at = $session->created_at;
-			$main->updated_at = $session->updated_at;
-
-			$main->save();
-
-			$m = Orders::find($main->id)->first();
-
-			$status = 1;
-			$message = 'Восстановлено';
-			$data = $m;
-		} 
-
-		else
-
-		if(Session::has('restore_pivot'))
-		{
-			$session = Session::get('restore_pivot');
-			$pivot = new ItemsOrders;
-
-			$pivot->id = $session->id;
-			$pivot->items_id = $session->items_id;
-			$pivot->items_price = $session->items_price;
-			$pivot->items_quantity = $session->items_quantity;
-			$pivot->items_sum = $session->items_sum;
-			$pivot->orders_id = $session->orders_id;
-
-			$pivot->save();
-
-			$io = Orders::find($pivot->orders_id)->items()->where('items_orders.id', $pivot->id)->first();
-
-			$status = 2;
-			$message = 'Восстановлено';
-			$data = $io;
-		} else {
-			$data = [];
-			$status = 0;
-			$message = 'Восстановить не удалось';
-		}
-
-		//Session::reflash();
-
-		return response()->json(['status' => $status, 'message' => $message, 'data' => $data]);
-	}
-
+    
 	private function get_discount($sum)
 	{
 		$data = \App\Discounts::all();

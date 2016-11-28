@@ -15,4 +15,10 @@ class ItemsOrders extends Model
 	];
 
 	public $timestamps = false;
+
+	public function pivot()
+	{
+	    return $this->hasOne(Orders::class);
+	}
+
 }

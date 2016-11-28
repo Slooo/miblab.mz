@@ -94,6 +94,9 @@ Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin'], function(
 Route::group(['middleware' => ['auth', 'igor'], 'prefix' => 'igor'], function()
 {
 	# get
+	Route::get('abc', 'MainController@abc');
+	Route::get('xyz', 'MainController@xyz');
+
 	Route::get('analytics', 'MainController@analytics');
 	Route::get('items/search', 'ItemsController@cashier');
 
