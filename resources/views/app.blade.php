@@ -57,7 +57,7 @@
                         @elseif(Request::is('*/discounts'))
                             <li><a href="#" data-toggle="modal" data-target="#js-modal--create">Создать</a></li>
                         @elseif(Request::is('*/analytics'))
-                            <li><a href="{{ url(Request::url().'/abc') }}">ABC аналитика</a></li>
+                            <li><a href="{{ url(Request::url().'/abc') }}">ABC анализ</a></li>
                         @endif
 
                         <!-- Settings links -->
