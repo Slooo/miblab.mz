@@ -96,7 +96,7 @@
                                 <li><a href="{{ url('admin/orders') }}">Заказы</a></li>
                                 <li><a href="{{ url('admin/supply') }}">Приходы</a></li>
                                 <li><a href="{{ url('admin/costs') }}">Расходы</a></li>
-                                <li><a href="{{ url('admin/discounts') }}">Расходы</a></li>
+                                <li><a href="{{ url('admin/discounts') }}">Скидки</a></li>
                             @elseif(Auth::user()->status == 4)
                                 <li><a href="{{ url('igor/items') }}">Товары</a></li>
                                 <li><a href="{{ url('igor/orders') }}">Заказы</a></li>
