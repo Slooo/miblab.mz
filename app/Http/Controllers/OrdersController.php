@@ -55,7 +55,7 @@ class OrdersController extends Controller
 		$items_id = [];
 
 		# 5% is cashier click
-		if($request->discount === true && $request->totalSum < 3000)
+		if($request->discount === true && $request->totalSum <= 3000)
 		{
 			$request['totalSumDiscount'] = $request->totalSum * 5 / 100;
 		} else {
