@@ -51,6 +51,8 @@ Route::group(['middleware' => ['auth', 'cashier'], 'prefix' => 'cashier'], funct
 Route::group(['middleware' => ['auth', 'manage'], 'prefix' => 'manage'], function()
 {
 	# get
+	Route::get('analytics/abc', 'MainController@abc');
+	Route::get('xyz', 'MainController@xyz');
 	Route::get('analytics', 'MainController@analytics');
 
 	# patch
@@ -94,7 +96,7 @@ Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin'], function(
 Route::group(['middleware' => ['auth', 'igor'], 'prefix' => 'igor'], function()
 {
 	# get
-	Route::get('abc', 'MainController@abc');
+	Route::get('analytics/abc', 'MainController@abc');
 	Route::get('xyz', 'MainController@xyz');
 
 	Route::get('analytics', 'MainController@analytics');

@@ -8,7 +8,7 @@
 		<h2>Аналитика</h2>
 		<hr>
 	</div>
-
+	
 	<div class="col-md-6">
 		<table class="table table-bordered analytics-table">
 			<thead>
