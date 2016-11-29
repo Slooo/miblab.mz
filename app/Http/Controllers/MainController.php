@@ -150,11 +150,6 @@ class MainController extends Controller
 	    ));
 	}
 
-	public function abc()
-	{
-		echo 'hello';
-	}
-
 	public function getMonth($month)
 	{
 		// sub month сделаю заготовку запроса
@@ -197,7 +192,7 @@ class MainController extends Controller
 			endforeach;
 		}
 
-		#dd($data, $items); //9
+		dd($data, $items); //9
 
 		$count = []; $i=0;
 		foreach($data as $key => $val){
@@ -217,10 +212,6 @@ class MainController extends Controller
 			$j++;
 		}
 		
-		
-
-		dd($sum);
-
 		// 6 месяцев
 		$count = 6;
 
@@ -279,7 +270,92 @@ class MainController extends Controller
 
 		//echo round(1241757, -3); // 1242000
 
-
 		return view('analytics.xyz', compact('items', 'xyz'));
+	}
+
+	public function abc()
+	{
+		// settings
+		$abc = []; $items = []; $step1 = []; $step2 = []; $i = 0;
+
+		$get = DB::table('items_orders AS io')
+				->select(DB::raw("sum(items_sum) as items_sum, items_id"))
+				->groupBy('items_id')
+				->get();
+
+		$sum = ItemsOrders::sum('items_sum');
+
+		foreach($get as $row):
+			$items[] = Items::find($row->items_id);
+			$step1[$row->items_id] = ceil(($row->items_sum / $sum) * 100); # доля
+			$i++;
+		endforeach;
+
+		arsort($step1); // сортируем по убыванию значений
+
+		$i = 0;
+		foreach($step1 as $key => $row)
+		{
+			$step2[$i]['items_id'] = $key;
+			$step2[$i]['items_sum'] = $row;
+			$i++;
+		}
+
+		$count = count($step2);
+
+		// доля накопительных значений
+		foreach($step2 as $key => $row):
+			if($key > 0 && $key < $count)
+			{
+				$step2[$key]['items_sum'] = $step2[$key-1]['items_sum'] + $step2[$key]['items_sum'];
+			}
+		endforeach;
+
+		// готовим массив данных
+		$i = 0;
+
+		foreach($get as $profit)
+		{
+			foreach($step2 as $row)
+			{
+				foreach($step1 as $key_share => $share)
+				{
+					foreach($items as $item)
+					{
+						if($row['items_id'] == $item->id && $key_share == $item->id && $profit->items_id == $item->id)
+						{
+							$abc[$i]['id'] = $item->id;
+							$abc[$i]['name'] = $item->name;
+							$abc[$i]['profit'] = $profit->items_sum;
+							$abc[$i]['share'] = $share;
+							$abc[$i]['share_storage'] = $row['items_sum'];
+
+							if($row['items_sum'] > 0 && $row['items_sum'] <= 80)
+							{
+								$abc[$i]['group'] = 'A';
+							}
+
+							else
+
+							if($row['items_sum'] >= 80 && $row['items_sum'] <= 95)
+							{
+								$abc[$i]['group'] = 'B';
+							}
+							
+							else
+
+							if($row['items_sum'] > 95)
+							{
+								$abc[$i]['group'] = 'C';
+							}
+
+							$i++;
+						}
+					}
+				}
+			}
+		}
+
+		return view('analytics.abc', compact('abc'));
 	}
 }
