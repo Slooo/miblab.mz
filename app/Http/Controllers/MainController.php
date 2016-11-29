@@ -276,7 +276,7 @@ class MainController extends Controller
 	public function abc()
 	{
 		// settings
-		$abc = []; $items = []; $step1 = []; $step2 = []; $i = 0;
+		$abc = []; $items = []; $abc = []; $step2 = []; $i = 0;
 
 		$get = DB::table('items_orders AS io')
 				->select(DB::raw("sum(items_sum) as items_sum, items_id"))
@@ -286,73 +286,55 @@ class MainController extends Controller
 		$sum = ItemsOrders::sum('items_sum');
 
 		foreach($get as $row):
-			$items[] = Items::find($row->items_id);
-			$step1[$row->items_id] = ceil(($row->items_sum / $sum) * 100); # доля
+			$abc[$i]['share'] = ceil(($row->items_sum / $sum) * 100); # доля
+			$abc[$i]['share_storage'] = ceil(($row->items_sum / $sum) * 100); # доля для накопительных
+			$abc[$i]['items_id'] = $row->items_id;
+			$abc[$i]['profit'] = $row->items_sum;
+			$abc[$i]['name'] = Items::find($row->items_id)->name;
 			$i++;
 		endforeach;
 
-		arsort($step1); // сортируем по убыванию значений
+		// сортируем по убыванию значений
+		uasort($abc, function($a, $b) {
+		    return $a['profit'] < $b['profit'];
+		});
 
-		$i = 0;
-		foreach($step1 as $key => $row)
-		{
-			$step2[$i]['items_id'] = $key;
-			$step2[$i]['items_sum'] = $row;
-			$i++;
-		}
-
-		$count = count($step2);
+		$count = count($abc);
+		$abc = array_values($abc);
 
 		// доля накопительных значений
-		foreach($step2 as $key => $row):
+		foreach($abc as $key => $row):
 			if($key > 0 && $key < $count)
 			{
-				$step2[$key]['items_sum'] = $step2[$key-1]['items_sum'] + $step2[$key]['items_sum'];
+				$abc[$key]['share_storage'] = $abc[$key-1]['share_storage'] + $abc[$key]['share_storage'];
+			}
+
+			if($key == 0)
+			{
+				$abc[0]['share_storage'] = $abc[0]['share_storage'];
 			}
 		endforeach;
 
-		// готовим массив данных
-		$i = 0;
-
-		foreach($get as $profit)
+		// создаем группы
+		foreach($abc as $key => $row)
 		{
-			foreach($step2 as $row)
+			if($row['share_storage'] > 0 && $row['share_storage'] <= 80)
 			{
-				foreach($step1 as $key_share => $share)
-				{
-					foreach($items as $item)
-					{
-						if($row['items_id'] == $item->id && $key_share == $item->id && $profit->items_id == $item->id)
-						{
-							$abc[$i]['id'] = $item->id;
-							$abc[$i]['name'] = $item->name;
-							$abc[$i]['profit'] = $profit->items_sum;
-							$abc[$i]['share'] = $share;
-							$abc[$i]['share_storage'] = $row['items_sum'];
+				$abc[$key]['group'] = 'A';
+			}
 
-							if($row['items_sum'] > 0 && $row['items_sum'] <= 80)
-							{
-								$abc[$i]['group'] = 'A';
-							}
+			else
 
-							else
+			if($row['share_storage'] >= 80 && $row['share_storage'] <= 95)
+			{
+				$abc[$key]['group'] = 'B';
+			}
+			
+			else
 
-							if($row['items_sum'] >= 80 && $row['items_sum'] <= 95)
-							{
-								$abc[$i]['group'] = 'B';
-							}
-							
-							else
-
-							if($row['items_sum'] > 95)
-							{
-								$abc[$i]['group'] = 'C';
-							}
-
-							$i++;
-						}
-					}
-				}
+			if($row['share_storage'] > 95)
+			{
+				$abc[$key]['group'] = 'C';
 			}
 		}
 
