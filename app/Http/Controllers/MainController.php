@@ -154,13 +154,13 @@ class MainController extends Controller
 	public function getMonth($month)
 	{
 		// sub month сделаю заготовку запроса
-		$items = DB::table('items_orders AS io')
-					->select(DB::raw('count(*) AS qty, io.items_id'))
-					->LeftJoin('orders AS o', 'o.id', '=', 'io.orders_id')
-					#->whereBetween('o.created_at', [Carbon::now()->subMonths(6), Carbon::now()])
-					->whereMonth('o.created_at', '=', $month)
-					->groupBy('io.items_id')
-					->get();
+		
+		$items = DB::table('items_supply AS is')
+							->select('is.items_price', 'is.items_id')
+							->LeftJoin('supply AS s', 's.id', '=', 'is.supply_id')
+							->whereMonth('s.created_at', '=', $month)
+							->groupBy('is.items_id')
+							->get();
 		return $items;
 	}
 
@@ -169,21 +169,50 @@ class MainController extends Controller
 		// массив месяцев с данными
 		$start = Carbon::now()->subMonths(6); // с текущей даты - 6 месяцев
 		for ($i = 0; $i < 7; $i++) {
-			$items[$i] = $this->getMonth($start->month);
+			$supply[$i] = DB::table('items_supply AS is')
+							->select('is.items_price', 'is.items_id')
+							->LeftJoin('supply AS s', 's.id', '=', 'is.supply_id')
+							->whereMonth('s.created_at', '=', $start->month)
+							->groupBy('is.items_id')
+							->get();
 		    $start->addMonth();
 		}
 
-	// 6 месяцев
-	#$month = Carbon::now()->subMonths(6);
-	
-	/*
-	$items = DB::table('items_orders AS io')
-				->select(DB::raw('count(*) AS qty, io.items_id'))
-				->LeftJoin('orders AS o', 'o.id', '=', 'io.orders_id')
-				->whereBetween('o.created_at', [$month, Carbon::now()])
-				->groupBy('io.items_id')
-				->get();
-	*/
+		$items = Items::all();
+
+		foreach($supply as $key)
+		{
+			foreach($key as $keys => $row)
+			{
+				foreach($items as $item)
+				{
+					if($row->items_id == $item->id)
+					{
+						$get[$keys][$i]['items_sum'] = $item->price - $row->items_price;
+						$get[$keys][$i]['items_id'] = $item->id;
+					}
+				}
+			}
+
+			$i++;
+		}
+
+		dd($get);
+
+		// суммируем по items_id
+		$result = [];
+		foreach($get as $k => $v) {
+		    $id = $v['items_id'];
+		    $result[$id][] = $v['items_sum'];
+		}
+
+		$get = [];
+		foreach($result as $key => $value) {
+		    $get[] = ['items_id' => $key, 'items_sum' => array_sum($value)];
+		}
+
+		dd($get);
+
 
 		$data = []; $i=0; $j=0;
 		foreach($items as $key => $val){
