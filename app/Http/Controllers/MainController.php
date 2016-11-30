@@ -310,8 +310,10 @@ class MainController extends Controller
 
 		$get = [];
 		foreach($result as $key => $value) {
-		    $get[] = array('items_id' => $key, 'items_sum' => array_sum($value));
+		    $get[] = ['items_id' => $key, 'items_sum' => array_sum($value)];
 		}
+
+		dd($get);
 
 		$i = 0;
 		$sum = ItemsOrders::sum('items_sum');
@@ -371,8 +373,6 @@ class MainController extends Controller
 				$abc[$key]['group'] = 'C';
 			}
 		}
-
-		dd($abc);
 
 		return view('analytics.abc', compact('abc'));
 	}
