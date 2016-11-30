@@ -20,6 +20,7 @@ use App\Items;
 use App\Supply;
 use App\Stock;
 use App\ItemsOrders;
+use App\ItemsSupply;
 
 class MainController extends Controller
 {
@@ -276,21 +277,51 @@ class MainController extends Controller
 	public function abc()
 	{
 		// settings
-		$abc = []; $items = []; $abc = []; $step2 = []; $i = 0;
+		$abc = []; $i = 0;
 
+		$supply = ItemsSupply::all();
+		$items = Items::all();
+
+		/*
 		$get = DB::table('items_orders AS io')
 				->select(DB::raw("sum(items_sum) as items_sum, items_id"))
 				->groupBy('items_id')
 				->get();
+		*/
 
+		foreach($supply as $row){
+			foreach($items as $item)
+			{
+				if($row->items_id == $item->id)
+				{
+					$get[$i]['items_sum'] = $item->price - $row->items_price;
+					$get[$i]['items_id'] = $item->id;
+				}
+			}
+			$i++;
+		}
+
+		// суммируем по items_id
+		$result = [];
+		foreach($get as $k => $v) {
+		    $id = $v['items_id'];
+		    $result[$id][] = $v['items_sum'];
+		}
+
+		$get = [];
+		foreach($result as $key => $value) {
+		    $get[] = array('items_id' => $key, 'items_sum' => array_sum($value));
+		}
+
+		$i = 0;
 		$sum = ItemsOrders::sum('items_sum');
 
 		foreach($get as $row):
-			$abc[$i]['share'] = ceil(($row->items_sum / $sum) * 100); # доля
-			$abc[$i]['share_storage'] = ceil(($row->items_sum / $sum) * 100); # доля для накопительных
-			$abc[$i]['items_id'] = $row->items_id;
-			$abc[$i]['profit'] = $row->items_sum;
-			$abc[$i]['name'] = Items::find($row->items_id)->name;
+			$abc[$i]['share'] = ceil(($row['items_sum'] / $sum) * 100); # доля
+			$abc[$i]['share_storage'] = ceil(($row['items_sum'] / $sum) * 100); # доля для накопительных
+			$abc[$i]['items_id'] = $row['items_id'];
+			$abc[$i]['profit'] = $row['items_sum'];
+			$abc[$i]['name'] = Items::find($row['items_id'])->name;
 			$i++;
 		endforeach;
 
@@ -299,8 +330,11 @@ class MainController extends Controller
 		    return $a['profit'] < $b['profit'];
 		});
 
-		$count = count($abc);
+		// новый массив с обновленными ключами
 		$abc = array_values($abc);
+
+		// количество
+		$count = count($abc);
 
 		// доля накопительных значений
 		foreach($abc as $key => $row):
