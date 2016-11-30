@@ -313,8 +313,6 @@ class MainController extends Controller
 		    $get[] = ['items_id' => $key, 'items_sum' => array_sum($value)];
 		}
 
-		dd($get);
-
 		$i = 0;
 		$sum = ItemsOrders::sum('items_sum');
 
