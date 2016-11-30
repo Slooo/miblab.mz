@@ -372,6 +372,8 @@ class MainController extends Controller
 			}
 		}
 
+		dd($abc);
+
 		return view('analytics.abc', compact('abc'));
 	}
 }
