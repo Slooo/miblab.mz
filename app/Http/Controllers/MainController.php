@@ -180,39 +180,80 @@ class MainController extends Controller
 
 		$items = Items::all();
 
-		foreach($supply as $key)
+		/* 
+			здесь получаем все товары в каждом месяце ( где не пусто )
+			где ключ массива = месяц
+		*/
+
+		foreach($supply as $key => $keys)
 		{
-			foreach($key as $keys => $row)
+			foreach($items as $item)
 			{
-				foreach($items as $item)
-				{
+				foreach($keys as $k => $row):
 					if($row->items_id == $item->id)
 					{
-						$get[$keys][$i]['items_sum'] = $item->price - $row->items_price;
-						$get[$keys][$i]['items_id'] = $item->id;
+						$new[$key][$item->id]['items_sum'] = $item->price - $row->items_price;
+						$new[$key][$item->id]['items_id'] = $item->id;
+					}
+				endforeach;
+			}
+		}
+
+		#dd($new);
+
+		// делаем из items_id ключи и в значения сумму
+		
+		$result = [];
+		foreach($new as $k => $v) {
+			foreach($v as $n):
+				$result[$n['items_id']][] = $n['items_sum'];
+		    endforeach;
+		}
+
+		#dd($result);
+		
+		// получаем среднее значение для каждого товара
+		$middle_sum = []; $i = 0;
+		foreach($result as $key => $value) {
+		    $middle_sum[] = ['items_id' => $key, 'sum' => array_sum($value), 'count' => count($value)];
+		}
+
+		#dd($middle_sum);
+	
+		// среднее значение
+		$middle = [];
+		foreach($middle_sum as $row)
+		{
+			$middle[$row['items_id']] = $row['sum'] - $row['count'];
+		}
+
+		#dd($middle);
+
+		#dd($new);
+
+		// Вычисляем из каждой продажи каждого товара в каждом месяце и возводим в квадрат
+		foreach($new as $month => $array)
+		{
+			foreach($array as $key => $item)
+			{
+				foreach($middle as $id => $sum)
+				{
+					if($item['items_id'] == $id)
+					{
+						$new[$month][$key]['square'] = pow($item['items_sum'] - $sum, 2);
 					}
 				}
 			}
-
-			$i++;
 		}
 
-		dd($get);
-
-		// суммируем по items_id
-		$result = [];
-		foreach($get as $k => $v) {
-		    $id = $v['items_id'];
-		    $result[$id][] = $v['items_sum'];
+		// складываем возведенные в квадрат суммы всех товаров за месяц
+		foreach($new as $month => $array)
+		{
+			$new[$month] = array_sum(array_column($array, 'square'));
 		}
 
-		$get = [];
-		foreach($result as $key => $value) {
-		    $get[] = ['items_id' => $key, 'items_sum' => array_sum($value)];
-		}
 
-		dd($get);
-
+		dd($new);
 
 		$data = []; $i=0; $j=0;
 		foreach($items as $key => $val){
