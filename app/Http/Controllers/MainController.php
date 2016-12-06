@@ -199,26 +199,19 @@ class MainController extends Controller
 			}
 		}
 
-		#dd($new);
-
 		// делаем из items_id ключи и в значения сумму
-		
 		$result = [];
 		foreach($new as $k => $v) {
 			foreach($v as $n):
 				$result[$n['items_id']][] = $n['items_sum'];
 		    endforeach;
 		}
-
-		#dd($result);
 		
 		// получаем среднее значение для каждого товара
 		$middle_sum = []; $i = 0;
 		foreach($result as $key => $value) {
 		    $middle_sum[] = ['items_id' => $key, 'sum' => array_sum($value), 'count' => count($value)];
 		}
-
-		#dd($middle_sum);
 	
 		// среднее значение
 		$middle = [];
@@ -226,10 +219,6 @@ class MainController extends Controller
 		{
 			$middle[$row['items_id']] = $row['sum'] - $row['count'];
 		}
-
-		#dd($middle);
-
-		#dd($new);
 
 		// Вычисляем из каждой продажи каждого товара в каждом месяце и возводим в квадрат
 		foreach($new as $month => $array)
@@ -241,65 +230,39 @@ class MainController extends Controller
 					if($item['items_id'] == $id)
 					{
 						$new[$month][$key]['square'] = pow($item['items_sum'] - $sum, 2);
+						$new[$month][$key]['sum_square'] = 0;
 					}
 				}
 			}
 		}
 
 		// складываем возведенные в квадрат суммы всех товаров за месяц
-		foreach($new as $month => $array)
+		$result = [];
+		foreach($new as $k => $v) {
+			foreach($v as $n):
+				$result[$n['items_id']][$k]['square'] = $n['square'];
+				$result[$n['items_id']][$k]['sum_square'] = 0;
+		    endforeach;
+		}
+	
+		// сложить сумма square
+		foreach($result as $id => $item)
 		{
-			$new[$month] = array_sum(array_column($array, 'square'));
+			$sum_square[$id] = array_sum(array_column($item, 'square'));
 		}
 
+		#dd($sum_square);
 
-		dd($new);
-
-		$data = []; $i=0; $j=0;
-		foreach($items as $key => $val){
-			foreach($val as $row):
-				$data[$row->items_id][$i] = $row->qty;
-			$i++;
-			endforeach;
+		foreach($sum_square as $id => $square)
+		{
+			foreach($middle_sum as $sum)
+			{
+				if($id == $sum['items_id'] && $sum['count'] - 1 > 0)
+				{
+					$xyz[$id][] = round(((sqrt($square / ($sum['count'] - 1))) / $row['sum']) * 100, 0);
+				}
+			}
 		}
-
-		dd($data, $items); //9
-
-		$count = []; $i=0;
-		foreach($data as $key => $val){
-			$count[$i] = count($val);
-			$i++;
-		}
-
-		#dd($count); //9
-
-		$i = 0; $j = 0; $stand_otklonenie = [];
-		foreach($data as $key => $val){
-			foreach($val as $row):
-				$sum[$i] = $key;
-				#$stand_otklonenie[$i] = sqrt(pow($qty - ($qty / $count[$i]), 2) / ($count[$i] - 1));
-				$i++;
-			endforeach;
-			$j++;
-		}
-		
-		// 6 месяцев
-		$count = 6;
-
-		// средняя сумма значений
-		//$sum = array_sum(array_column($items, 'qty')) / $count;
-		
-		$i = 0;
-		// Вычесть среднее из каждого из значений и возводим в квадрат
-		$koef_varicii = [];
-		foreach($items as $val):
-			//$sum[$i] = $val->qty / $count;
-			$stand_otklonenie[$i] = sqrt(pow($val->qty - ($val->qty / $count), 2) / ($count - 1));
-			$koef_varicii[$i] = (sqrt(pow($val->qty - ($val->qty / $count), 2) / ($count - 1)) / ($val->qty / $count)) * 100;
-			$i++;
-		endforeach;
-
-		dd($stand_otklonenie, $koef_varicii, $items);
 
 	#-------------------
 		//$items = [15, 30, 27, 45, 80, 12];
@@ -316,7 +279,7 @@ class MainController extends Controller
 		endforeach;
 
 		// складываем возведенные в квадрат суммы
-		$sum_square = array_sum($items);
+		$sum_square = array_sum($items); # FFFFFFFFF
 
 		// дисперсия
 		$dispersion = $sum_square / ($count - 1);
