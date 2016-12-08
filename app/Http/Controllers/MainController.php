@@ -178,6 +178,23 @@ class MainController extends Controller
 		    $start->addMonth();
 		}
 
+		// добавить один и тот же товар в несколько месяцевв. от 4-6
+
+		$months = [0 => 'Январь', 1 => 'Февраль', 2 => 'Март', 3 => 'Апрель', 4 => 'Май', 5 => 'Июнь',
+		6 => 'Июль', 7 => 'Август', 8 => 'Сентябрь', 9 => 'Октябрь', 10 => 'Ноябрь', 11 => 'Декабрь'];
+
+		$months_xyz = [];
+		foreach($supply as $key => $keys)
+		{
+			foreach($months as $m => $month)
+			{
+				if($key == $m)
+				{
+					$months_xyz[$key] = $month;
+				}
+			}
+		}
+
 		$items = Items::all();
 
 		/* 
@@ -192,21 +209,33 @@ class MainController extends Controller
 				foreach($keys as $k => $row):
 					if($row->items_id == $item->id)
 					{
-						$new[$key][$item->id]['items_sum'] = $item->price - $row->items_price;
-						$new[$key][$item->id]['items_id'] = $item->id;
+						foreach($months as $month => $m)
+						{
+							if($month == $key)
+							{
+								$new[$key][$item->id]['items_sum'] = $item->price - $row->items_price;
+								$new[$key][$item->id]['items_id'] = $item->id;
+								$new[$key][$item->id]['items_name'] = $item->name;
+								$new[$key][$item->id]['month'] = $m;
+								$months_list[$key] = $m;
+							}
+						}
 					}
 				endforeach;
 			}
 		}
 
+		$items_month = $new;
+		#dd($new);
+
 		// делаем из items_id ключи и в значения сумму
 		$result = [];
 		foreach($new as $k => $v) {
 			foreach($v as $n):
-				$result[$n['items_id']][] = $n['items_sum'];
+				$result[$n['items_id']][$k] = $n['items_sum'];
 		    endforeach;
 		}
-		
+
 		// получаем среднее значение для каждого товара
 		$middle_sum = []; $i = 0;
 		foreach($result as $key => $value) {
@@ -236,6 +265,8 @@ class MainController extends Controller
 			}
 		}
 
+		#dd($new);
+
 		// складываем возведенные в квадрат суммы всех товаров за месяц
 		$result = [];
 		foreach($new as $k => $v) {
@@ -251,18 +282,26 @@ class MainController extends Controller
 			$sum_square[$id] = array_sum(array_column($item, 'square'));
 		}
 
-		#dd($sum_square);
-
 		foreach($sum_square as $id => $square)
 		{
 			foreach($middle_sum as $sum)
 			{
-				if($id == $sum['items_id'] && $sum['count'] - 1 > 0)
+				foreach($new as $item)
 				{
-					$xyz[$id][] = round(((sqrt($square / ($sum['count'] - 1))) / $row['sum']) * 100, 0);
+					foreach($item as $val):
+						if($id == $sum['items_id'] && $sum['count'] - 1 > 0 && $id == $val['items_id'])
+						{
+							$xyz[$id]['xyz'] = round(((sqrt($square / ($sum['count'] - 1))) / $row['sum']) * 100, 0);
+							$xyz[$id]['name'] = $val['items_name'];
+						}
+					endforeach;
 				}
 			}
 		}
+
+		#dd($xyz);
+
+		return view('analytics.xyz', compact('xyz', 'new', 'items_month', 'months_list'));
 
 	#-------------------
 		//$items = [15, 30, 27, 45, 80, 12];
