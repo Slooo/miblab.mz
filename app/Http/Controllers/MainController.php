@@ -154,7 +154,6 @@ class MainController extends Controller
 	public function getMonth($month)
 	{
 		// sub month сделаю заготовку запроса
-		
 		$items = DB::table('items_supply AS is')
 							->select('is.items_price', 'is.items_id')
 							->LeftJoin('supply AS s', 's.id', '=', 'is.supply_id')
@@ -213,10 +212,10 @@ class MainController extends Controller
 						{
 							if($month == $key)
 							{
-								$new[$key][$item->id]['items_sum'] = $item->price - $row->items_price;
-								$new[$key][$item->id]['items_id'] = $item->id;
-								$new[$key][$item->id]['items_name'] = $item->name;
-								$new[$key][$item->id]['month'] = $m;
+								$items_month[$item->id][$key]['items_sum'] = $item->price - $row->items_price;
+								$items_month[$item->id][$key]['items_id'] = $item->id;
+								$items_month[$item->id][$key]['items_name'] = $item->name;
+								$items_month[$item->id][$key]['month'] = $m;
 								$months_list[$key] = $m;
 							}
 						}
@@ -225,8 +224,28 @@ class MainController extends Controller
 			}
 		}
 
-		$items_month = $new;
-		#dd($new);
+		foreach($supply as $key => $keys)
+		{
+			foreach($items as $item)
+			{
+				foreach($keys as $k => $row):
+					if($row->items_id == $item->id)
+					{
+						foreach($months as $month => $m)
+						{
+							if($month == $key)
+							{
+								$new[$key][$item->id]['items_sum'] = $item->price - $row->items_price;
+								$new[$key][$item->id]['items_id'] = $item->id;
+								$new[$key][$item->id]['items_name'] = $item->name;
+								$new[$key][$item->id]['month'] = $m;
+							}
+						}
+					}
+				endforeach;
+			}
+		}
+
 
 		// делаем из items_id ключи и в значения сумму
 		$result = [];
@@ -291,15 +310,26 @@ class MainController extends Controller
 					foreach($item as $val):
 						if($id == $sum['items_id'] && $sum['count'] - 1 > 0 && $id == $val['items_id'])
 						{
-							$xyz[$id]['xyz'] = round(((sqrt($square / ($sum['count'] - 1))) / $row['sum']) * 100, 0);
-							$xyz[$id]['name'] = $val['items_name'];
+							$items_month[$id]['xyz'] = round(((sqrt($square / ($sum['count'] - 1))) / $row['sum']) * 100, 0);
 						}
 					endforeach;
 				}
 			}
 		}
 
-		#dd($xyz);
+		#dd($months_list);
+
+		/*
+			В итоге должен получиться массив типа
+
+			$array = [
+				[
+					'months' => 'январь, февраль, март'ы
+					'items => ['name' => '', 'id' => '', 'xyz' => 'xyz']
+				]
+			]
+
+		*/
 
 		return view('analytics.xyz', compact('xyz', 'new', 'items_month', 'months_list'));
 

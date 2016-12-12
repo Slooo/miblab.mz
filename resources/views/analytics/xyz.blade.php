@@ -11,35 +11,59 @@
 
 	<div class="col-md-10 col-md-pull-1 col-md-push-1 col-body">
 
-	<table class="table table-bordered table-striped">
-		@foreach($items_month as $item => $val)
-			@foreach($months_list as $k => $month)
-				@if($k == $item)
-				<thead>
+		<table class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th>Наименование</th>
+					@foreach($months_list as $k => $month)
 					<th>{{ $month }}</th>
-				</thead>
-				@endif
-			@endforeach
-				<tbody>
-				@foreach($val as $row)
-					<tr>
-						<td>{{ $row['items_id'] }}</td>
-						<td>{{ $row['items_name'] }}</td>
-						<td>{{ $row['items_sum'] }}</td>
+					@endforeach
+					<th>Коэффициент вариации</th>
+					<th>Группы</th>
+				</tr>
+			</thead>
+
+			<tbody>
+			@foreach($months_list as $k => $month)
+				@foreach($items_month as $key => $val)
+					@if($key == $k)
+
+					@if($val['xyz'] < 10)
+					<tr class="success">
+					@elseif($val['xyz'] > 10 && $val['xyz'] < 25)
+					<tr class="info">
+					@elseif($val['xyz'] > 25)
+					<tr class="danger">
+					@endif
+
+						@foreach($val as $row)
+							<td>{{ $row['items_name'] }}</td>
+							@break
+						@endforeach
+
+						@foreach($val as $row)
+							@if(!empty($row['items_sum']))
+							<td>{{ $row['items_sum'] }}</td>
+							@endif
+						@endforeach
+
+						<td>{{ $val['xyz'] }}%</td>
+
+						@if($val['xyz'] < 10)
+						<td>X</td>
+						@elseif($val['xyz'] > 10 && $val['xyz'] < 25)
+						<td>Y</td>
+						@elseif($val['xyz'] > 25)
+						<td>Z</td>
+						@endif
+
 					</tr>
+					@endif
 				@endforeach
-				</tbody>
-		@endforeach
-	</table>
-
-
-	месяцы
-	$month = ['январь, февраль и тд'];
-
-	items_month = [item_id, name, month];
-
-	коэффициент [item_id, сам коэф];
-
+			@endforeach
+			</tbody>
+			
+		</table>
 
 	</div>
 

@@ -55,30 +55,30 @@ h2 {
 }
 
 .form-search::-moz-placeholder { /* Firefox 18- */
-  color: #333;
-  font-size:18px;
+    color: #333;
+    font-size:18px;
 }
 
 /* ---------------- Buttons --------------- */
 
 .js-item--update {
-  cursor:pointer;
+    cursor:pointer;
 }
 
 #js-order--create {
-  margin:15px 0px 20px 0px;
+    margin:15px 0px 20px 0px;
 }
 
 .js-item--type {
-  width:100px;
+    width:100px;
 }
 
 .js-item--status {
-  width:40px;
+    width:40px;
 }
 
 .js-url--link {
-  color:#337ab7;
+    color:#337ab7;
 }
 
 .js-url--link:hover{
