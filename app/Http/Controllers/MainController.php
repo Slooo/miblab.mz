@@ -212,10 +212,9 @@ class MainController extends Controller
 						{
 							if($month == $key)
 							{
-								$items_month[$item->id][$key]['items_sum'] = $item->price - $row->items_price;
-								$items_month[$item->id][$key]['items_id'] = $item->id;
-								$items_month[$item->id][$key]['items_name'] = $item->name;
-								$items_month[$item->id][$key]['month'] = $m;
+								$items_month['items'][$item->id][$key]['items_sum'] = $item->price - $row->items_price;
+								$items_month['items'][$item->id][$key]['items_id'] = $item->id;
+								$items_month['items'][$item->id][$key]['items_name'] = $item->name;
 								$months_list[$key] = $m;
 							}
 						}
@@ -223,6 +222,8 @@ class MainController extends Controller
 				endforeach;
 			}
 		}
+
+		#dd($items_month);
 
 		foreach($supply as $key => $keys)
 		{
@@ -284,8 +285,6 @@ class MainController extends Controller
 			}
 		}
 
-		#dd($new);
-
 		// складываем возведенные в квадрат суммы всех товаров за месяц
 		$result = [];
 		foreach($new as $k => $v) {
@@ -310,30 +309,39 @@ class MainController extends Controller
 					foreach($item as $val):
 						if($id == $sum['items_id'] && $sum['count'] - 1 > 0 && $id == $val['items_id'])
 						{
-							$items_month[$id]['xyz'] = round(((sqrt($square / ($sum['count'] - 1))) / $row['sum']) * 100, 0);
+							$items_month['items'][$id]['xyz'] = round(((sqrt($square / ($sum['count'] - 1))) / $row['sum']) * 100, 0);
+
+							if($items_month['items'][$id]['xyz'] < 10)
+							{
+								$items_month['items'][$id]['group'] = 'X';
+							} 
+
+							else 
+
+							if($items_month['items'][$id]['xyz'] > 10 && $items_month['items'][$id]['xyz'] < 25)
+							{
+								$items_month['items'][$id]['group'] = 'Y';
+							} 
+
+							else
+
+							if($items_month['items'][$id]['xyz'] > 25)
+							{
+								$items_month['items'][$id]['group'] = 'Z';
+							}
 						}
 					endforeach;
 				}
 			}
 		}
 
-		#dd($months_list);
+		// убрать month, items_id, items_Name перенести в общий.
 
-		/*
-			В итоге должен получиться массив типа
+		$items_month = array_merge($items_month, ['months' => $months_list]);
 
-			$array = [
-				[
-					'months' => 'январь, февраль, март'ы
-					'items => ['name' => '', 'id' => '', 'xyz' => 'xyz']
-				]
-			]
+		return view('analytics.xyz', compact('items_month'));
 
-		*/
-
-		return view('analytics.xyz', compact('xyz', 'new', 'items_month', 'months_list'));
-
-	#-------------------
+	/*
 		//$items = [15, 30, 27, 45, 80, 12];
 
 		// количество
@@ -374,6 +382,7 @@ class MainController extends Controller
 		//echo round(1241757, -3); // 1242000
 
 		return view('analytics.xyz', compact('items', 'xyz'));
+		*/
 	}
 
 	public function abc()

@@ -15,54 +15,42 @@
 			<thead>
 				<tr>
 					<th>Наименование</th>
-					@foreach($months_list as $k => $month)
+				@foreach($items_month['months'] as $month)
 					<th>{{ $month }}</th>
-					@endforeach
+				@endforeach
 					<th>Коэффициент вариации</th>
 					<th>Группы</th>
 				</tr>
 			</thead>
 
 			<tbody>
-			@foreach($months_list as $k => $month)
-				@foreach($items_month as $key => $val)
-					@if($key == $k)
+			@foreach($items_month['items'] as $key => $val)
 
-					@if($val['xyz'] < 10)
-					<tr class="success">
-					@elseif($val['xyz'] > 10 && $val['xyz'] < 25)
-					<tr class="info">
-					@elseif($val['xyz'] > 25)
-					<tr class="danger">
-					@endif
+				@if($val['group'] == 'X')
+				<tr class="success">
+				@elseif($val['group'] == 'Y')
+				<tr class="info">
+				@elseif($val['group'] == 'Z')
+				<tr class="danger">
+				@endif
 
-						@foreach($val as $row)
-							<td>{{ $row['items_name'] }}</td>
-							@break
-						@endforeach
+					@foreach($val as $row)
+						<td>{{ $row['items_name'] }}</td>
+						@break
+					@endforeach
 
-						@foreach($val as $row)
-							@if(!empty($row['items_sum']))
-							<td>{{ $row['items_sum'] }}</td>
-							@endif
-						@endforeach
-
-						<td>{{ $val['xyz'] }}%</td>
-
-						@if($val['xyz'] < 10)
-						<td>X</td>
-						@elseif($val['xyz'] > 10 && $val['xyz'] < 25)
-						<td>Y</td>
-						@elseif($val['xyz'] > 25)
-						<td>Z</td>
+					@foreach($val as $row)
+						@if(!empty($row['items_sum']))
+						<td>{{ $row['items_sum'] }}</td>
 						@endif
+					@endforeach
 
-					</tr>
-					@endif
-				@endforeach
+					<td>{{ $val['xyz'] }}%</td>
+					<td>{{ $val['group'] }}</td>
+				</tr>
 			@endforeach
 			</tbody>
-			
+
 		</table>
 
 	</div>
