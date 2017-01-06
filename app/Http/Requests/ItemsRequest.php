@@ -25,6 +25,8 @@ class ItemsRequest extends Request
     {
         return [
             'barcode' => 'required',
+            'name' => 'required',
+            'price' => 'required',
         ];
     }
 }

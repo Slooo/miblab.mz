@@ -1,3 +1,5 @@
+<!-- DISCOUNT CREATE MODAL FORM -->
+
 <form id="js-form--discounts" class="form-horizontal" role="form">
 
 	<div class="form-group">

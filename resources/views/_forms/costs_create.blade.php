@@ -1,3 +1,5 @@
+<!-- REMOVE -->
+
 {{ Form::open(['id' => 'form_costs', 'class' => 'form-horizontal']) }}
 
 <div class="form-group">

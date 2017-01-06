@@ -226,7 +226,7 @@ function OrderButtonActive(index)
 // loader start
 function LoaderStart()
 {
-	$('#js-modal--create').modal('hide');
+	//$('#js-modal--create').modal('hide');
 	$('body').append('<div class="loader"></div>');	
 }
 
@@ -234,35 +234,41 @@ function LoaderStart()
 function LoaderStop()
 {
 	$('.loader').remove();
+	//$('#js-modal--create').modal('hide');
 }
 
 // answer success
 function AnswerSuccess(answer)
 {
+	$('#js-modal--create').modal('hide');
 	$('#alert').removeClass().addClass('alert alert-success').html('<strong>'+answer+'</strong>');		
 }
 
 // answer error
 function AnswerError()
 {
+	$('#js-modal--create').modal('hide');
 	$('#alert').removeClass().addClass('alert alert-danger').html('<strong>Ошибка запроса</strong>');	
 }
 
 // answer info
 function AnswerInfo(answer)
 {
+	$('#js-modal--create').modal('hide');
 	$('#alert').removeClass().addClass('alert alert-info').html('<strong>'+answer+'</strong>');	
 }
 
 // answer warning
 function AnswerWarning(answer)
 {
+	$('#js-modal--create').modal('hide');
 	$('#alert').removeClass().addClass('alert alert-warning').html('<strong>'+answer+'</strong>');	
 }
 
 // answer removed
 function AnswerDanger(answer)
 {
+	$('#js-modal--create').modal('hide');
 	qp = segment2.substring(0, segment2.length - 1);
 	$('#alert').removeClass().addClass('alert alert-danger').html('<button class="btn btn-danger" id="js--restore-'+qp+'">Отменить удаление <i class="fa fa-history"></i></button>');	
 }

@@ -1,3 +1,5 @@
+<!-- COSTS CREATE MODAL FORM -->
+
 <form id="js-form--costs" class="form-horizontal" role="form">
 
 	<div class="form-group">

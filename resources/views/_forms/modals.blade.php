@@ -1,4 +1,4 @@
-  <!-- Modal create -->
+  <!-- MODAL CREATE -->
 
 <div class="modal fade" id="js-modal--create" role="dialog">
   <div class="modal-dialog modal-sm">

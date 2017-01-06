@@ -133,7 +133,7 @@ class ItemsController extends Controller
     }
 
     # create
-    public function store(Request $request)
+    public function store(ItemsRequest $request)
     {
         Items::create($request->all());
         return response()->json(['status' => 1, 'message' => 'Создано']);
