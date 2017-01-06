@@ -52,12 +52,21 @@
                         <!-- Create links -->
                         @if(Request::is('cashier/orders') || Request::is('igor/orders'))
                             <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/create') }}">создать</a></li>
-                        @elseif(Request::is('*/supply') || Request::is('*/costs') || Request::is('*/items') && $status != 1)
-                            <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/create') }}">создать</a></li>
+                        @elseif(Request::is('*/supply') || Request::is('*/costs/*') || Request::is('*/items') && $status != 1)
+                            <li><a href="#" data-toggle="modal" data-target="#js-modal--create">создать</a></li>
                         @elseif(Request::is('*/discounts'))
-                            <li><a href="#" data-toggle="modal" data-target="#js-modal--create">Создать</a></li>
-                        @elseif(Request::is('*/analytics'))
-                            <li><a href="{{ url(Request::url().'/abc') }}">ABC анализ</a></li>
+                            <li><a href="#" data-toggle="modal" data-target="#js-modal--create">создать</a></li>
+                        @elseif(Request::is('*/analytics') || Request::is('*/analytics/*'))
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                                    анализы <span class="caret"></span>
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu--lg" role="menu">
+                                    <li><a href="{{ url(Request::url().'/abc') }}">ABC</a></li>
+                                    <li><a href="{{ url(Request::url().'/xyz') }}">XYZ</a></li>
+                                </ul>
+                            </li>
                         @endif
 
                         <!-- Settings links -->
@@ -118,7 +127,7 @@
     <div class="container">
         <div class="row">
             <div id="alert"></div>
-            @if(Request::is('*/discounts'))
+            @if(Request::is('*/discounts') || Request::is('*/items') || Request::is('*/costs/*'))
                 @include('_forms.modals')
             @endif
         </div>

@@ -1,3 +1,5 @@
+<!-- REMOVE -->
+
 {{ Form::open(['id' => 'form_item', 'class' => 'form-horizontal']) }}
 
 {{ Form::hidden('id', null, ['id' => 'item_id']) }}

@@ -27,7 +27,7 @@ class SupplyController extends Controller
     public function create()
     {
         $counterparty = Counterparty::all();
-        return view('items.cashier', compact('counterparty'));
+        return view('orders.create', compact('counterparty'));
     }
 
     # create
