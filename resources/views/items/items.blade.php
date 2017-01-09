@@ -45,29 +45,33 @@
 
 	<div class="col-md-12">
 		<table class="table table-striped table-bordered">
-			<tr>
-				<th>Штрихкод</th>
-				<th>Наименование</th>
-				<th>Цена &#8381; / шт.</th>
-				<th>Статус</th>
-				<th>Печать</th>
-			</tr>
-			@foreach($items as $row)
-			<tr data-id="{{ $row->id }}" data-type="pivot">
-				<td>{{ $row->barcode }}</td>
-				<td data-type="name">{{ $row->name }}</td>
-				<td @if(Auth::user()->status != 2) class="js--update" data-type="price" @endif >{{ number_format($row->price, 0, ' ', ' ') }}</td>
-				<td>
-				@if($row->status == 1)
-					<button class="btn @if(Auth::user()->status != 2) js-item--status @endif btn-circle btn-success" @if(Auth::user()->status != 2) data-id="{{ $row->id }}" data-status="1" @endif><i class="fa fa-check"></i></button>
-				@elseif($row->type == 0)
-					<button class="btn @if(Auth::user()->status != 2) js-item--status @endif btn-circle btn-danger" @if(Auth::user()->status != 2) data-id="{{ $row->id }}" data-status="0" @endif><i class="fa fa-ban" aria-hidden="true"></i></button>
-				@endif
-				</td>
+			<thead>
+				<tr>
+					<th>Штрихкод</th>
+					<th>Наименование</th>
+					<th>Цена &#8381; / шт.</th>
+					<th>Статус</th>
+					<th>Печать</th>
+				</tr>
+			</thead>
+			<tbody data-type="pivot">
+				@foreach($items as $row)
+				<tr data-id="{{ $row->id }}">
+					<td>{{ $row->barcode }}</td>
+					<td>{{ $row->name }}</td>
+					<td @if(Auth::user()->status != 2) class="js--update" data-column="price" @endif >{{ number_format($row->price, 0, ' ', ' ') }}</td>
+					<td>
+					@if($row->status == 1)
+						<button class="btn @if(Auth::user()->status != 2) js-item--status @endif btn-circle btn-success" @if(Auth::user()->status != 2) data-status="1" @endif><i class="fa fa-check"></i></button>
+					@elseif($row->type == 0)
+						<button class="btn @if(Auth::user()->status != 2) js-item--status @endif btn-circle btn-danger" @if(Auth::user()->status != 2) data-status="0" @endif><i class="fa fa-ban"></i></button>
+					@endif
+					</td>
 
-				<td><button type="button" data-barcode="{{ $row->barcode }}" class="btn btn-circle btn-primary js-item--print-review"><i class="fa fa-print" aria-hidden="true"></i></button></td>
-			</tr>
-			@endforeach
+					<td><button type="button" data-barcode="{{ $row->barcode }}" class="btn btn-circle btn-primary js-item--print-review"><i class="fa fa-print" aria-hidden="true"></i></button></td>
+				</tr>
+				@endforeach
+			</tbody>
 		</table>
 	</div>
 	

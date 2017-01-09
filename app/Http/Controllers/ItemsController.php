@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\ItemsRequest;
 use App\Http\Requests;
 
+use Validator;
 use Auth;
 use Carbon\Carbon;
 use DNS1D;
@@ -105,28 +106,34 @@ class ItemsController extends Controller
         return response()->json(['status' => $status]);
     }
 
-    # update page
-    public function edit($id)
-    {
-        $item = Items::findOrFail($id);
-        return view('items.edit', compact('item'));
-    }
-
     # update
     public function update($id, Request $request)
     {
-        $col = $request->col;
-        $val = $request->val;
+        $validator = Validator::make($request->all(), [
+            'value' => 'required|numeric',
+        ]);
 
-        $item = Items::findOrFail($id);
-        $item->$col = $val;
-        $item->save();
+        if ($validator->fails()) {
+            $status = 0;
+            $message = $validator->messages();
+            $data = [];
+        } else {
+            $column = $request->column;
+            $value = $request->value;
 
-        $data['value'] = number_format($val, 0, ' ', ' ');
-        return response()->json(['status' => 1, 'message' => 'Обновлено', 'data' => $data]);
+            $item = Items::findOrFail($id);
+            $item->$column = $value;
+            $item->save();
+
+            $status = 1;
+            $message = 'Обновлено';
+            $data['value'] = number_format($value, 0, ' ', ' ');            
+        }
+
+        return response()->json(['status' => $status, 'message' => $message, 'data' => $data]);
     }
 
-    # create page
+    # create page !
     public function create()
     {
         return view('items.create');
@@ -135,8 +142,8 @@ class ItemsController extends Controller
     # create
     public function store(ItemsRequest $request)
     {
-        Items::create($request->all());
-        return response()->json(['status' => 1, 'message' => 'Создано']);
+        $data = Items::create($request->all());
+        return response()->json(['status' => 1, 'message' => 'Создано', 'data' => $data]);
     }
 
     # generate barcode

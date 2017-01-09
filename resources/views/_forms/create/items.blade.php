@@ -2,7 +2,9 @@
 
 <form id="js-items--form" class="form-horizontal" role="form">
 
-	<input name="id" type="hidden" id="items_id">
+	<input type="hidden"  name="id" id="items_id">
+
+	<input type="hidden" name="status" value="1">
 
 	<div class="form-group">
 		<input class="form-control col-sm-10" name="barcode" type="number" placeholder="Введите штрихкод"> 

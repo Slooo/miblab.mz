@@ -92,11 +92,11 @@ class CostsController extends Controller
     {
     	$costs = new Costs;
         $request['date'] = Carbon::createFromFormat('d/m/Y', $request['date'])->format('Y-m-d');
-    	$row = $costs::create($request->all());
+    	$data = $costs::create($request->all());
     	$costs->ccosts()
-        ->sync([$request->ccosts_id => ['costs_id' => $row->id]]);
+        ->sync([$request->ccosts_id => ['costs_id' => $data->id]]);
 
-    	return response()->json(['status' => 1, 'message' => $request->ccosts_id]);      
+    	return response()->json(['status' => 1, 'message' => $request->ccosts_id, 'data' => $data]);      
     }
 
     # update

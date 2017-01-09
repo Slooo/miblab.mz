@@ -10,7 +10,7 @@ $('body').on('click', '.js-item--status', function(e){
 
 	btn    = $(this);
 	status = btn.attr('data-status');
-	id 	   = btn.attr('data-id');
+	id 	   = btn.parents('tr').data('id');
 	data   = {'id':id, 'status':status}
 
 	$.ajax({
@@ -103,7 +103,7 @@ $('#js-item--barcode').focusout(function() {
 $('body').on('click', '#js-items--create', function(e){
 	e.preventDefault();
 
-	var data, id, url, type;
+	var data, id, url, type, json, html;
 	
 	data = $('#js-items--form').serialize();
 	id 	 = $('#items_id').val();
@@ -131,29 +131,27 @@ $('body').on('click', '#js-items--create', function(e){
 	    },
 
 	    complete: function(answer, xhr, settings){
-	    	var data = JSON.parse(answer.responseText);
+	    	json = JSON.parse(answer.responseText);
 
 	    	switch(answer.status)
 	    	{
-	    		// error
+	    		// no validation checked
 	    		case 422:
-		    		var keys = Object.keys(data);
-
-	    			$("form#js-items--form input").each(function(){
-	    				
-	    				var input = $(this);
-	    				if(keys.indexOf(input.attr('name')) != -1)
-	    				{
-	    					input.addClass('validate-error');
-	    				} else {
-	    					input.addClass('validate-success');
-	    				}
-	    			});
+		    		checkValidation(json);
 	    			break;
 
 	    		// success
 	    		case 200:
-		    		AnswerInfo(data.message);
+	    			html =  '<tr data-id="'+json.data.id+'">'; 
+	    			html += '<td>'+json.data.barcode+'</td>';
+	    			html += '<td>'+json.data.name+'</td>';
+	    			html += '<td class="js--update" data-column="price">'+json.data.price+'</td>';
+	    			html += '<td><button class="btn js-item--status btn-circle btn-success" data-status="'+json.data.status+'"><i class="fa fa-check"></i></button></td>';
+	    			html += '<td><button type="button" data-barcode="'+json.data.barcode+'" class="btn btn-circle btn-primary js-item--print-review"><i class="fa fa-print"></i></button></td>';
+	    			html += '</tr>';
+
+	    			$('.table tbody').prepend(html);
+		    		AnswerInfo(json.message);
 		    		break;
 
 	    		default:

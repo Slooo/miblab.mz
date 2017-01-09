@@ -328,6 +328,22 @@ function totalSumAndDiscount()
 	}
 }
 
+// check validation
+function checkValidation(json)
+{
+	var keys = Object.keys(json);
+
+	$("form input").each(function(){
+		var input = $(this);
+		if(keys.indexOf(input.attr('name')) != -1)
+		{
+			input.addClass('validate-error');
+		} else {
+			input.addClass('validate-success');
+		}
+	});
+}
+
 $(document).ready(function() {
 
 // datepicker
@@ -514,7 +530,6 @@ function update(here){
 		line = here.parents('tr');
 		id = line.data('id');
 		column = here.parent('td').data('column');
-		type = here.parents('tr').data('type');
 
 		data = {"column":column, "value":here.val()};
 

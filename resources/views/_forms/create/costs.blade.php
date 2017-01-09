@@ -1,14 +1,14 @@
 <!-- COSTS CREATE MODAL FORM -->
 
-<form id="js-form--costs" class="form-horizontal" role="form">
+<form id="js-costs--form" class="form-horizontal" role="form">
 
 	<div class="form-group">
-		<input class="form-control col-sm-10" name="sum" type="number" placeholder="Введите сумму"> 
+		<input type="number" name="sum" placeholder="Введите сумму" class="form-control col-sm-10"> 
 	</div>
 	
 	<div class="form-group">
 		<div class="input-group date" id="datetimepicker">
-			<input class="form-control col-sm-10" name="date" type="text" placeholder="Выберите дату"> 
+			<input type="text" name="date" placeholder="Выберите дату" class="form-control col-sm-10"> 
 			<span class="input-group-addon">
 			 	<span class="glyphicon glyphicon-calendar"></span>
 			</span>
@@ -16,7 +16,7 @@
 	</div>
 	
 	<div class="form-group">
-		<input type="text" name="point" class="form-control col-sm-10" size="2" placeholder="Торговая точка #{{ Auth::user()->points_id }}">
+		<input type="text" name="point" value="{{ Auth::user()->points_id }}" size="2" placeholder="Торговая точка #{{ Auth::user()->points_id }}" class="form-control col-sm-10">
 	</div>
 	
 	<input type="hidden" name="ccosts_id" value="{{ Request::segment(3) }}">

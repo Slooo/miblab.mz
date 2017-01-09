@@ -50,9 +50,9 @@
                         <?php $status = Auth::user()->status;?>
 
                         <!-- Create links -->
-                        @if(Request::is('cashier/orders') || Request::is('igor/orders'))
+                        @if(Request::is('cashier/orders') || Request::is('igor/orders') || Request::is('*/supply'))
                             <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/create') }}">создать</a></li>
-                        @elseif(Request::is('*/supply') || Request::is('*/costs/*') || Request::is('*/items') && $status != 1)
+                        @elseif(Request::is('*/costs/*') || Request::is('*/items') && $status != 1)
                             <li><a href="#" data-toggle="modal" data-target="#js-modal--create">создать</a></li>
                         @elseif(Request::is('*/discounts'))
                             <li><a href="#" data-toggle="modal" data-target="#js-modal--create">создать</a></li>
