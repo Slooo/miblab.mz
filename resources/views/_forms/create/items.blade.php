@@ -1,6 +1,6 @@
 <!-- ITEMS CREATE MODAL FORM -->
 
-<form id="js-items--form" class="form-horizontal" role="form">
+<form role="form" class="form-horizontal" id="js-items--form">
 
 	<input type="hidden"  name="id" id="items_id">
 

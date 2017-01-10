@@ -328,20 +328,151 @@ function totalSumAndDiscount()
 	}
 }
 
-// check validation
-function checkValidation(json)
+// check delete
+function validationDelete(answer, line)
 {
-	var keys = Object.keys(json);
+	var json = JSON.parse(answer.responseText);
 
-	$("form input").each(function(){
-		var input = $(this);
-		if(keys.indexOf(input.attr('name')) != -1)
-		{
-			input.addClass('validate-error');
-		} else {
-			input.addClass('validate-success');
-		}
-	});
+	switch(answer.status)
+	{
+		// error validation
+		case 422:
+			AnswerError();
+		break;
+
+		// redirect
+		case 301:
+			$('.table').remove();
+			AnswerDanger(json.data.id);
+			//window.location.href = base_url + segment1 + segment2;	
+		break;
+
+		// success
+		case 200:
+			//AnswerDanger(json.data.id);
+			AnswerInfo(json.message);
+			line.remove();
+			totalSumAndDiscount();
+		break;
+
+		default:
+			AnswerError();
+		break;
+	}
+
+	LoaderStop();
+}
+
+// check update
+function validationUpdate(answer)
+{
+	var json = JSON.parse(answer.responseText);
+
+	switch(answer.status)
+	{
+		// error validation
+		case 422:
+			AnswerWarning(json.message);
+		break;
+
+		// success
+		case 200:
+			/*
+			val = number_format(here.val(), 0, ' ', ' ');
+			here.parent('td').html(val);
+			$('table tbody tr').removeClass();
+			line.addClass('info');
+			totalSumAndDiscount();
+			*/
+
+			AnswerInfo(json.message);
+		break;
+	}
+
+	LoaderStop();
+}
+
+// check create
+function validationCreate(answer)
+{
+	var json, keys, input, data;
+	json = JSON.parse(answer.responseText);
+
+	switch(answer.status)
+	{
+		// error validation
+		case 422:
+			keys = Object.keys(json);
+
+			$("form input").each(function(){
+				input = $(this);
+				if(keys.indexOf(input.attr('name')) != -1)
+				{
+					input.addClass('validate-error');
+				} else {
+					input.addClass('validate-success');
+				}
+			});
+		break;
+
+		// success
+		case 200:
+			switch(segment2)
+			{
+				case 'items':
+					json.data.price  = number_format(json.data.price, 0, ' ', ' ');
+
+					html =  '<tr data-id="'+json.data.id+'">'; 
+					html += '<td>'+json.data.barcode+'</td>';
+					html += '<td>'+json.data.name+'</td>';
+					html += '<td class="js--update" data-column="price">'+json.data.price+'</td>';
+					html += '<td><button class="btn btn-circle btn-success js-items--status" data-status="'+json.data.status+'"><i class="fa fa-check"></i></button></td>';
+					html += '<td><button type="button" data-barcode="'+json.data.barcode+'" class="btn btn-circle btn-primary js-items--print-review"><i class="fa fa-print"></i></button></td>';
+					html += '</tr>';
+
+					$('.table tbody').prepend(html);
+				break;
+
+				case 'costs':
+					data = json.data;
+					data.date = moment(json.data.created_at, "YYYY-MM-DD HH:mm:ss").format('DD/MM/YYYY');
+					data.sum  = number_format(json.data.sum, 0, ' ', ' ');
+
+					html =  '<tr data-id="'+data.id+'">';
+					html += '<td class="col-md-1">'+data.id+'</td>';
+					html += '<td class="col-md-1">'+data.date+'</td>';
+					html += '<td class="col-md-9 js--sum js--update" data-column="sum">'+data.sum+'</td>';
+					html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
+					html += '</tr>';
+
+					$('.table tbody').prepend(html);
+				break;
+
+				case 'discounts':
+					json.data.sum  = number_format(json.data.sum, 0, ' ', ' ');
+
+					html = '<tr data-id="'+json.data.id+'">';
+					html += '<td class="col-md-1">'+json.data.id+'</td>';
+					html += '<td class="col-md-5 js--sum js--update" data-column="sum">'+json.data.sum+'</td>';
+					html += '<td class="col-md-5 js--percent js--update" data-column="percent">'+json.data.percent+'</td>';
+					html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
+					html += '</tr>';
+
+					$('.table tbody').prepend(html);
+				break;
+
+				$('.table tbody tr').removeClass().first().addClass('success');
+			}
+
+			AnswerInfo(json.message);
+    	break;
+
+		default:
+			AnswerError();
+		break;
+	}
+
+	LoaderStop();
 }
 
 $(document).ready(function() {
@@ -364,7 +495,7 @@ $('#js-settings--date-range').click(function(e){
 	data 	  = {'dateStart' : dateStart, 'dateEnd' : dateEnd, 'id' : segment3};
 
 	$.ajax({
-		url 	 : base_url + segment1 + segment2 + 'date',
+		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'date',
 		type 	 : "patch",
 		dataType : "json",
 		data 	 : data,
@@ -446,53 +577,6 @@ $("#js-modal--create").on('show.bs.modal', function () {
 	$('input').first().focus();
 });
 
-// create
-$('body').on('click', '#js-discount--create', function(e){
-	e.preventDefault();
-
-	var data = $('#js-form--discounts').serialize();
-
-	$.ajax({
-		url 	 : base_url + segment1 + 'discounts',
-		type 	 : 'post',
-		dataType : 'json',
-		data 	 : data,
-
-		beforeSend: function(){
-	        LoaderStart();
-	    },
-
-		success: function(answer) {
-			if(answer.status == 0)
-			{
-				AnswerError();
-			}
-
-			if(answer.status == 1)
-			{
-				html = '<tr data-id="'+answer.data.id+'">';
-				html += '<td class="col-md-1">'+answer.data.id+'</td>';
-				html += '<td class="col-md-5 js--sum js--update" data-column="sum">'+answer.data.sum+'</td>';
-				html += '<td class="col-md-5 js--percent js--update" data-column="percent">'+answer.data.percent+'</td>';
-				html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-				html += '</tr>';
-
-				$('.table tbody').prepend(html);
-				$('.table tbody tr').removeClass().first().addClass('success');
-
-				AnswerSuccess(answer.message);
-			}
-	    },
-
-	    error: function(answer) {
-	    	AnswerError();
-	    }
-
-	}).complete(function() {
-			LoaderStop();
-		});
-});
-
 // ---------- UPDATE ----------
 
 // update discount focusout
@@ -530,11 +614,10 @@ function update(here){
 		line = here.parents('tr');
 		id = line.data('id');
 		column = here.parent('td').data('column');
-
 		data = {"column":column, "value":here.val()};
 
 		$.ajax({
-			url 	 : base_url + segment1 + segment2 + id,
+			url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + id,
 			type 	 : 'patch',
 			dataType : 'json',
 			data 	 : data,
@@ -543,31 +626,11 @@ function update(here){
 		        LoaderStart();
 		    },
 
-			success: function(answer) {
-				if(answer.status == 0)
-				{
-					AnswerError();
-				}
-
-				if(answer.status == 1)
-				{
-					val = number_format(here.val(), 0, ' ', ' ');
-					here.parent('td').html(val);
-					$('table tbody tr').removeClass();
-					line.addClass('info');
-					totalSumAndDiscount();
-					
-					AnswerInfo(answer.message);
-				}
-		    },
-
-		    error: function(answer) {
-		    	AnswerError();
+		    complete: function(answer, xhr, settings){
+			    validationUpdate(answer); // 2 parametr
 		    }
 
-		}).complete(function() {
-				LoaderStop();
-			});
+		});
 	}
 }
 
@@ -581,7 +644,7 @@ $('body').on('click', '.js--delete', function(e){
 	line = $(this).parents('tr');
 
 	$.ajax({
-		url 	 : base_url + segment1 + segment2 + 'delete/' + line.data('id'),
+		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'delete' + '/' + line.data('id'),
 		type 	 : 'post',
 		dataType : 'json',
 		data 	 : {"type":line.data('type'), "id":segment3},
@@ -590,34 +653,11 @@ $('body').on('click', '.js--delete', function(e){
 	        LoaderStart();
 	    },
 
-		success: function(answer) {
-			if(answer.status == 0)
-			{
-				AnswerError();
-			}
-
-			if(answer.status == 1)
-			{
-				AnswerDanger(answer.data.id);
-				line.remove();
-				totalSumAndDiscount();
-			}
-
-			if(answer.status == 301)
-			{
-				$('.table').remove();
-				AnswerDanger(answer.data.id);
-				//window.location.href = base_url + segment1 + segment2;	
-			}
-	    },
-
-	    error: function(answer) {
-	    	AnswerError();
+	    complete: function(answer, xhr, settings){
+	    	validationDelete(answer, line);
 	    }
 
-	}).complete(function() {
-			LoaderStop();
-		});
+	});
 });
 
 // ---------- RESTORE ----------
@@ -627,7 +667,7 @@ $('body').on('click', '#js--restore-orders', function(e){
 	e.preventDefault();
 
 	$.ajax({
-		url 	 : base_url + segment1 + segment2 + 'restore',
+		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'restore',
 		type 	 : 'post',
 		dataType : 'json',
 
@@ -696,7 +736,7 @@ $('body').on('click', '#js--restore-discounts', function(e){
 	e.preventDefault();
 
 	$.ajax({
-		url 	 : base_url + segment1 + segment2 + 'restore',
+		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'restore',
 		type 	 : 'post',
 		dataType : 'json',
 
@@ -740,7 +780,7 @@ $('body').on('click', '#js--restore-costs', function(e){
 	e.preventDefault();
 
 	$.ajax({
-		url 	 : base_url + segment1 + segment2 + 'restore',
+		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'restore',
 		type 	 : 'post',
 		dataType : 'json',
 

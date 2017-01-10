@@ -2,8 +2,47 @@
 	------- ITEMS FUNCTION ------- 
 */
 
+// create & update item
+$('body').on('click', '#js-items--create', function(e){
+	e.preventDefault();
+
+	var data, id, url, type, json, html;
+	
+	data = $('#js-items--form').serialize();
+	id 	 = $('#items_id').val();
+
+	if(id == 0)
+	{
+		//create
+		url = base_url + '/' + segment1 + '/' + segment2;
+		type = "post";
+
+	} else {
+		//update
+		url = id;
+		type = "patch";
+	}
+
+	$.ajax({
+		url 	 : url,
+		type 	 : type,
+		dataType : "json",
+		data 	 : data,
+
+		beforeSend: function(){
+	        LoaderStart();
+	    },
+
+	    complete: function(answer, xhr, settings){
+	    	validationCreate(answer);
+	    }
+
+	});
+
+});
+
 // update status
-$('body').on('click', '.js-item--status', function(e){
+$('body').on('click', '.js-items--status', function(e){
 	e.preventDefault();
 
 	var btn, status, id, data;
@@ -14,7 +53,7 @@ $('body').on('click', '.js-item--status', function(e){
 	data   = {'id':id, 'status':status}
 
 	$.ajax({
-		url 	 : base_url + segment1 + segment2 + 'status',
+		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'status',
 		type 	 : "patch",
 		dataType : "json",
 		data 	 : data,
@@ -59,7 +98,7 @@ $('#js-item--barcode').focusout(function() {
 	if(barcode)
 	{
 		$.ajax({
-			url:     base_url + segment1 + segment2 + 'search',
+			url:     base_url + '/' + segment1 + '/' + segment2 + '/' + 'search',
 			type:     "patch",
 			dataType: "json",
 			data: data,
@@ -99,79 +138,12 @@ $('#js-item--barcode').focusout(function() {
 	}
 });
 
-// create & update item
-$('body').on('click', '#js-items--create', function(e){
-	e.preventDefault();
-
-	var data, id, url, type, json, html;
-	
-	data = $('#js-items--form').serialize();
-	id 	 = $('#items_id').val();
-
-	if(id == 0)
-	{
-		//create
-		url = base_url + segment1 + segment2;
-		type = "post";
-
-	} else {
-		//update
-		url = id;
-		type = "patch";
-	}
-
-	$.ajax({
-		url 	 : url,
-		type 	 : type,
-		dataType : "json",
-		data 	 : data,
-
-		beforeSend: function(){
-	        LoaderStart();
-	    },
-
-	    complete: function(answer, xhr, settings){
-	    	json = JSON.parse(answer.responseText);
-
-	    	switch(answer.status)
-	    	{
-	    		// no validation checked
-	    		case 422:
-		    		checkValidation(json);
-	    			break;
-
-	    		// success
-	    		case 200:
-	    			html =  '<tr data-id="'+json.data.id+'">'; 
-	    			html += '<td>'+json.data.barcode+'</td>';
-	    			html += '<td>'+json.data.name+'</td>';
-	    			html += '<td class="js--update" data-column="price">'+json.data.price+'</td>';
-	    			html += '<td><button class="btn js-item--status btn-circle btn-success" data-status="'+json.data.status+'"><i class="fa fa-check"></i></button></td>';
-	    			html += '<td><button type="button" data-barcode="'+json.data.barcode+'" class="btn btn-circle btn-primary js-item--print-review"><i class="fa fa-print"></i></button></td>';
-	    			html += '</tr>';
-
-	    			$('.table tbody').prepend(html);
-		    		AnswerInfo(json.message);
-		    		break;
-
-	    		default:
-	    			AnswerError();
-	    			break;
-	    	}
-
-	    	LoaderStop();
-	    }
-
-	});
-
-});
-
 // select barcode
-$('body').on('click', '.js-item--print-review', function(e){
+$('body').on('click', '.js-items--print-review', function(e){
 	e.preventDefault();
 	var barcode = $(this).data('barcode');
 	$('#print-modal strong').html(barcode);
-	$('#js-item--print-review').val(barcode);
+	$('#js-items--print-review').val(barcode);
 	$('#print-modal').modal('show');
 });
 
@@ -188,14 +160,14 @@ $('#print-quantity').keyup(function(){
 });
 
 // close modal & clear review
-$('#js-item--print-cancel').click(function(e){
+$('#js-items--print-cancel').click(function(e){
 	$('.full').addClass('hidden');
 	$('.row').removeClass('hidden');
 	$('#print-modal').modal('hide');
 });
 
 // generate barcode
-$('#js-item--print-review').click(function(e){
+$('#js-items--print-review').click(function(e){
 
 	$('#print-modal').modal('hide');
 	$('.row').addClass('hidden');
@@ -203,12 +175,12 @@ $('#js-item--print-review').click(function(e){
 	var html, barcode, quantity, data, json, item;
 
 	html 	 = "";
-	barcode  = $('#js-item--print-review').val();
+	barcode  = $('#js-items--print-review').val();
 	quantity = $('#print-quantity').val();
 	data 	 = {'barcode':barcode};
 
 	$.ajax({
-		url 	 : base_url + segment1 + segment2 + 'barcode/generate',
+		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'barcode/generate',
 		type 	 : 'patch',
 		dataType : 'json',
 		data 	 : data,
@@ -249,232 +221,7 @@ $('#js-item--print-review').click(function(e){
 });
 
 // print
-$('body').on('click', '#js-print', function(e){
+$('body').on('click', '#js--items-print', function(e){
 	e.preventDefault();
 	window.print();
-});
-
-/*
-	------- CASHIER FUNCTION ------- 
-*/
-
-// type order
-$('body').on('click', '.js-order--type', function(e){
-	
-	var btn, type, json;
-
-	btn  = $(this);
-	type = btn.val();
-
-	if(localStorage){
-		localStorage['order-type-index'] = btn.index();
-	}
-
-	json = JSON.parse(localStorage.getItem('items'));
-	json.type = type;
-	localStorage.setItem('items', JSON.stringify(json));
-	OrderButtonActive(btn);
-});
-
-// discount order
-$('body').on('click', '.js-order--discount', function(e){
-	
-	var btn, json;
-
-	btn = $(this);
-
-	if(localStorage){
-		localStorage['order-discount-index'] = btn.index();
-	}
-
-	json = JSON.parse(localStorage.getItem('items'));
-
-	if($(this).hasClass('active'))
-	{
-		$(this).removeClass('active');
-		json.discount = false;
-	} else {
-		$(this).addClass('active');
-		json.discount = true;
-	}
-
-	localStorage.setItem('items', JSON.stringify(json));
-});
-
-// counterparty
-$('body').on('change', '.js-supply--counterparty', function(e){
-
-	var here, json;
-
-	here = Number($("option:selected", this).val());
-	json = JSON.parse(localStorage.getItem('items'));
-	json.counterparty = here;
-	localStorage.setItem('items', JSON.stringify(json));
-});
-
-var timer;
-   $('#some_id').keyup(function () {
-       window.clearTimeout(timer);
-       if ($('#some_id').val().length > 2) {
-           timer = setTimeout(function () {
-               // тут ajax запрос
-           }, 1000);
-       }
-   });
-
-
-// search item
-$('#js-item--search').keyup(function(e){
-	e.preventDefault();
-
-	var barcode, items, data, json, quantity, unique;
-
-	window.clearTimeout(timer);
-
-	barcode = $(this).val();
-
-	items = localStorage.getItem('items');
-	data = {'barcode':barcode, 'items':items};
-
-	if(barcode.length > 10)
-	{
-		setTimeout(function(){ 
-			$.ajax({
-				url 	 : base_url + segment1 + 'items/search',
-				type 	 : 'patch',
-				dataType : 'json',
-				data 	 : data,
-
-				beforeSend: function(){
-			        LoaderStart();
-			    },
-
-				success: function(answer) {
-					if(answer.status == 2)
-					{
-						AnswerWarning('<button id="js-item--barcode-create" class="btn btn-danger">Отправить штрихкод</button>');
-					}
-
-					if(answer.status == 1)
-					{
-						$('.order').removeClass('hidden');
-						$('#alert').removeClass().html('');
-
-						json = JSON.parse(JSON.stringify(answer.data));
-						OrderItemPaste(json);
-					}
-
-					if(answer.status == 0)
-					{
-						AnswerWarning(answer.message);
-						$('table tr').removeClass('info');
-						var parents = $('*[data-item="'+answer.data+'"]').addClass('info');
-						parents.find('.js-order--update-quantity').html(quantity);
-					}
-			    },
-
-			    error: function(answer) {
-			    	AnswerError();
-			    }
-
-			}).complete(function() {
-					LoaderStop();
-				});
-		}, 2000);
-	}
-});
-
-// select update item order
-$(document).on('click', '.js-order--update', function(){
-	var here, data;
-	
-	here = $(this);
-	data = here.text();
-
-	here.html('<input type="number" id="js-order--update" placeholder="'+data+'">');
-	here.find('input').focus();
-});
-
-// update item press enter
-$(document).on('keypress', '#js-order--update', function(e){
-	if(e.which == 13) {
-		OrderUpdate($(this));
-	}
-});
-
-// update item focusout
-$(document).on('focusout', '#js-order--update', function(){
-	OrderUpdate($(this));
-});
-
-// delete item order
-$('body').on("click", ".js-order--remove", function(){
-
-	var parents, item, price, quantity, count, json, index;
-
-	parents  = $(this).parents('tr');
-	item  	 = parents.data('item');
-	price 	 = parents.find('.js-order--price').val();
-	quantity = parents.find('.js-order--quantity').val();
-	count 	 = $('.order-table tbody tr').length;
-	json 	 = JSON.parse(localStorage.getItem('items'));
-
-	index = json.items.findIndex(function(array, i){
-	   	return array.item === item
-	});
-
-	json.items.splice(index, 1);
-	localStorage.setItem('items', JSON.stringify(json));
-
-	parents.remove();
-
-	if(count == 1)
-	{
-		OrderClear();
-	} else {
-		OrderTotalSum();
-		localStorage.setItem('order-table', $('.order-table').html());
-	}
-});
-
-// create new item (cashier -> admin)
-$('body').on('click', '#js-item--barcode-create', function(e){
-	e.preventDefault();
-
-	var barcode, data;
-	
-	barcode = $('#js--item-search').val();
-	data  	= {'barcode':barcode}
-
-	$.ajax({
-		url 	 : base_url + segment1 + 'items/barcode',
-		type 	 : 'post',
-		dataType : 'json',
-		data 	 : data,
-
-		beforeSend: function(){
-	        LoaderStart();
-	    },
-
-		success: function(answer) {
-
-			if(answer.status == 0)
-			{
-				AnswerError(answer.message);
-			}
-
-			if(answer.status == 1)
-			{
-				AnswerSuccess(answer.message);
-			}
-
-	    },
-
-	    error: function(answer) {
-	    	AnswerError();
-	    }
-
-	}).complete(function() {
-	        LoaderStop();
-		});
 });

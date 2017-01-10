@@ -30,7 +30,7 @@
 	<div id="js-item--print-edit">
 		<div class="btn-group-vertical">
 			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#print-modal">Настройки</button>
-			<button type="button" class="btn btn-success" id="js-print">Печать</button>
+			<button type="button" class="btn btn-success" id="js--items-print">Печать</button>
 		</div>
 	</div>
 
@@ -62,13 +62,13 @@
 					<td @if(Auth::user()->status != 2) class="js--update" data-column="price" @endif >{{ number_format($row->price, 0, ' ', ' ') }}</td>
 					<td>
 					@if($row->status == 1)
-						<button class="btn @if(Auth::user()->status != 2) js-item--status @endif btn-circle btn-success" @if(Auth::user()->status != 2) data-status="1" @endif><i class="fa fa-check"></i></button>
+						<button class="btn @if(Auth::user()->status != 2) js-items--status @endif btn-circle btn-success" @if(Auth::user()->status != 2) data-status="1" @endif><i class="fa fa-check"></i></button>
 					@elseif($row->type == 0)
-						<button class="btn @if(Auth::user()->status != 2) js-item--status @endif btn-circle btn-danger" @if(Auth::user()->status != 2) data-status="0" @endif><i class="fa fa-ban"></i></button>
+						<button class="btn @if(Auth::user()->status != 2) js-items--status @endif btn-circle btn-danger" @if(Auth::user()->status != 2) data-status="0" @endif><i class="fa fa-ban"></i></button>
 					@endif
 					</td>
 
-					<td><button type="button" data-barcode="{{ $row->barcode }}" class="btn btn-circle btn-primary js-item--print-review"><i class="fa fa-print" aria-hidden="true"></i></button></td>
+					<td><button type="button" data-barcode="{{ $row->barcode }}" class="btn btn-circle btn-primary js-items--print-review"><i class="fa fa-print" aria-hidden="true"></i></button></td>
 				</tr>
 				@endforeach
 			</tbody>

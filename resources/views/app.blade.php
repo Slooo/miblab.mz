@@ -137,9 +137,9 @@
     <!-- JavaScripts -->
     <script>
     var base_url, segment1, segment2, segment3;
-        base_url = '{{ url('/') }}/';
-        segment1 = '{{ Request::segment(1) }}/';   
-        segment2 = '{{ Request::segment(2) }}/';
+        base_url = '{{ url('/') }}';
+        segment1 = '{{ Request::segment(1) }}';   
+        segment2 = '{{ Request::segment(2) }}';
         segment3 = '{{ Request::segment(3) }}';
     </script>
     <script src="{{ elixir('js/app.js') }}"></script>

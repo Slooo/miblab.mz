@@ -114,7 +114,6 @@ class ItemsController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $status = 0;
             $message = $validator->messages();
             $data = [];
         } else {
@@ -125,18 +124,10 @@ class ItemsController extends Controller
             $item->$column = $value;
             $item->save();
 
-            $status = 1;
             $message = 'Обновлено';
-            $data['value'] = number_format($value, 0, ' ', ' ');            
         }
 
         return response()->json(['status' => $status, 'message' => $message, 'data' => $data]);
-    }
-
-    # create page !
-    public function create()
-    {
-        return view('items.create');
     }
 
     # create

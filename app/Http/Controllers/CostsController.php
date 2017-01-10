@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\CostsRequest;
 use App\Http\Requests;
 use Carbon\Carbon;
 use Auth;
@@ -80,15 +81,8 @@ class CostsController extends Controller
         return response()->json(['status' => $status, 'data' => $data, 'extra' => $extra]);
     }
 
-    # create page
-    public function create()
-    {
-    	$ccosts = CCosts::lists('name', 'id');
-    	return view('costs.create', compact('ccosts'));
-    }
-
     # create
-    public function store(Request $request)
+    public function store(CostsRequest $request)
     {
     	$costs = new Costs;
         $request['date'] = Carbon::createFromFormat('d/m/Y', $request['date'])->format('Y-m-d');
@@ -96,47 +90,44 @@ class CostsController extends Controller
     	$costs->ccosts()
         ->sync([$request->ccosts_id => ['costs_id' => $data->id]]);
 
-    	return response()->json(['status' => 1, 'message' => $request->ccosts_id, 'data' => $data]);      
+    	return response()->json(['message' => 'Расходы внесены', 'data' => $data]);      
     }
 
     # update
     public function update(Request $request, $id)
     {
-        $col = $request->column;
-        $val = $request->value;
+        $column = $request->column;
+        $value = $request->value;
 
         $costs = Costs::find($id);
-        $costs->$col = $val;
+        $costs->$column = $value;
         $costs->save();
 
-        return response()->json(['status' => 1, 'message' => 'Обновлено']);
+        return response()->json(['message' => 'Обновлено']);
     }
 
     # delete
     public function delete(Request $request, $id)
     {
-        $status = 0;
         if($request->type == 'pivot')
         {
             //$pivot = Costs::findOrFail($id);
-
             $pivot = CCosts::find($request->id)->costs()->where('costs.id', $id)->first();
             Session::flash('restore_pivot', $pivot);
 
             $count = CCosts::find($request->id)->costs()->count();
             if($count == 1)
             {
-                $status = 301;
                 $pivot->delete();
                 $pivot->ccosts()->detach();
+                // redirect
             } else {
-                $status = 1;
                 $pivot->delete();
                 $pivot->ccosts()->detach();
             }
         }
 
-        return response()->json(['status' => $status, 'message' => 'Удалено', 'data' => $id]);
+        return response()->json(['message' => 'Удалено', 'data' => $id]);
     }
 
     # restore

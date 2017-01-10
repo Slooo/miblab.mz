@@ -1,6 +1,6 @@
 <!-- COSTS CREATE MODAL FORM -->
 
-<form id="js-costs--form" class="form-horizontal" role="form">
+<form role="form" class="form-horizontal" id="js-costs--form">
 
 	<div class="form-group">
 		<input type="number" name="sum" placeholder="Введите сумму" class="form-control col-sm-10"> 
