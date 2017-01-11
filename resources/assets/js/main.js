@@ -305,13 +305,21 @@ function number_format( number, decimals, dec_point, thousands_sep ) {
 	return km + kw + kd;
 }
 
-function totalSumAndDiscount()
+function totalSumAndDiscount(sum)
 {
-	var sum = 0;
+	var Ssum = 0;
 	$('.js--sum').each(function(){
-	    sum += parseFloat($(this).text().replace(/\s/g, ''));
+	    Ssum += parseFloat($(this).text().replace(/\s/g, ''));
 	});
 
+	// переслать id, sum
+	// выбрать строку и туда вставить где есть класс .js--sum
+
+	$('.js--totalSum').each(function(){
+		totalSum += parseFloat($(this).text().replace(/\s/g, ''));
+	})
+
+	//!
 	var sum_discount = 0;
 	$('.js--sum-discount').each(function(){
 	    sum_discount += parseFloat($(this).text().replace(/\s/g, ''));
@@ -319,7 +327,7 @@ function totalSumAndDiscount()
 
 	if($('strong').hasClass('totalSum'))
 	{
-		$('.totalSum').html('Итого ' + number_format(sum, 0, ' ', ' ') + ' &#8381;');	
+		$('.totalSum').html('Итого ' + number_format(totalSum, 0, ' ', ' ') + ' &#8381;');	
 	}
 
 	if($('strong').hasClass('totalSumDiscount'))
@@ -364,7 +372,7 @@ function validationDelete(answer, line)
 }
 
 // check update
-function validationUpdate(answer)
+function validationUpdate(answer, here)
 {
 	var json = JSON.parse(answer.responseText);
 
@@ -372,18 +380,26 @@ function validationUpdate(answer)
 	{
 		// error validation
 		case 422:
-			AnswerWarning(json.message);
+			here.parent('td').html(here.attr('placeholder'));
+
+			//!
+			$('.table tbody tr').removeClass();
+			here.parents('tr').addClass('warning');
+
+			AnswerWarning(json.message.value);
 		break;
 
 		// success
 		case 200:
-			/*
-			val = number_format(here.val(), 0, ' ', ' ');
-			here.parent('td').html(val);
-			$('table tbody tr').removeClass();
-			line.addClass('info');
-			totalSumAndDiscount();
+			/* проверять какой столбец и к какому типу он относится
+				val = here.parent('td').data('column') == 'int' ? number_format(here.val(), 0, ' ', ' ' : here.val()
 			*/
+			val = number_format(here.val(), 0, ' ', ' ');
+
+			here.parent('td').html(val);
+			$('.table tbody tr').removeClass();
+			here.parents('tr').addClass('info');
+			totalSumAndDiscount(answer.data.sum);
 
 			AnswerInfo(json.message);
 		break;
@@ -579,12 +595,12 @@ $("#js-modal--create").on('show.bs.modal', function () {
 
 // ---------- UPDATE ----------
 
-// update discount focusout
+// update focusout
 $(document).on('focusout', '#js--update', function(){
 	update($(this));
 });
 
-// update discount press enter
+// update press enter
 $(document).on('keypress', '#js--update', function(e){
 	if(e.which == 13) {
 		update($(this));
@@ -611,10 +627,11 @@ function update(here){
 		here.parent('td').html(here.attr('placeholder'));
 	} else {
 
-		line = here.parents('tr');
-		id = line.data('id');
+		line   = here.parents('tr');
+		id 	   = line.data('id');
 		column = here.parent('td').data('column');
-		data = {"column":column, "value":here.val()};
+		type   = line.parents('tbody').data('type');
+		data   = {"column":column, "value":here.val(), "type":type};
 
 		$.ajax({
 			url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + id,
@@ -627,7 +644,7 @@ function update(here){
 		    },
 
 		    complete: function(answer, xhr, settings){
-			    validationUpdate(answer); // 2 parametr
+			    validationUpdate(answer, here);
 		    }
 
 		});
@@ -644,10 +661,10 @@ $('body').on('click', '.js--delete', function(e){
 	line = $(this).parents('tr');
 
 	$.ajax({
-		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'delete' + '/' + line.data('id'),
+		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'delete' + '/' + id,
 		type 	 : 'post',
 		dataType : 'json',
-		data 	 : {"type":line.data('type'), "id":segment3},
+		data 	 : {"type":$(this).parents('tbody').data('type')},
 
 		beforeSend: function(){
 	        LoaderStart();

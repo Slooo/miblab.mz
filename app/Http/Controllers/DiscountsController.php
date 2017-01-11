@@ -53,6 +53,7 @@ class DiscountsController extends Controller
             $value = $request->value;
 
             Discounts::where('id', $id)->update([$column => $value]);
+            
             $message = 'Обновлено';
             $status = 200;
         }

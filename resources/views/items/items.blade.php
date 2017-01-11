@@ -17,8 +17,8 @@
 			</form>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-default" id="js-item--print-cancel">Отмена</button>
-				<button type="button" class="btn btn-primary" id="js-item--print-review" value="">Просмотр</button>
+				<button type="button" class="btn btn-default" id="js-items--print-cancel">Отмена</button>
+				<button type="button" class="btn btn-primary" id="js-items--print-review" value="">Просмотр</button>
 			</div>
 		</div>
 	</div>
@@ -27,7 +27,7 @@
 <div class="full hidden">
 	<div class="print"></div>
 
-	<div id="js-item--print-edit">
+	<div id="js-items--print-edit">
 		<div class="btn-group-vertical">
 			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#print-modal">Настройки</button>
 			<button type="button" class="btn btn-success" id="js--items-print">Печать</button>

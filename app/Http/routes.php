@@ -111,6 +111,7 @@ Route::group(['middleware' => ['auth', 'igor'], 'prefix' => 'igor'], function()
 	Route::patch('items/search', 'ItemsController@search');
 
 	#post
+	Route::post('supply/delete/{id}','SupplyController@delete');
 	Route::post('orders/delete/{id}','OrdersController@delete');
 	Route::post('discounts/delete/{id}','DiscountsController@delete');
 	Route::post('costs/delete/{id}','CostsController@delete');

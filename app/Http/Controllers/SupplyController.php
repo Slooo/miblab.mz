@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use Auth;
 use Carbon\Carbon;
+use Validator;
 
 # models
 use App\Supply;
@@ -105,64 +106,91 @@ class SupplyController extends Controller
     # update
     public function update(Request $request, $id)
     {
-        $col = $request->col;
-        $val = $request->val;
+        $column = $request->column;
+        $value = $request->value;
 
-        $itemsSupply = ItemsSupply::find($request->id);
-        $itemsSupply->$col = $val;
-        $sum = $itemsSupply->items_sum = $itemsSupply->items_price * $itemsSupply->items_quantity;
-        $itemsSupply->save();
-
-        $supply = Supply::find($id);
-        $totalSum = $supply->items()->sum('items_sum');
-        $supply->sum = $totalSum;
-        $supply->save();
-
-        $data['value'] = number_format($val, 0, ' ', ' ');
-        $data['sum'] = number_format($sum, 0, ' ', ' ');
-        $data['totalSum'] = number_format($totalSum, 0, ' ', ' ');
-
-        return response()->json(['status' => 1, 'message' => 'Обновлено', 'data' => $data]);
-    }
-
-    # delete
-    public function destroy(Request $request, $id)
-    {
-        $supply = Supply::find($id);
-
-        $type = $request->type;
-        $id_pivot = $request->id;
-
-        $data = [];
-
-        switch ($request['type']) {
-            case 'main':
-                $supply->delete();
-                $supply->items()->detach();
-                $status = 'redirect';
+        switch($request->column)
+        {
+            case 'items_price':
+                $check = 'required|numeric';
             break;
-            case 'pivot':
-                $count = ItemsSupply::where('supply_id', $id)->count();
 
-                if($count == 1)
-                {
-                    ItemsSupply::find($id_pivot)->delete();
-                    $supply->delete();
-                    $status = 'redirect';
-                } else {
-                    ItemsSupply::find($id_pivot)->delete();
-                    $totalSum = $supply->items()->sum('items_sum');
-                    $supply->sum = $totalSum;
-                    $supply->save();
+            case 'items_quantity':
+                $check = 'required|numeric';
+            break;
 
-                    $data['totalSum'] = number_format($totalSum, 0, ' ', ' ');
-                    $status = 1;
-                }
-                #$supply->items()->detach($id_pivot);
+            default:
+                return false;
             break;
         }
 
-        return response()->json(['status' => $status, 'message' => 'Удалено', 'data' => $data]);
+        $validator = Validator::make($request->all(), [
+            'value' => $check
+        ]);
+
+        if ($validator->fails()) {
+            $data = [];
+            $message = $validator->messages();
+            $status = 422;
+        } else {
+            $column = $request->column;
+            $value = $request->value;
+
+            $supply = ItemsSupply::find($id);
+            $supply->$column = $value;
+            $data = $supply->items_sum = $supply->items_price * $supply->items_quantity;
+            $supply->save();
+
+            $message = 'Обновлено';
+            $status = 200;
+        }
+
+        return response()->json(['message' => $message, 'data' => ['sum' => $data]], $status);
+    }
+
+    # delete
+    public function delete(Request $request, $id)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'type' => 'required|in:main,pivot',
+        ]);
+
+        if ($validator->fails()) {
+            $message = $validator->messages();
+            $status = 422;
+        } else {
+            $type = $request->type;
+
+            switch($type)
+            {
+                case 'main':
+                    $supply = Supply::find($id)->items()->detach();
+
+                    $message = 'Удалены все приходы #'.$id;
+                    $status = 200;
+                break;
+                case 'pivot':
+                    $count = ItemsSupply::where('supply_id', $id)->count();
+
+                    if($count == 1)
+                    {
+                        Supply::destroy($id);
+
+                        $message = 'Удалены все приходы';
+                        $status = 301;
+                    } else {
+                        ItemsSupply::destroy($id);
+
+                        $message = 'Удалено значение #'.$id;
+                        $status = 200;
+                    }
+                    #$supply->items()->detach($id_pivot);
+                break;
+            }
+        }
+
+        return response()->json(['message' => $message], $status);
     }
 
     # get range date

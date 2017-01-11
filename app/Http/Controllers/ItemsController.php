@@ -109,13 +109,24 @@ class ItemsController extends Controller
     # update
     public function update($id, Request $request)
     {
+        switch($request->column)
+        {
+            case 'price':
+                $check = 'required|numeric';
+            break;
+
+            default:
+                return false;
+            break;
+        }
+
         $validator = Validator::make($request->all(), [
-            'value' => 'required|numeric',
+            'value' => $check,
         ]);
 
         if ($validator->fails()) {
             $message = $validator->messages();
-            $data = [];
+            $status = 422;
         } else {
             $column = $request->column;
             $value = $request->value;
@@ -125,9 +136,10 @@ class ItemsController extends Controller
             $item->save();
 
             $message = 'Обновлено';
+            $status = 200;
         }
 
-        return response()->json(['status' => $status, 'message' => $message, 'data' => $data]);
+        return response()->json(['message' => $message], $status);
     }
 
     # create
@@ -140,10 +152,11 @@ class ItemsController extends Controller
     # generate barcode
     public function barcode_generate(Request $request)
     {
+        // проверка существования штрихкода
         $barcode = DNS1D::getBarcodeSVG($request->barcode, "EAN13");
         $item = Items::where('barcode', $request->barcode)->first();
         $time = Carbon::now()->format('d.m.Y');
-        return response()->json(['status' => 1, 'barcode' => $barcode, 'item' => $item, 'time' => $time]);
+        return response()->json(['status' => 200, 'barcode' => $barcode, 'item' => $item, 'time' => $time]);
     }
 
 }

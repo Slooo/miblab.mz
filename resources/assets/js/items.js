@@ -138,6 +138,8 @@ $('#js-item--barcode').focusout(function() {
 	}
 });
 
+/* --- PRINT BARCODE --- */
+
 // select barcode
 $('body').on('click', '.js-items--print-review', function(e){
 	e.preventDefault();
@@ -190,7 +192,7 @@ $('#js-items--print-review').click(function(e){
 	    },
 
 		success: function(answer) {
-			if(answer.status == 1)
+			if(answer.status == 200)
 			{
 				json = JSON.stringify(answer.item);
 				item = JSON.parse(json);
@@ -225,3 +227,5 @@ $('body').on('click', '#js--items-print', function(e){
 	e.preventDefault();
 	window.print();
 });
+
+/* --- END PRINT BARCODE --- */
