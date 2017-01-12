@@ -126,7 +126,13 @@
     <!-- Content -->
     <div class="container">
         <div class="row">
-            <div id="alert"></div>
+
+            @if(Session::has('message'))
+                <div id="alert" class="alert alert-info">{{ Session::get('message') }}</div>
+            @else
+                <div id="alert"></div>    
+            @endif
+
             @if(Request::is('*/discounts') || Request::is('*/items') || Request::is('*/costs/*'))
                 @include('_forms.modals')
             @endif

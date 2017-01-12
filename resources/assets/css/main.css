@@ -21,6 +21,10 @@ h2 {
     width:300px;
 }
 
+.alert {
+  font-weight:bold;
+}
+
 /* ---------------- Validate form ------------- */
 .validate-error {
   border:2px solid red;

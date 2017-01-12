@@ -8,6 +8,7 @@ use App\Http\Requests;
 use Auth;
 use Carbon\Carbon;
 use Validator;
+use Session;
 
 # models
 use App\Supply;
@@ -138,14 +139,17 @@ class SupplyController extends Controller
 
             $supply = ItemsSupply::find($id);
             $supply->$column = $value;
-            $data = $supply->items_sum = $supply->items_price * $supply->items_quantity;
+            $supply->items_sum = $supply->items_price * $supply->items_quantity;
             $supply->save();
+
+            $sum = ItemsSupply::where('supply_id', $supply->supply_id)->sum('items_sum');
+            Supply::find($supply->supply_id)->update(['sum' => $sum]);
 
             $message = 'Обновлено';
             $status = 200;
         }
 
-        return response()->json(['message' => $message, 'data' => ['sum' => $data]], $status);
+        return response()->json(['message' => $message, 'data' => ['id' => $id, 'sum' => $supply->items_sum], $status]);
     }
 
     # delete
@@ -165,27 +169,30 @@ class SupplyController extends Controller
             switch($type)
             {
                 case 'main':
-                    $supply = Supply::find($id)->items()->detach();
+                    Supply::destroy($id);
 
                     $message = 'Удалены все приходы #'.$id;
                     $status = 200;
                 break;
                 case 'pivot':
-                    $count = ItemsSupply::where('supply_id', $id)->count();
+                    $supply = ItemsSupply::find($id);
+                    $count = ItemsSupply::where('supply_id', $supply->supply_id)->count();
 
                     if($count == 1)
                     {
-                        Supply::destroy($id);
+                        Supply::destroy($supply->supply_id);
 
-                        $message = 'Удалены все приходы';
+                        $message = 'Удалены все приходы #'.$supply->supply_id;
                         $status = 301;
+                        Session::flash('message', $message);
                     } else {
                         ItemsSupply::destroy($id);
+                        $sum = ItemsSupply::where('supply_id', $supply->supply_id)->sum('items_sum');
+                        Supply::find($supply->supply_id)->update(['sum' => $sum]);
 
                         $message = 'Удалено значение #'.$id;
                         $status = 200;
                     }
-                    #$supply->items()->detach($id_pivot);
                 break;
             }
         }

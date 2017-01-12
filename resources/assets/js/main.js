@@ -241,28 +241,28 @@ function LoaderStop()
 function AnswerSuccess(answer)
 {
 	$('#js-modal--create').modal('hide');
-	$('#alert').removeClass().addClass('alert alert-success').html('<strong>'+answer+'</strong>');		
+	$('#alert').removeClass().addClass('alert alert-success').html(answer);		
 }
 
 // answer error
 function AnswerError()
 {
 	$('#js-modal--create').modal('hide');
-	$('#alert').removeClass().addClass('alert alert-danger').html('<strong>Ошибка запроса</strong>');	
+	$('#alert').removeClass().addClass('alert alert-danger').html('Ошибка запроса');	
 }
 
 // answer info
 function AnswerInfo(answer)
 {
 	$('#js-modal--create').modal('hide');
-	$('#alert').removeClass().addClass('alert alert-info').html('<strong>'+answer+'</strong>');	
+	$('#alert').removeClass().addClass('alert alert-info').html(answer);	
 }
 
 // answer warning
 function AnswerWarning(answer)
 {
 	$('#js-modal--create').modal('hide');
-	$('#alert').removeClass().addClass('alert alert-warning').html('<strong>'+answer+'</strong>');	
+	$('#alert').removeClass().addClass('alert alert-warning').html(answer);	
 }
 
 // answer removed
@@ -305,34 +305,34 @@ function number_format( number, decimals, dec_point, thousands_sep ) {
 	return km + kw + kd;
 }
 
-function totalSumAndDiscount(sum)
+// total um
+function totalSumAndDiscount(data)
 {
-	var Ssum = 0;
-	$('.js--sum').each(function(){
-	    Ssum += parseFloat($(this).text().replace(/\s/g, ''));
-	});
-
-	// переслать id, sum
-	// выбрать строку и туда вставить где есть класс .js--sum
-
-	$('.js--totalSum').each(function(){
-		totalSum += parseFloat($(this).text().replace(/\s/g, ''));
-	})
-
-	//!
-	var sum_discount = 0;
-	$('.js--sum-discount').each(function(){
-	    sum_discount += parseFloat($(this).text().replace(/\s/g, ''));
-	});
+	var line, totalSum = 0, totalSumDiscount = 0;
 
 	if($('strong').hasClass('totalSum'))
 	{
+		if(data)
+		{
+			line = $('.table tbody').find("[data-id='" + data.id + "']");
+			$(line).find('td.js--totalSum').html(number_format(data.sum, 0, ' ', ' '));			
+		}
+
+		$('td.js--totalSum').each(function(){
+			totalSum += parseFloat($(this).text().replace(/\s/g, ''));
+		});
+
 		$('.totalSum').html('Итого ' + number_format(totalSum, 0, ' ', ' ') + ' &#8381;');	
 	}
 
+	// пока непонятно как считать скидку при изменениях.
 	if($('strong').hasClass('totalSumDiscount'))
 	{
-		$('.totalSumDiscount').html('Итого со скидкой ' + number_format(sum_discount, 0, ' ', ' ') + ' &#8381;');
+		$('.js--sum-discount').each(function(){
+		    totalSumDiscount += parseFloat($(this).text().replace(/\s/g, ''));
+		});
+
+		$('.totalSumDiscount').html('Итого со скидкой ' + number_format(totalSumDiscount, 0, ' ', ' ') + ' &#8381;');
 	}
 }
 
@@ -350,9 +350,7 @@ function validationDelete(answer, line)
 
 		// redirect
 		case 301:
-			$('.table').remove();
-			AnswerDanger(json.data.id);
-			//window.location.href = base_url + segment1 + segment2;	
+			window.location.href = base_url +'/'+ segment1 +'/'+ segment2;	
 		break;
 
 		// success
@@ -399,7 +397,7 @@ function validationUpdate(answer, here)
 			here.parent('td').html(val);
 			$('.table tbody tr').removeClass();
 			here.parents('tr').addClass('info');
-			totalSumAndDiscount(answer.data.sum);
+			totalSumAndDiscount(json.data);
 
 			AnswerInfo(json.message);
 		break;
@@ -656,9 +654,10 @@ function update(here){
 $('body').on('click', '.js--delete', function(e){
 	e.preventDefault();
 
-	var data, line;
+	var data, line, id;
 
 	line = $(this).parents('tr');
+	id = line.data('id');
 
 	$.ajax({
 		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'delete' + '/' + id,

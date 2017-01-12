@@ -22,9 +22,9 @@
 				</tr>
 			</thead>
 
-			<tbody>
+			<tbody data-type="pivot">
 				@foreach($supply->items as $row)
-				<tr data-id="{{ $row->pivot->id }}" data-type="pivot">
+				<tr data-id="{{ $row->pivot->id }}">
 					<td class="col-md-1">{{ $row->barcode }}</td>	
 					<td class="col-md-4">{{ $row->name }}</td>
 					<td class="col-md-2 js--update" data-column="items_price">
