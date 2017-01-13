@@ -155,7 +155,6 @@ class SupplyController extends Controller
     # delete
     public function delete(Request $request, $id)
     {
-
         $validator = Validator::make($request->all(), [
             'type' => 'required|in:main,pivot',
         ]);
@@ -203,7 +202,6 @@ class SupplyController extends Controller
     # get range date
     public function date(Request $request)
     {
-
         $data = []; $total = []; $extra = []; $i = 0;
 
         $dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->addDay(1)->format('Y-m-d');

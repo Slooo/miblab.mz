@@ -20,12 +20,12 @@
 				</tr>
 			</thead>
 	
-			<tbody>
+			<tbody data-type="main">
 			@foreach($discounts as $row)
-				<tr data-id="{{ $row->id }}" data-type="main">
+				<tr data-id="{{ $row->id }}">
 					<td class="col-md-1">{{ $row->id }}</td>
-					<td class="col-md-5 js--sum js--update" data-column="sum">{{ number_format($row->sum, 0, ' ', ' ') }}</td>
-					<td class="col-md-5 js--percent js--update" data-column="percent">{{ $row->percent }}</td>
+					<td class="col-md-5 js--update" data-column="sum">{{ number_format($row->sum, 0, ' ', ' ') }}</td>
+					<td class="col-md-5 js--update" data-column="percent">{{ $row->percent }}</td>
 					<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>
 				</tr>
 			@endforeach

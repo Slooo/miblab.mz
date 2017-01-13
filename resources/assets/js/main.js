@@ -305,538 +305,538 @@ function number_format( number, decimals, dec_point, thousands_sep ) {
 	return km + kw + kd;
 }
 
-// total um
-function totalSumAndDiscount(data)
-{
-	var line, totalSum = 0, totalSumDiscount = 0;
-
-	if($('strong').hasClass('totalSum'))
-	{
-		if(data)
-		{
-			line = $('.table tbody').find("[data-id='" + data.id + "']");
-			$(line).find('td.js--totalSum').html(number_format(data.sum, 0, ' ', ' '));			
-		}
-
-		$('td.js--totalSum').each(function(){
-			totalSum += parseFloat($(this).text().replace(/\s/g, ''));
-		});
-
-		$('.totalSum').html('Итого ' + number_format(totalSum, 0, ' ', ' ') + ' &#8381;');	
-	}
-
-	// пока непонятно как считать скидку при изменениях.
-	if($('strong').hasClass('totalSumDiscount'))
-	{
-		$('.js--sum-discount').each(function(){
-		    totalSumDiscount += parseFloat($(this).text().replace(/\s/g, ''));
-		});
-
-		$('.totalSumDiscount').html('Итого со скидкой ' + number_format(totalSumDiscount, 0, ' ', ' ') + ' &#8381;');
-	}
-}
-
-// check delete
-function validationDelete(answer, line)
-{
-	var json = JSON.parse(answer.responseText);
-
-	switch(answer.status)
-	{
-		// error validation
-		case 422:
-			AnswerError();
-		break;
-
-		// redirect
-		case 301:
-			window.location.href = base_url +'/'+ segment1 +'/'+ segment2;	
-		break;
-
-		// success
-		case 200:
-			//AnswerDanger(json.data.id);
-			AnswerInfo(json.message);
-			line.remove();
-			totalSumAndDiscount();
-		break;
-
-		default:
-			AnswerError();
-		break;
-	}
-
-	LoaderStop();
-}
-
-// check update
-function validationUpdate(answer, here)
-{
-	var json = JSON.parse(answer.responseText);
-
-	switch(answer.status)
-	{
-		// error validation
-		case 422:
-			here.parent('td').html(here.attr('placeholder'));
-
-			//!
-			$('.table tbody tr').removeClass();
-			here.parents('tr').addClass('warning');
-
-			AnswerWarning(json.message.value);
-		break;
-
-		// success
-		case 200:
-			/* проверять какой столбец и к какому типу он относится
-				val = here.parent('td').data('column') == 'int' ? number_format(here.val(), 0, ' ', ' ' : here.val()
-			*/
-			val = number_format(here.val(), 0, ' ', ' ');
-
-			here.parent('td').html(val);
-			$('.table tbody tr').removeClass();
-			here.parents('tr').addClass('info');
-			totalSumAndDiscount(json.data);
-
-			AnswerInfo(json.message);
-		break;
-	}
-
-	LoaderStop();
-}
-
-// check create
-function validationCreate(answer)
-{
-	var json, keys, input, data;
-	json = JSON.parse(answer.responseText);
-
-	switch(answer.status)
-	{
-		// error validation
-		case 422:
-			keys = Object.keys(json);
-
-			$("form input").each(function(){
-				input = $(this);
-				if(keys.indexOf(input.attr('name')) != -1)
-				{
-					input.addClass('validate-error');
-				} else {
-					input.addClass('validate-success');
-				}
-			});
-		break;
-
-		// success
-		case 200:
-			switch(segment2)
-			{
-				case 'items':
-					json.data.price  = number_format(json.data.price, 0, ' ', ' ');
-
-					html =  '<tr data-id="'+json.data.id+'">'; 
-					html += '<td>'+json.data.barcode+'</td>';
-					html += '<td>'+json.data.name+'</td>';
-					html += '<td class="js--update" data-column="price">'+json.data.price+'</td>';
-					html += '<td><button class="btn btn-circle btn-success js-items--status" data-status="'+json.data.status+'"><i class="fa fa-check"></i></button></td>';
-					html += '<td><button type="button" data-barcode="'+json.data.barcode+'" class="btn btn-circle btn-primary js-items--print-review"><i class="fa fa-print"></i></button></td>';
-					html += '</tr>';
-
-					$('.table tbody').prepend(html);
-				break;
-
-				case 'costs':
-					data = json.data;
-					data.date = moment(json.data.created_at, "YYYY-MM-DD HH:mm:ss").format('DD/MM/YYYY');
-					data.sum  = number_format(json.data.sum, 0, ' ', ' ');
-
-					html =  '<tr data-id="'+data.id+'">';
-					html += '<td class="col-md-1">'+data.id+'</td>';
-					html += '<td class="col-md-1">'+data.date+'</td>';
-					html += '<td class="col-md-9 js--sum js--update" data-column="sum">'+data.sum+'</td>';
-					html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
-					html += '</tr>';
-
-					$('.table tbody').prepend(html);
-				break;
-
-				case 'discounts':
-					json.data.sum  = number_format(json.data.sum, 0, ' ', ' ');
-
-					html = '<tr data-id="'+json.data.id+'">';
-					html += '<td class="col-md-1">'+json.data.id+'</td>';
-					html += '<td class="col-md-5 js--sum js--update" data-column="sum">'+json.data.sum+'</td>';
-					html += '<td class="col-md-5 js--percent js--update" data-column="percent">'+json.data.percent+'</td>';
-					html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-					html += '</tr>';
-
-					$('.table tbody').prepend(html);
-				break;
-
-				$('.table tbody tr').removeClass().first().addClass('success');
-			}
-
-			AnswerInfo(json.message);
-    	break;
-
-		default:
-			AnswerError();
-		break;
-	}
-
-	LoaderStop();
-}
-
 $(document).ready(function() {
 
-// datepicker
-$(function () {
-	$('#datetimepicker, #datetimepicker2').datetimepicker(
-		{locale: 'ru', format: 'DD/MM/YYYY'}
-	);
-});
+	// total sum
+	function totalSumAndDiscount(data)
+	{
+		var line, totalSum = 0, totalSumDiscount = 0;
 
-// DATE RANGE
-$('#js-settings--date-range').click(function(e){
-	e.preventDefault();
-
-	var dateStart, dateEnd, data, url, segments, html, json;
-
-	dateStart = $('#date_start').val();
-	dateEnd   = $('#date_end').val();
-	data 	  = {'dateStart' : dateStart, 'dateEnd' : dateEnd, 'id' : segment3};
-
-	$.ajax({
-		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'date',
-		type 	 : "patch",
-		dataType : "json",
-		data 	 : data,
-
-		beforeSend: function(){
-			$('.dropdown').removeClass('open');
-	        LoaderStart();
-	    },
-
-		success: function(answer) {
-
-			$('.col-body h2').remove();
-
-			if(answer.status == 0)
+		if($('strong').hasClass('totalSum'))
+		{
+			if(data)
 			{
-				$('.table').addClass('hidden');
-				$('.col-footer').addClass('hidden');
-				$('.col-body').append('<h2>'+answer.data+'</h2>');
+				line = $('.table tbody').find("[data-id='" + data.id + "']");
+				$(line).find('td.js--totalSum').html(number_format(data.sum, 0, ' ', ' '));			
 			}
 
-			if(answer.status == 1)
-			{
-				html = "";
-				json = JSON.stringify(answer.data);
-				data = JSON.parse(json);
-				
-				$('.table').removeClass('hidden');
-				$('.col-footer').removeClass('hidden');
+			$('td.js--totalSum').each(function(){
+				totalSum += parseFloat($(this).text().replace(/\s/g, ''));
+			});
 
-				if(segment2 != 'costs/')
-				{
-					for(row in data)
+			$('.totalSum').html('Итого ' + number_format(totalSum, 0, ' ', ' ') + ' &#8381;');	
+		}
+
+		// пока непонятно как считать скидку при изменениях.
+		if($('strong').hasClass('totalSumDiscount'))
+		{
+			$('.js--sum-discount').each(function(){
+			    totalSumDiscount += parseFloat($(this).text().replace(/\s/g, ''));
+			});
+
+			$('.totalSumDiscount').html('Итого со скидкой ' + number_format(totalSumDiscount, 0, ' ', ' ') + ' &#8381;');
+		}
+	}
+
+	// check delete
+	function validationDelete(answer, line)
+	{
+		var json = JSON.parse(answer.responseText);
+
+		switch(answer.status)
+		{
+			// error validation
+			case 422:
+				AnswerError();
+			break;
+
+			// redirect
+			case 301:
+				window.location.href = base_url +'/'+ segment1 +'/'+ segment2;	
+			break;
+
+			// success
+			case 200:
+				//AnswerDanger(json.data.id);
+				AnswerInfo(json.message);
+				line.remove();
+				totalSumAndDiscount();
+			break;
+
+			default:
+				AnswerError();
+			break;
+		}
+
+		LoaderStop();
+	}
+
+	// check update
+	function validationUpdate(answer, here)
+	{
+		var json = JSON.parse(answer.responseText);
+
+		switch(answer.status)
+		{
+			// error validation
+			case 422:
+				here.parent('td').html(here.attr('placeholder'));
+
+				//!
+				$('.table tbody tr').removeClass();
+				here.parents('tr').addClass('warning');
+
+				AnswerWarning(json.message.value);
+			break;
+
+			// success
+			case 200:
+				/* проверять какой столбец и к какому типу он относится
+					val = here.parent('td').data('column') == 'int' ? number_format(here.val(), 0, ' ', ' ' : here.val()
+				*/
+				val = number_format(here.val(), 0, ' ', ' ');
+				here.parent('td').html(val);
+				$('.table tbody tr').removeClass();
+				here.parents('tr').addClass('info');
+				totalSumAndDiscount(json.data);
+
+				AnswerInfo(json.message);
+			break;
+		}
+
+		LoaderStop();
+	}
+
+	// check create
+	function validationCreate(answer)
+	{
+		var json, keys, input, data;
+		json = JSON.parse(answer.responseText);
+
+		switch(answer.status)
+		{
+			// error validation
+			case 422:
+				keys = Object.keys(json);
+
+				$("form input").each(function(){
+					input = $(this);
+					if(keys.indexOf(input.attr('name')) != -1)
 					{
-						html += '<tr data-id="'+data[row].id+'" data-type="main">';
-						html += '<td class="col-md-2 js-url--link" data-url="'+base_url + segment1 + segment2 + data[row].id+'">'+data[row].id+'</td>';
-						html += '<td class="col-md-1">'+data[row].date+'</td>';
-						html += '<td class="col-md-3">'+data[row].sum+'</td>';
-						html += '<td class="col-md-3">'+data[row].sum_discount+'</td>';
-						html += '<td class="col-md-2">'+data[row].type+'</td>';
+						input.addClass('validate-error');
+					} else {
+						input.addClass('validate-success');
+					}
+				});
+			break;
+
+			// success
+			case 200:
+				switch(segment2)
+				{
+					case 'items':
+						json.data.price  = number_format(json.data.price, 0, ' ', ' ');
+
+						html =  '<tr data-id="'+json.data.id+'">'; 
+						html += '<td>'+json.data.barcode+'</td>';
+						html += '<td>'+json.data.name+'</td>';
+						html += '<td class="js--update" data-column="price">'+json.data.price+'</td>';
+						html += '<td><button class="btn btn-circle btn-success js-items--status" data-status="'+json.data.status+'"><i class="fa fa-check"></i></button></td>';
+						html += '<td><button type="button" data-barcode="'+json.data.barcode+'" class="btn btn-circle btn-primary js-items--print-review"><i class="fa fa-print"></i></button></td>';
+						html += '</tr>';
+
+						$('.table tbody').prepend(html);
+					break;
+
+					case 'costs':
+						data = json.data;
+						data.date = moment(json.data.created_at, "YYYY-MM-DD HH:mm:ss").format('DD/MM/YYYY');
+						data.sum  = number_format(json.data.sum, 0, ' ', ' ');
+
+						html =  '<tr data-id="'+data.id+'">';
+						html += '<td class="col-md-1">'+data.id+'</td>';
+						html += '<td class="col-md-1">'+data.date+'</td>';
+						html += '<td class="col-md-9 js--totalSum js--update" data-column="sum">'+data.sum+'</td>';
 						html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
 						html += '</tr>';
-					}
 
-				} else {
-					for(row in data)
-					{
-						html += '<tr data-id="'+data[row].id+'" data-type="pivot">';
-						html += '<td class="col-md-1">'+data[row].date+'</td>';
-						html += '<td class="col-md-10">'+data[row].sum+'</td>';
-						html += '<td class="col-md-1"><button class="js--delete btn btn-circle btn-danger"><li class="fa fa-remove"></li></button></td>';
+						$('.table tbody').prepend(html);
+					break;
+
+					case 'discounts':
+						json.data.sum  = number_format(json.data.sum, 0, ' ', ' ');
+
+						html = '<tr data-id="'+json.data.id+'">';
+						html += '<td class="col-md-1">'+json.data.id+'</td>';
+						html += '<td class="col-md-5 js--update" data-column="sum">'+json.data.sum+'</td>';
+						html += '<td class="col-md-5 js--update" data-column="percent">'+json.data.percent+'</td>';
+						html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
 						html += '</tr>';
-					}
+
+						$('.table tbody').prepend(html);
+					break;
+
+					$('.table tbody tr').removeClass().first().addClass('success');
 				}
 
-				$('.table tbody').html(html);
-				$('.totalSum').html('Итого: ' + answer.extra.totalSum + ' &#8381;');
-			}
-	    },
+				AnswerInfo(json.message);
+				totalSumAndDiscount();
+	    	break;
 
-	    error: function(answer) {
-	    	AnswerError();
-	    }
+			default:
+				AnswerError();
+			break;
+		}
 
-	}).complete(function() {
-	    LoaderStop();
-	});
-});
-
-// link url
-$('body').on('click', '.js-url--link', function(e){
-	e.preventDefault();
-	var url = $(this).data('url');
-    window.location = url;
-});
-
-// ---------- CREATE ----------
-
-$("#js-modal--create").on('show.bs.modal', function () {
-	$('input').first().focus();
-});
-
-// ---------- UPDATE ----------
-
-// update focusout
-$(document).on('focusout', '#js--update', function(){
-	update($(this));
-});
-
-// update press enter
-$(document).on('keypress', '#js--update', function(e){
-	if(e.which == 13) {
-		update($(this));
+		LoaderStop();
 	}
-});
 
-// select update item order
-$(document).on('click', '.js--update', function(){
-	var here, data;
-	
-	here = $(this);
-	data = here.text();
+	// datepicker
+	$(function () {
+		$('#datetimepicker, #datetimepicker2').datetimepicker(
+			{locale: 'ru', format: 'DD/MM/YYYY'}
+		);
+	});
 
-	here.html('<input type="number" id="js--update" placeholder="'+data+'">');
-	here.find('input').focus();
-});
+	// DATE RANGE
+	$('#js-settings--date-range').click(function(e){
+		e.preventDefault();
 
-// update
-function update(here){
-	var here, id, line, column, data, json;
+		var dateStart, dateEnd, data, url, segments, html, json;
 
-	if(here.val() == 0 || here.val().length == 0)
-	{
-		here.parent('td').html(here.attr('placeholder'));
-	} else {
-
-		line   = here.parents('tr');
-		id 	   = line.data('id');
-		column = here.parent('td').data('column');
-		type   = line.parents('tbody').data('type');
-		data   = {"column":column, "value":here.val(), "type":type};
+		dateStart = $('#date_start').val();
+		dateEnd   = $('#date_end').val();
+		data 	  = {'dateStart' : dateStart, 'dateEnd' : dateEnd, 'id' : segment3};
 
 		$.ajax({
-			url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + id,
-			type 	 : 'patch',
-			dataType : 'json',
+			url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'date',
+			type 	 : "patch",
+			dataType : "json",
 			data 	 : data,
+
+			beforeSend: function(){
+				$('.dropdown').removeClass('open');
+		        LoaderStart();
+		    },
+
+			success: function(answer) {
+
+				$('.col-body h2').remove();
+
+				if(answer.status == 0)
+				{
+					$('.table').addClass('hidden');
+					$('.col-footer').addClass('hidden');
+					$('.col-body').append('<h2>'+answer.data+'</h2>');
+				}
+
+				if(answer.status == 1)
+				{
+					html = "";
+					json = JSON.stringify(answer.data);
+					data = JSON.parse(json);
+					
+					$('.table').removeClass('hidden');
+					$('.col-footer').removeClass('hidden');
+
+					if(segment2 != 'costs/')
+					{
+						for(row in data)
+						{
+							html += '<tr data-id="'+data[row].id+'" data-type="main">';
+							html += '<td class="col-md-2 js-url--link" data-url="'+base_url + segment1 + segment2 + data[row].id+'">'+data[row].id+'</td>';
+							html += '<td class="col-md-1">'+data[row].date+'</td>';
+							html += '<td class="col-md-3">'+data[row].sum+'</td>';
+							html += '<td class="col-md-3">'+data[row].sum_discount+'</td>';
+							html += '<td class="col-md-2">'+data[row].type+'</td>';
+							html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
+							html += '</tr>';
+						}
+
+					} else {
+						for(row in data)
+						{
+							html += '<tr data-id="'+data[row].id+'" data-type="pivot">';
+							html += '<td class="col-md-1">'+data[row].date+'</td>';
+							html += '<td class="col-md-10">'+data[row].sum+'</td>';
+							html += '<td class="col-md-1"><button class="js--delete btn btn-circle btn-danger"><li class="fa fa-remove"></li></button></td>';
+							html += '</tr>';
+						}
+					}
+
+					$('.table tbody').html(html);
+					$('.totalSum').html('Итого: ' + answer.extra.totalSum + ' &#8381;');
+				}
+		    },
+
+		    error: function(answer) {
+		    	AnswerError();
+		    }
+
+		}).complete(function() {
+		    LoaderStop();
+		});
+	});
+
+	// link url
+	$('body').on('click', '.js-url--link', function(e){
+		e.preventDefault();
+		var url = $(this).data('url');
+	    window.location = url;
+	});
+
+	// ---------- CREATE ----------
+
+	$("#js-modal--create").on('show.bs.modal', function () {
+		$('input').first().focus();
+	});
+
+	// ---------- UPDATE ----------
+
+	// update focusout
+	$(document).on('focusout', '#js--update', function(){
+		update($(this));
+	});
+
+	// update press enter
+	$(document).on('keypress', '#js--update', function(e){
+		if(e.which == 13) {
+			update($(this));
+		}
+	});
+
+	// select update item order
+	$(document).on('click', '.js--update', function(){
+		var here, data;
+		
+		here = $(this);
+		data = here.text();
+
+		here.html('<input type="number" id="js--update" placeholder="'+data+'">');
+		here.find('input').focus();
+	});
+
+	// update
+	function update(here){
+		var here, id, line, column, data, json;
+
+		if(here.val() == 0 || here.val().length == 0)
+		{
+			here.parent('td').html(here.attr('placeholder'));
+		} else {
+
+			line   = here.parents('tr');
+			id 	   = line.data('id');
+			column = here.parent('td').data('column');
+			type   = line.parents('tbody').data('type');
+			data   = {"column":column, "value":here.val(), "type":type};
+
+			$.ajax({
+				url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + id,
+				type 	 : 'patch',
+				dataType : 'json',
+				data 	 : data,
+
+				beforeSend: function(){
+			        LoaderStart();
+			    },
+
+			    complete: function(answer, xhr, settings){
+				    validationUpdate(answer, here);
+			    }
+
+			});
+		}
+	}
+
+	// ---------- DELETE ----------
+
+	$('body').on('click', '.js--delete', function(e){
+		e.preventDefault();
+
+		var data, line, id;
+
+		line = $(this).parents('tr');
+		id = line.data('id');
+
+		$.ajax({
+			url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'delete' + '/' + id,
+			type 	 : 'post',
+			dataType : 'json',
+			data 	 : {"type":$(this).parents('tbody').data('type')},
 
 			beforeSend: function(){
 		        LoaderStart();
 		    },
 
 		    complete: function(answer, xhr, settings){
-			    validationUpdate(answer, here);
+		    	validationDelete(answer, line);
 		    }
 
 		});
-	}
-}
-
-// ---------- DELETE ----------
-
-$('body').on('click', '.js--delete', function(e){
-	e.preventDefault();
-
-	var data, line, id;
-
-	line = $(this).parents('tr');
-	id = line.data('id');
-
-	$.ajax({
-		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'delete' + '/' + id,
-		type 	 : 'post',
-		dataType : 'json',
-		data 	 : {"type":$(this).parents('tbody').data('type')},
-
-		beforeSend: function(){
-	        LoaderStart();
-	    },
-
-	    complete: function(answer, xhr, settings){
-	    	validationDelete(answer, line);
-	    }
-
 	});
-});
 
-// ---------- RESTORE ----------
+	// ---------- RESTORE ----------
 
-// restore orders
-$('body').on('click', '#js--restore-orders', function(e){
-	e.preventDefault();
+	// restore orders
+	$('body').on('click', '#js--restore-orders', function(e){
+		e.preventDefault();
 
-	$.ajax({
-		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'restore',
-		type 	 : 'post',
-		dataType : 'json',
+		$.ajax({
+			url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'restore',
+			type 	 : 'post',
+			dataType : 'json',
 
-		beforeSend: function(){
-	        LoaderStart();
-	    },
+			beforeSend: function(){
+		        LoaderStart();
+		    },
 
-		success: function(answer) {
-			if(answer.status == 0)
-			{
-				AnswerError();
-			}
+			success: function(answer) {
+				if(answer.status == 0)
+				{
+					AnswerError();
+				}
 
-			if(answer.status == 1)
-			{
-				type = (answer.data.type == 1 ? 'Налично' : 'Безналично');
-				date = moment(answer.data.created_at, "YYYY-MM-DD HH:mm:ss").format('DD/MM/YYYY');
+				if(answer.status == 1)
+				{
+					type = (answer.data.type == 1 ? 'Налично' : 'Безналично');
+					date = moment(answer.data.created_at, "YYYY-MM-DD HH:mm:ss").format('DD/MM/YYYY');
 
-				html = '<tr data-id="'+answer.data.id+'" data-type="main">';
-				html += '<td class="col-md-1 js-url--link" data-url="'+base_url+segment1+segment2+answer.data.id+'">'+answer.data.id+'</td>';
-				html += '<td class="col-md-1">'+date+'</td>';
-				html += '<td class="col-md-5 js--sum">'+answer.data.sum+'</td>';
-				html += '<td class="col-md-5 js--sum-discount">'+answer.data.sum_discount+'</td>';
-				html += '<td class="col-md-2">'+type+'</td>';
-				html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-				html += '</tr>';
+					html = '<tr data-id="'+answer.data.id+'" data-type="main">';
+					html += '<td class="col-md-1 js-url--link" data-url="'+base_url+segment1+segment2+answer.data.id+'">'+answer.data.id+'</td>';
+					html += '<td class="col-md-1">'+date+'</td>';
+					html += '<td class="col-md-5 js--sum">'+answer.data.sum+'</td>';
+					html += '<td class="col-md-5 js--sum-discount">'+answer.data.sum_discount+'</td>';
+					html += '<td class="col-md-2">'+type+'</td>';
+					html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
+					html += '</tr>';
 
-				$('.table tbody').prepend(html);
-				$('.table tbody tr').removeClass().first().addClass('info');
+					$('.table tbody').prepend(html);
+					$('.table tbody tr').removeClass().first().addClass('info');
 
-				totalSumAndDiscount();
+					totalSumAndDiscount();
 
-				AnswerInfo(answer.message);
-			}
+					AnswerInfo(answer.message);
+				}
 
-			if(answer.status == 2)
-			{
-				html = "";
-				html = '<tr data-id="'+answer.data.pivot.id+'" data-type="pivot">';
-				html += '<td class="col-md-1">'+answer.data.barcode+'</td>';
-				html += '<td class="col-md-5">'+answer.data.name+'</td>';
-				html += '<td class="col-md-5">'+answer.data.pivot.items_price+'</td>';
-				html += '<td class="col-md-5">'+answer.data.pivot.items_quantity+'</td>';
-				html += '<td class="col-md-5">'+answer.data.pivot.items_sum+'</td>';
-				html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-				html += '</tr>';
+				if(answer.status == 2)
+				{
+					html = "";
+					html = '<tr data-id="'+answer.data.pivot.id+'" data-type="pivot">';
+					html += '<td class="col-md-1">'+answer.data.barcode+'</td>';
+					html += '<td class="col-md-5">'+answer.data.name+'</td>';
+					html += '<td class="col-md-5">'+answer.data.pivot.items_price+'</td>';
+					html += '<td class="col-md-5">'+answer.data.pivot.items_quantity+'</td>';
+					html += '<td class="col-md-5">'+answer.data.pivot.items_sum+'</td>';
+					html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
+					html += '</tr>';
 
-				$('.table tbody').prepend(html);
-				$('.table tbody tr').removeClass().first().addClass('info');
+					$('.table tbody').prepend(html);
+					$('.table tbody tr').removeClass().first().addClass('info');
 
-				AnswerInfo(answer.message);
-			}
-	    },
+					AnswerInfo(answer.message);
+				}
+		    },
 
-	    error: function(answer) {
-	    	AnswerError();
-	    }
+		    error: function(answer) {
+		    	AnswerError();
+		    }
 
-	}).complete(function() {
-			LoaderStop();
-		});
-});
+		}).complete(function() {
+				LoaderStop();
+			});
+	});
 
-// restore discounts
-$('body').on('click', '#js--restore-discounts', function(e){
-	e.preventDefault();
+	// restore discounts !
+	$('body').on('click', '#js--restore-discounts', function(e){
+		e.preventDefault();
 
-	$.ajax({
-		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'restore',
-		type 	 : 'post',
-		dataType : 'json',
+		$.ajax({
+			url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'restore',
+			type 	 : 'post',
+			dataType : 'json',
 
-		beforeSend: function(){
-	        LoaderStart();
-	    },
+			beforeSend: function(){
+		        LoaderStart();
+		    },
 
-		success: function(answer) {
-			if(answer.status == 0)
-			{
-				AnswerError();
-			}
+			success: function(answer) {
+				if(answer.status == 0)
+				{
+					AnswerError();
+				}
 
-			if(answer.status == 1)
-			{
-				html = '<tr data-id="'+answer.data.id+'" data-type="main">';
-				html += '<td class="col-md-1">'+answer.data.id+'</td>';
-				html += '<td class="col-md-5 js--sum js--update" data-column="sum">'+answer.data.sum+'</td>';
-				html += '<td class="col-md-5 js--percent js--update" data-column="percent">'+answer.data.percent+'</td>';
-				html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-				html += '</tr>';
+				if(answer.status == 1)
+				{
+					html = '<tr data-id="'+answer.data.id+'" data-type="main">';
+					html += '<td class="col-md-1" data-column="date">'+answer.data.id+'</td>';
+					html += '<td class="col-md-5 js--sum js--update" data-column="sum">'+answer.data.sum+'</td>';
+					html += '<td class="col-md-5 js--update" data-column="percent">'+answer.data.percent+'</td>';
+					html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
+					html += '</tr>';
 
-				$('.table tbody').prepend(html);
-				$('.table tbody tr').removeClass().first().addClass('info');
+					$('.table tbody').prepend(html);
+					$('.table tbody tr').removeClass().first().addClass('info');
 
-				AnswerInfo(answer.message);
-			}
-	    },
+					AnswerInfo(answer.message);
+				}
+		    },
 
-	    error: function(answer) {
-	    	AnswerError();
-	    }
+		    error: function(answer) {
+		    	AnswerError();
+		    }
 
-	}).complete(function() {
-			LoaderStop();
-		});
-});
+		}).complete(function() {
+				LoaderStop();
+			});
+	});
 
-// restore costs
-$('body').on('click', '#js--restore-costs', function(e){
-	e.preventDefault();
+	// restore costs !
+	$('body').on('click', '#js--restore-costs', function(e){
+		e.preventDefault();
 
-	$.ajax({
-		url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'restore',
-		type 	 : 'post',
-		dataType : 'json',
+		$.ajax({
+			url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'restore',
+			type 	 : 'post',
+			dataType : 'json',
 
-		beforeSend: function(){
-	        LoaderStart();
-	    },
+			beforeSend: function(){
+		        LoaderStart();
+		    },
 
-		success: function(answer) {
-			if(answer.status == 0)
-			{
-				AnswerError();
-			}
+			success: function(answer) {
+				if(answer.status == 0)
+				{
+					AnswerError();
+				}
 
-			if(answer.status == 1)
-			{
-				date = moment(answer.data.date, "YYYY-MM-DD HH:mm:ss").format('DD/MM/YYYY');
-				sum = number_format(answer.data.sum, 0, ' ', ' ');
+				if(answer.status == 1)
+				{
+					date = moment(answer.data.date, "YYYY-MM-DD HH:mm:ss").format('DD/MM/YYYY');
+					sum = number_format(answer.data.sum, 0, ' ', ' ');
 
-				html = '<tr data-id="'+answer.data.id+'" data-type="pivot">';
-				html += '<td class="col-md-1">'+answer.data.id+'</td>';
-				html += '<td class="col-md-1">'+date+'</td>';
-				html += '<td class="col-md-9 js--sum js--update" data-column="sum">'+sum+'</td>';
-				html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-				html += '</tr>';
+					html = '<tr data-id="'+answer.data.id+'" data-type="pivot">';
+					html += '<td class="col-md-1">'+answer.data.id+'</td>';
+					html += '<td class="col-md-1">'+date+'</td>';
+					html += '<td class="col-md-9 js--sum js--update" data-column="sum">'+sum+'</td>';
+					html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
+					html += '</tr>';
 
-				$('.table tbody').prepend(html);
-				$('.table tbody tr').removeClass().first().addClass('info');
+					$('.table tbody').prepend(html);
+					$('.table tbody tr').removeClass().first().addClass('info');
 
-				totalSumAndDiscount();
+					totalSumAndDiscount();
 
-				AnswerInfo(answer.message);
-			}
-	    },
+					AnswerInfo(answer.message);
+				}
+		    },
 
-	    error: function(answer) {
-	    	AnswerError();
-	    }
+		    error: function(answer) {
+		    	AnswerError();
+		    }
 
-	}).complete(function() {
-			LoaderStop();
-		});
-});
+		}).complete(function() {
+				LoaderStop();
+			});
+	});
 

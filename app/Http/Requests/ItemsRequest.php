@@ -24,7 +24,7 @@ class ItemsRequest extends Request
     public function rules()
     {
         return [
-            'barcode' => 'required|size:13',
+            'barcode' => 'required|size:13|unique:items,barcode',
             'name' => 'required',
             'price' => 'required|numeric',
         ];

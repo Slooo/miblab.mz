@@ -28,8 +28,8 @@
 				<tr data-id="{{ $row->id }}" data-type="main">
 					<td class="js-url--link" data-url="{{ url(Request::segment(1).'/'.Request::segment(2).'/'.$row->id) }}">{{ $row->id }}</td>
 					<td>{{ $row->date_format }}</td>
-					<td class="js--sum-discount">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
-					<td class="js--sum-discount">{{ number_format($totalSumDiscount[] = $row->sum_discount, 0, ' ', ' ') }}</td>
+					<td class="js--totalSum">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
+					<td class="js--totalSumDiscount">{{ number_format($totalSumDiscount[] = $row->sum_discount, 0, ' ', ' ') }}</td>
 					<td>{{ ($row->type == 1 ? 'Налично' : 'Безналично') }}</td>
 					<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>
 				</tr>

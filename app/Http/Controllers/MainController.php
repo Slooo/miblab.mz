@@ -144,7 +144,7 @@ class MainController extends Controller
             }
 	    endforeach;
 
-	    return view('orders.analytics', compact(
+	    return view('analytics.index', compact(
 	        'sumAll', 'sumMonth', 'sumMonthPoint', 
 	        'sumAllKey', 'sumAllKeyPoint',
 	        'sum30DaysOrders', 'sum30DaysSupply', 'sumWeek'

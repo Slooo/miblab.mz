@@ -9,10 +9,12 @@ use Carbon\Carbon;
 use Auth;
 use DB;
 use Session;
+use Validator;
 
 #models
 use App\CCosts;
 use App\Costs;
+use App\CCostsCosts;
 
 class CostsController extends Controller
 {
@@ -90,18 +92,38 @@ class CostsController extends Controller
     	$costs->ccosts()
         ->sync([$request->ccosts_id => ['costs_id' => $data->id]]);
 
-    	return response()->json(['message' => 'Расходы внесены', 'data' => $data]);      
+    	return response()->json(['message' => 'Расходы внесены', 'data' => $data], 200);      
     }
 
     # update
     public function update(Request $request, $id)
     {
-        $column = $request->column;
-        $value = $request->value;
+        switch($request->column)
+        {
+            case 'sum':
+                $check = 'required|numeric';
+            break;
 
-        $costs = Costs::find($id);
-        $costs->$column = $value;
-        $costs->save();
+            default:
+                return false;
+            break;
+        }
+
+        $validator = Validator::make($request->all(), [
+            'value' => $check,
+        ]);
+
+        if ($validator->fails()) {
+            $message = $validator->messages();
+            $status = 422;
+        } else {
+            $column = $request->column;
+            $value = $request->value;
+
+            $costs = Costs::find($id);
+            $costs->$column = $value;
+            $costs->save();
+        }
 
         return response()->json(['message' => 'Обновлено']);
     }
@@ -109,25 +131,44 @@ class CostsController extends Controller
     # delete
     public function delete(Request $request, $id)
     {
-        if($request->type == 'pivot')
-        {
-            //$pivot = Costs::findOrFail($id);
-            $pivot = CCosts::find($request->id)->costs()->where('costs.id', $id)->first();
-            Session::flash('restore_pivot', $pivot);
+        $validator = Validator::make($request->all(), [
+            'type' => 'required|in:main,pivot',
+        ]);
 
-            $count = CCosts::find($request->id)->costs()->count();
-            if($count == 1)
+        if ($validator->fails()) {
+            $message = $validator->messages();
+            $status = 422;
+        } else {
+            switch($request->type)
             {
-                $pivot->delete();
-                $pivot->ccosts()->detach();
-                // redirect
-            } else {
-                $pivot->delete();
-                $pivot->ccosts()->detach();
+                case 'pivot':
+                    $pivot = Costs::find($id);
+                    $cc = CCostsCosts::where('costs_id', $pivot->id)->first();
+                    $count = CCostsCosts::where('ccosts_id', $cc->ccosts_id)->count();
+
+                    if($count == 1)
+                    {
+                        $pivot->ccosts()->detach();
+                        $pivot->delete();
+
+                        $message = "Удалены все расходы";
+                        $status = 301;
+                    } else {
+                        $pivot->ccosts()->detach();
+                        $pivot->delete();
+
+                        $message = "Удален расход #".$id;
+                        $status = 200;
+                    }
+                break;
+
+                default:
+                    return false;
+                break;
             }
         }
 
-        return response()->json(['message' => 'Удалено', 'data' => $id]);
+        return response()->json(['message' => $message], $status);
     }
 
     # restore

@@ -27,7 +27,7 @@ class CostsRequest extends Request
         return [
             'sum' => 'required|numeric',
             'date' => 'required|date_format:"d/m/Y"',
-            'point' => 'required|integer',
+            'points_id' => 'required|integer',
             'ccosts_id' => 'required|integer',
         ];
     }
