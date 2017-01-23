@@ -41,6 +41,7 @@ elixir(function(mix) {
 		'../bower/moment/min/moment-with-locales.min.js',
 		'../bower/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',
 		'../bower/jquery-numeric/dist/jquery-numeric.js',
+		'../bower/Bootstrap-Confirmation/bootstrap-confirmation.js',
 		], 'public/js/libs.js')
 
 	.version(['css/app.css', 'js/app.js', 'js/libs.js'])

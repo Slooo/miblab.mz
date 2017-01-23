@@ -338,6 +338,12 @@ $(document).ready(function() {
 		}
 	}
 
+	// confirm message
+	$('[data-toggle="confirmation"]').confirmation('click', function(){
+		alert('ye?');
+	});
+
+
 	// check delete
 	function validationDelete(answer, line)
 	{
@@ -839,4 +845,3 @@ $(document).ready(function() {
 				LoaderStop();
 			});
 	});
-
