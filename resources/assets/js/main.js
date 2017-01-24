@@ -255,6 +255,7 @@ function AnswerError()
 function AnswerInfo(answer)
 {
 	$('#js-modal--create').modal('hide');
+	$('#js-modal--delete').modal('hide');
 	$('#alert').removeClass().addClass('alert alert-info').html(answer);	
 }
 
@@ -307,6 +308,10 @@ function number_format( number, decimals, dec_point, thousands_sep ) {
 
 $(document).ready(function() {
 
+	$("#js-modal--delete").on("hidden.bs.modal", function (){ 
+	    $('.js--delete').removeAttr('id');
+	});
+
 	// total sum
 	function totalSumAndDiscount(data)
 	{
@@ -337,12 +342,6 @@ $(document).ready(function() {
 			$('.totalSumDiscount').html('Итого со скидкой ' + number_format(totalSumDiscount, 0, ' ', ' ') + ' &#8381;');
 		}
 	}
-
-	// confirm message
-	$('[data-toggle="confirmation"]').confirmation('click', function(){
-		alert('ye?');
-	});
-
 
 	// check delete
 	function validationDelete(answer, line)
@@ -660,16 +659,23 @@ $(document).ready(function() {
 	$('body').on('click', '.js--delete', function(e){
 		e.preventDefault();
 
+		$(this).attr('id', 'active');
+		$('#js-modal--delete').modal('show');
+	});
+
+	$('body').on('click', '#js--delete', function(e){
+		e.preventDefault();
+
 		var data, line, id;
 
-		line = $(this).parents('tr');
+		line = $('#active').parents('tr');
 		id = line.data('id');
 
 		$.ajax({
 			url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'delete' + '/' + id,
 			type 	 : 'post',
 			dataType : 'json',
-			data 	 : {"type":$(this).parents('tbody').data('type')},
+			data 	 : {"type":$('#active').parents('tbody').data('type')},
 
 			beforeSend: function(){
 		        LoaderStart();

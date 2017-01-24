@@ -136,6 +136,8 @@
             @if(Request::is('*/discounts') || Request::is('*/items') || Request::is('*/costs/*'))
                 @include('_forms.modals')
             @endif
+
+            @include('_forms.delete')
         </div>
         @yield('content')
     </div>
