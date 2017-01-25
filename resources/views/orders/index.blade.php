@@ -23,9 +23,9 @@
 				</tr>
 			</thead>	
 
-			<tbody>
+			<tbody data-type="main">
 				@foreach($orders as $row)
-				<tr data-id="{{ $row->id }}" data-type="main">
+				<tr data-id="{{ $row->id }}">
 					<td class="js-url--link" data-url="{{ url(Request::segment(1).'/'.Request::segment(2).'/'.$row->id) }}">{{ $row->id }}</td>
 					<td>{{ $row->date_format }}</td>
 					<td class="js--totalSum">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>

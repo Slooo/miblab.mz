@@ -11,7 +11,7 @@ $(document).ready(function(){
 <div class="row">
 
 	<div class="col-md-8 col-md-offset-4">
-		<input type="number" name="barcode" id="js-item--search" class="form-search" min="10" placeholder="Введите штрихкод...">
+		<input type="number" name="barcode" id="js-items--search" class="form-search" min="10" placeholder="Введите штрихкод...">
 	</div>
 
 	<!-- Order items -->

@@ -3,7 +3,7 @@
 */
 
 // cashier
-var CashierPageLoad = function CashierPageLoad()
+function CashierPageLoad()
 {
 	if(localStorage.getItem('order-table') == null)
 	{
@@ -306,11 +306,14 @@ function number_format( number, decimals, dec_point, thousands_sep ) {
 	return km + kw + kd;
 }
 
-$(document).ready(function() {
+// don't close
+$('.modal').modal({
+    backdrop: 'static',
+    keyboard: false,
+    show: false,
+});
 
-	$("#js-modal--delete").on("hidden.bs.modal", function (){ 
-	    $('.js--delete').removeAttr('id');
-	});
+$(document).ready(function() {
 
 	// total sum
 	function totalSumAndDiscount(data)
@@ -341,75 +344,6 @@ $(document).ready(function() {
 
 			$('.totalSumDiscount').html('Итого со скидкой ' + number_format(totalSumDiscount, 0, ' ', ' ') + ' &#8381;');
 		}
-	}
-
-	// check delete
-	function validationDelete(answer, line)
-	{
-		var json = JSON.parse(answer.responseText);
-
-		switch(answer.status)
-		{
-			// error validation
-			case 422:
-				AnswerError();
-			break;
-
-			// redirect
-			case 301:
-				window.location.href = base_url +'/'+ segment1 +'/'+ segment2;	
-			break;
-
-			// success
-			case 200:
-				//AnswerDanger(json.data.id);
-				AnswerInfo(json.message);
-				line.remove();
-				totalSumAndDiscount();
-			break;
-
-			default:
-				AnswerError();
-			break;
-		}
-
-		LoaderStop();
-	}
-
-	// check update
-	function validationUpdate(answer, here)
-	{
-		var json = JSON.parse(answer.responseText);
-
-		switch(answer.status)
-		{
-			// error validation
-			case 422:
-				here.parent('td').html(here.attr('placeholder'));
-
-				//!
-				$('.table tbody tr').removeClass();
-				here.parents('tr').addClass('warning');
-
-				AnswerWarning(json.message.value);
-			break;
-
-			// success
-			case 200:
-				/* проверять какой столбец и к какому типу он относится
-					val = here.parent('td').data('column') == 'int' ? number_format(here.val(), 0, ' ', ' ' : here.val()
-				*/
-				val = number_format(here.val(), 0, ' ', ' ');
-				here.parent('td').html(val);
-				$('.table tbody tr').removeClass();
-				here.parents('tr').addClass('info');
-				totalSumAndDiscount(json.data);
-
-				AnswerInfo(json.message);
-			break;
-		}
-
-		LoaderStop();
 	}
 
 	// check create
@@ -487,6 +421,75 @@ $(document).ready(function() {
 				AnswerInfo(json.message);
 				totalSumAndDiscount();
 	    	break;
+
+			default:
+				AnswerError();
+			break;
+		}
+
+		LoaderStop();
+	}
+
+	// check update
+	function validationUpdate(answer, here)
+	{
+		var json = JSON.parse(answer.responseText);
+
+		switch(answer.status)
+		{
+			// error validation
+			case 422:
+				here.parent('td').html(here.attr('placeholder'));
+
+				//!
+				$('.table tbody tr').removeClass();
+				here.parents('tr').addClass('warning');
+
+				AnswerWarning(json.message.value);
+			break;
+
+			// success
+			case 200:
+				/* проверять какой столбец и к какому типу он относится
+					val = here.parent('td').data('column') == 'int' ? number_format(here.val(), 0, ' ', ' ' : here.val()
+				*/
+				val = number_format(here.val(), 0, ' ', ' ');
+				here.parent('td').html(val);
+				$('.table tbody tr').removeClass();
+				here.parents('tr').addClass('info');
+				totalSumAndDiscount(json.data);
+
+				AnswerInfo(json.message);
+			break;
+		}
+
+		LoaderStop();
+	}
+
+	// check delete
+	function validationDelete(answer, line)
+	{
+		var json = JSON.parse(answer.responseText);
+
+		switch(answer.status)
+		{
+			// error validation
+			case 422:
+				AnswerError();
+			break;
+
+			// redirect
+			case 301:
+				window.location.href = base_url +'/'+ segment1 +'/'+ segment2;	
+			break;
+
+			// success
+			case 200:
+				//AnswerDanger(json.data.id);
+				AnswerInfo(json.message);
+				line.remove();
+				totalSumAndDiscount();
+			break;
 
 			default:
 				AnswerError();
@@ -592,26 +595,31 @@ $(document).ready(function() {
 
 	// ---------- CREATE ----------
 
-	$("#js-modal--create").on('show.bs.modal', function () {
+	$('#js-modal--create').on('show.bs.modal', function(){
 		$('input').first().focus();
+	});
+
+	$('#js-modal--create').on('hidden.bs.modal', function(){
+		$('input').val('');
+		$('input[name=points_id]').val(points_id);
 	});
 
 	// ---------- UPDATE ----------
 
 	// update focusout
-	$(document).on('focusout', '#js--update', function(){
+	$('body').on('focusout', '#js--update', function(){
 		update($(this));
 	});
 
 	// update press enter
-	$(document).on('keypress', '#js--update', function(e){
+	$('body').on('keypress', '#js--update', function(e){
 		if(e.which == 13) {
 			update($(this));
 		}
 	});
 
 	// select update item order
-	$(document).on('click', '.js--update', function(){
+	$('body').on('click', '.js--update', function(){
 		var here, data;
 		
 		here = $(this);
@@ -688,166 +696,6 @@ $(document).ready(function() {
 		});
 	});
 
-	// ---------- RESTORE ----------
-
-	// restore orders
-	$('body').on('click', '#js--restore-orders', function(e){
-		e.preventDefault();
-
-		$.ajax({
-			url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'restore',
-			type 	 : 'post',
-			dataType : 'json',
-
-			beforeSend: function(){
-		        LoaderStart();
-		    },
-
-			success: function(answer) {
-				if(answer.status == 0)
-				{
-					AnswerError();
-				}
-
-				if(answer.status == 1)
-				{
-					type = (answer.data.type == 1 ? 'Налично' : 'Безналично');
-					date = moment(answer.data.created_at, "YYYY-MM-DD HH:mm:ss").format('DD/MM/YYYY');
-
-					html = '<tr data-id="'+answer.data.id+'" data-type="main">';
-					html += '<td class="col-md-1 js-url--link" data-url="'+base_url+segment1+segment2+answer.data.id+'">'+answer.data.id+'</td>';
-					html += '<td class="col-md-1">'+date+'</td>';
-					html += '<td class="col-md-5 js--sum">'+answer.data.sum+'</td>';
-					html += '<td class="col-md-5 js--sum-discount">'+answer.data.sum_discount+'</td>';
-					html += '<td class="col-md-2">'+type+'</td>';
-					html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-					html += '</tr>';
-
-					$('.table tbody').prepend(html);
-					$('.table tbody tr').removeClass().first().addClass('info');
-
-					totalSumAndDiscount();
-
-					AnswerInfo(answer.message);
-				}
-
-				if(answer.status == 2)
-				{
-					html = "";
-					html = '<tr data-id="'+answer.data.pivot.id+'" data-type="pivot">';
-					html += '<td class="col-md-1">'+answer.data.barcode+'</td>';
-					html += '<td class="col-md-5">'+answer.data.name+'</td>';
-					html += '<td class="col-md-5">'+answer.data.pivot.items_price+'</td>';
-					html += '<td class="col-md-5">'+answer.data.pivot.items_quantity+'</td>';
-					html += '<td class="col-md-5">'+answer.data.pivot.items_sum+'</td>';
-					html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-					html += '</tr>';
-
-					$('.table tbody').prepend(html);
-					$('.table tbody tr').removeClass().first().addClass('info');
-
-					AnswerInfo(answer.message);
-				}
-		    },
-
-		    error: function(answer) {
-		    	AnswerError();
-		    }
-
-		}).complete(function() {
-				LoaderStop();
-			});
-	});
-
-	// restore discounts !
-	$('body').on('click', '#js--restore-discounts', function(e){
-		e.preventDefault();
-
-		$.ajax({
-			url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'restore',
-			type 	 : 'post',
-			dataType : 'json',
-
-			beforeSend: function(){
-		        LoaderStart();
-		    },
-
-			success: function(answer) {
-				if(answer.status == 0)
-				{
-					AnswerError();
-				}
-
-				if(answer.status == 1)
-				{
-					html = '<tr data-id="'+answer.data.id+'" data-type="main">';
-					html += '<td class="col-md-1" data-column="date">'+answer.data.id+'</td>';
-					html += '<td class="col-md-5 js--sum js--update" data-column="sum">'+answer.data.sum+'</td>';
-					html += '<td class="col-md-5 js--update" data-column="percent">'+answer.data.percent+'</td>';
-					html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-					html += '</tr>';
-
-					$('.table tbody').prepend(html);
-					$('.table tbody tr').removeClass().first().addClass('info');
-
-					AnswerInfo(answer.message);
-				}
-		    },
-
-		    error: function(answer) {
-		    	AnswerError();
-		    }
-
-		}).complete(function() {
-				LoaderStop();
-			});
-	});
-
-	// restore costs !
-	$('body').on('click', '#js--restore-costs', function(e){
-		e.preventDefault();
-
-		$.ajax({
-			url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'restore',
-			type 	 : 'post',
-			dataType : 'json',
-
-			beforeSend: function(){
-		        LoaderStart();
-		    },
-
-			success: function(answer) {
-				if(answer.status == 0)
-				{
-					AnswerError();
-				}
-
-				if(answer.status == 1)
-				{
-					date = moment(answer.data.date, "YYYY-MM-DD HH:mm:ss").format('DD/MM/YYYY');
-					sum = number_format(answer.data.sum, 0, ' ', ' ');
-
-					html = '<tr data-id="'+answer.data.id+'" data-type="pivot">';
-					html += '<td class="col-md-1">'+answer.data.id+'</td>';
-					html += '<td class="col-md-1">'+date+'</td>';
-					html += '<td class="col-md-9 js--sum js--update" data-column="sum">'+sum+'</td>';
-					html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-					html += '</tr>';
-
-					$('.table tbody').prepend(html);
-					$('.table tbody tr').removeClass().first().addClass('info');
-
-					totalSumAndDiscount();
-
-					AnswerInfo(answer.message);
-				}
-		    },
-
-		    error: function(answer) {
-		    	AnswerError();
-		    }
-
-		}).complete(function() {
-				LoaderStop();
-			});
+	$("#js-modal--delete").on("hidden.bs.modal", function (){ 
+	    $('.js--delete').removeAttr('id');
 	});

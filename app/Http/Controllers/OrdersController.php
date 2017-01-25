@@ -10,6 +10,7 @@ use Auth;
 use Carbon\Carbon;
 use DB;
 use Session;
+use Validator;
 
 #models
 use App\Orders;
@@ -135,40 +136,56 @@ class OrdersController extends Controller
 		return response()->json(['status' => 1, 'message' => 'Обновлено']);
     }
 
+
+    # delete
     public function delete(Request $request, $id)
     {
-    	$status = 0;
-    	switch ($request->type)
-    	{
-    		case 'pivot':
-    			$pivot = ItemsOrders::find($id);
-    			$count = ItemsOrders::where('orders_id', $pivot->orders_id)->count();
-    			if($count == 1)
-    			{
-    				$pivot->delete();
-					$main = Orders::find($pivot->orders_id)->delete();
+        $validator = Validator::make($request->all(), [
+            'type' => 'required|in:main,pivot',
+        ]);
 
-					Session::flash('restore_pivot', $pivot);
-					Session::flash('restore_main', $main);
+        if ($validator->fails()) {
+            $message = $validator->messages();
+            $status = 422;
+        } else {
+            $type = $request->type;
 
-					$status = 301;
-    			} else {
-    				$pivot->delete();
-    				Session::flash('restore_pivot', $pivot);
+            switch($type)
+            {
+                case 'main':
+                    Orders::destroy($id);
 
-    				$status = 1;
-    			}
-    		break;
-			case 'main':
-				$main = Orders::find($id);
-				$main->delete();
-				Session::flash('restore_main', $main);
+                    $message = 'Удалены все заказы #'.$id;
+                    $status = 200;
+                break;
+                case 'pivot':
+                    $orders = ItemsOrders::find($id);
+                    $count = ItemsOrders::where('orders_id', $orders->orders_id)->count();
 
-				$status = 1;
-    		break;
+                    if($count == 1)
+                    {
+                        Orders::destroy($orders->orders);
+
+                        $message = 'Удалены все заказы #'.$orders->orders_id;
+                        $status = 301;
+                        Session::flash('message', $message);
+                    } else {
+                        ItemsOrders::destroy($id);
+                        $sum = ItemsOrders::where('orders_id', $orders->orders_id)->sum('items_sum');
+                        Orders::find($orders->orders_id)->update(['sum' => $sum]);
+
+                        $message = 'Удалено значение #'.$id;
+                        $status = 200;
+                    }
+                break;
+
+            	default:
+            	    return false;
+            	break;
+            }
     	}
 
-    	return response()->json(['status' => $status, 'message' => 'Удалено', 'data' => $id]);
+    	return response()->json(['message' => $message], $status);
     }
     
 	private function get_discount($sum)

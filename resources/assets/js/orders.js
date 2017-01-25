@@ -3,7 +3,7 @@
 */
 
 // create order and supply
-$('body').on('click', '#js-order-and-supply--create', function(e){
+$('body').on('click', '#js-orders-and-supply--create', function(e){
 	e.preventDefault();
 
 	var json, sum, sumDiscount, type, discount, counterparty, items, data;
@@ -111,7 +111,7 @@ var timer;
 
 
 // search item
-$('#js-item--search').keyup(function(e){
+$('#js-items--search').keyup(function(e){
 	e.preventDefault();
 
 	var barcode, items, data, json, quantity, unique;
@@ -172,7 +172,7 @@ $('#js-item--search').keyup(function(e){
 });
 
 // select update item order
-$(document).on('click', '.js-order--update', function(){
+$('body').on('click', '.js-order--update', function(){
 	var here, data;
 	
 	here = $(this);
@@ -183,14 +183,14 @@ $(document).on('click', '.js-order--update', function(){
 });
 
 // update item press enter
-$(document).on('keypress', '#js-order--update', function(e){
+$('body').on('keypress', '#js-order--update', function(e){
 	if(e.which == 13) {
 		OrderUpdate($(this));
 	}
 });
 
 // update item focusout
-$(document).on('focusout', '#js-order--update', function(){
+$('body').on('focusout', '#js-order--update', function(){
 	OrderUpdate($(this));
 });
 

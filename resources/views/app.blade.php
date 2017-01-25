@@ -36,7 +36,7 @@
 
                 @if (Auth::check())
                     <a class="navbar-brand" href="{{ url('/') }}">
-                        @if(Auth::user()->point > 0) Торговая точка #{{ Auth::user()->point }} @endif
+                        @if(Auth::user()->points_id > 0) Торговая точка #{{ Auth::user()->points_id }} @endif
                     </a>
                 @endif
 
@@ -133,22 +133,19 @@
                 <div id="alert"></div>    
             @endif
 
-            @if(Request::is('*/discounts') || Request::is('*/items') || Request::is('*/costs/*'))
-                @include('_forms.modals')
-            @endif
-
-            @include('_forms.delete')
+            @include('_forms.modals')
         </div>
         @yield('content')
     </div>
 
     <!-- JavaScripts -->
     <script>
-    var base_url, segment1, segment2, segment3;
-        base_url = '{{ url('/') }}';
-        segment1 = '{{ Request::segment(1) }}';   
-        segment2 = '{{ Request::segment(2) }}';
-        segment3 = '{{ Request::segment(3) }}';
+    var base_url, segment1, segment2, segment3, points_id;
+        base_url  = '{{ url('/') }}';
+        segment1  = '{{ Request::segment(1) }}';   
+        segment2  = '{{ Request::segment(2) }}';
+        segment3  = '{{ Request::segment(3) }}';
+        points_id = '{{ Auth::user()->points_id }}';
     </script>
     <script src="{{ elixir('js/app.js') }}"></script>
     @yield('script')

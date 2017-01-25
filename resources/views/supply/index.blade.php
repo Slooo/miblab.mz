@@ -1,3 +1,9 @@
+<!-- 
+
+	ВСЕ ПРИХОДЫ 
+
+-->
+
 @extends('app')
 
 @section('content')
@@ -17,7 +23,6 @@
 					<th>№ прихода</th>
 					<th>Дата</th>
 					<th>Сумма &#8381;</th>
-					<th>Тип оплаты</th>
 					<th>Удалить</th>
 				</tr>
 			</thead>	
@@ -28,7 +33,6 @@
 					<td class="col-md-2 js-url--link" data-url="{{ url(Request::segment(1).'/supply/'.$row->id) }}">{{ $row->id }}</td>
 					<td class="col-md-1">{{ $row->date_format }}</td>
 					<td class="col-md-3 js--totalSum">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
-					<td class="col-md-2" data-toggle="confirmation">{{ ($row->type == 1 ? 'Налично' : 'Безналично') }}</td>
 					<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>
 				</tr>
 				@endforeach

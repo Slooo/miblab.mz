@@ -25,6 +25,11 @@ h2 {
   font-weight:bold;
 }
 
+/* ---------------- Modals ---------------- */
+.modal-body input {
+  margin-bottom:10px;
+}
+
 /* ---------------- Validate form ------------- */
 .validate-error {
   border:2px solid red;
