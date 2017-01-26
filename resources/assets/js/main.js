@@ -500,11 +500,9 @@ $(document).ready(function() {
 	}
 
 	// datepicker
-	$(function () {
-		$('#datetimepicker, #datetimepicker2').datetimepicker(
-			{locale: 'ru', format: 'DD/MM/YYYY'}
-		);
-	});
+	$('.datetimepicker').datetimepicker(
+		{locale: 'ru', format: 'DD/MM/YYYY'}
+	);
 
 	// DATE RANGE
 	$('#js-settings--date-range').click(function(e){
@@ -606,9 +604,25 @@ $(document).ready(function() {
 
 	// ---------- UPDATE ----------
 
-	// update focusout
-	$('body').on('focusout', '#js--update', function(){
-		update($(this));
+	// select update item order
+	$('body').on('click', '.js--update', function(){
+		var here, data;
+		
+		here = $(this);
+		data = here.text();
+
+		// if date
+		if(here.data('column') == 'created_at')
+		{
+			here.html('<input type="text" class="datetimepicker">');
+			here.find('input').click();
+
+			// дата пикер
+			// оутпат которого пошлет запрос на update
+		} else {
+			here.html('<input type="number" id="js--update" placeholder="'+data+'">');
+			here.find('input').focus();			
+		}
 	});
 
 	// update press enter
@@ -617,16 +631,10 @@ $(document).ready(function() {
 			update($(this));
 		}
 	});
-
-	// select update item order
-	$('body').on('click', '.js--update', function(){
-		var here, data;
-		
-		here = $(this);
-		data = here.text();
-
-		here.html('<input type="number" id="js--update" placeholder="'+data+'">');
-		here.find('input').focus();
+	
+	// update focusout
+	$('body').on('focusout', '#js--update', function(){
+		update($(this));
 	});
 
 	// update

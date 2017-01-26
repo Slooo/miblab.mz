@@ -1,3 +1,9 @@
+<!-- 
+
+	Данные прихода 
+
+-->
+
 @extends('app')
 
 @section('content')
@@ -25,16 +31,24 @@
 			<tbody data-type="pivot">
 				@foreach($supply->items as $row)
 				<tr data-id="{{ $row->pivot->id }}">
-					<td class="col-md-1">{{ $row->barcode }}</td>	
-					<td class="col-md-4">{{ $row->name }}</td>
+					<td class="col-md-1">
+						{{ $row->barcode }}
+					</td>	
+					<td class="col-md-4">
+						{{ $row->name }}
+					</td>
 					<td class="col-md-2 js--update" data-column="items_price">
 						{{ number_format($row->pivot->items_price, 0, ' ', ' ') }}
 					</td>
 					<td class="col-md-2 js--update" data-column="items_quantity">
 						{{ $row->pivot->items_quantity }}
 					</td>
-					<td class="col-md-2 js--totalSum">{{ number_format($row->pivot->items_sum, 0, ' ', ' ') }}</td>
-					<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><i class="fa fa-remove"></i></button></td>
+					<td class="col-md-2 js--totalSum">
+						{{ number_format($row->pivot->items_sum, 0, ' ', ' ') }}
+					</td>
+					<td class="col-md-1">
+						<button class="btn btn-circle btn-danger js--delete"><i class="fa fa-remove"></i></button>
+					</td>
 				</tr>
 				@endforeach
 			</tbody>
