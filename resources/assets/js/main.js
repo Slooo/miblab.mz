@@ -505,14 +505,12 @@ $(document).ready(function() {
 	);
 
 	// DATE RANGE
-	$('#js-settings--date-range').click(function(e){
+	$('#js-date_range--sbm').click(function(e){
 		e.preventDefault();
 
-		var dateStart, dateEnd, data, url, segments, html, json;
-
-		dateStart = $('#date_start').val();
-		dateEnd   = $('#date_end').val();
-		data 	  = {'dateStart' : dateStart, 'dateEnd' : dateEnd, 'id' : segment3};
+		var data, url, html, json;
+		data = $('#js-date_range--form').serializeArray();
+		data.push({name: 'id', value: segment3});
 
 		$.ajax({
 			url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + 'date',
@@ -545,31 +543,53 @@ $(document).ready(function() {
 					$('.table').removeClass('hidden');
 					$('.col-footer').removeClass('hidden');
 
-					if(segment2 != 'costs/')
+					switch(segment2)
 					{
-						for(row in data)
-						{
-							html += '<tr data-id="'+data[row].id+'" data-type="main">';
-							html += '<td class="col-md-2 js-url--link" data-url="'+base_url + segment1 + segment2 + data[row].id+'">'+data[row].id+'</td>';
-							html += '<td class="col-md-1">'+data[row].date+'</td>';
-							html += '<td class="col-md-3">'+data[row].sum+'</td>';
-							html += '<td class="col-md-3">'+data[row].sum_discount+'</td>';
-							html += '<td class="col-md-2">'+data[row].type+'</td>';
-							html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
-							html += '</tr>';
-						}
+						case 'costs':
+							for(row in data)
+							{
+								html += '<tr data-id="'+data[row].id+'">';
+								html += '<td class="col-md-1">'+data[row].id+'</td>';
+								html += '<td class="col-md-1">'+data[row].date+'</td>';
+								html += '<td class="col-md-9 js--totalSum js--update" data-column="sum">'+data[row].sum+'</td>';
+								html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
+								html += '</tr>';
+							}
+						break;
 
-					} else {
-						for(row in data)
-						{
-							html += '<tr data-id="'+data[row].id+'" data-type="pivot">';
-							html += '<td class="col-md-1">'+data[row].date+'</td>';
-							html += '<td class="col-md-10">'+data[row].sum+'</td>';
-							html += '<td class="col-md-1"><button class="js--delete btn btn-circle btn-danger"><li class="fa fa-remove"></li></button></td>';
-							html += '</tr>';
-						}
+						case 'supply':
+							for(row in data)
+							{
+								html += '<tr data-id="'+data[row].id+'" data-type="main">';
+								html += '<td class="col-md-2 js-url--link" data-url="'+base_url + segment1 + segment2 + data[row].id+'">'+data[row].id+'</td>';
+								html += '<td class="col-md-1">'+data[row].date+'</td>';
+								html += '<td class="col-md-3">'+data[row].sum+'</td>';
+								html += '<td class="col-md-3">'+data[row].sum_discount+'</td>';
+								html += '<td class="col-md-2">'+data[row].type+'</td>';
+								html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
+								html += '</tr>';
+							}
+						break;
+
+						case 'orders':
+							for(row in data)
+							{
+								html += '<tr data-id="'+data[row].id+'" data-type="main">';
+								html += '<td class="col-md-2 js-url--link" data-url="'+base_url + segment1 + segment2 + data[row].id+'">'+data[row].id+'</td>';
+								html += '<td class="col-md-1">'+data[row].date+'</td>';
+								html += '<td class="col-md-3">'+data[row].sum+'</td>';
+								html += '<td class="col-md-3">'+data[row].sum_discount+'</td>';
+								html += '<td class="col-md-2">'+data[row].type+'</td>';
+								html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
+								html += '</tr>';
+							}
+						break;
+
+						default:
+							return false;
+						break;
 					}
-
+					
 					$('.table tbody').html(html);
 					$('.totalSum').html('Итого: ' + answer.extra.totalSum + ' &#8381;');
 				}

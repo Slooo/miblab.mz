@@ -204,8 +204,8 @@ class SupplyController extends Controller
     {
         $data = []; $total = []; $extra = []; $i = 0;
 
-        $dateStart = Carbon::createFromFormat('d/m/Y', $request->dateStart)->addDay(1)->format('Y-m-d');
-        $dateEnd = Carbon::createFromFormat('d/m/Y', $request->dateEnd)->addDay(1)->format('Y-m-d');
+        $dateStart = Carbon::createFromFormat('d/m/Y', $request->date_start)->addDay(1)->format('Y-m-d');
+        $dateEnd = Carbon::createFromFormat('d/m/Y', $request->date_end)->addDay(1)->format('Y-m-d');
 
         $supply = Supply::whereBetween('created_at', [$dateStart, $dateEnd])->orderBy('id', 'desc')->get();
 

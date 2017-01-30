@@ -7,7 +7,7 @@
 	</div>
 	
 	<div class="form-group">
-		<div class="input-group date" id="datetimepicker">
+		<div class="input-group date datetimepicker">
 			<input type="text" name="date" placeholder="Выберите дату" class="form-control col-sm-10"> 
 			<span class="input-group-addon">
 			 	<span class="glyphicon glyphicon-calendar"></span>

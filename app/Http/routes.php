@@ -74,7 +74,10 @@ Route::group(['middleware' => ['auth', 'manage'], 'prefix' => 'manage'], functio
 Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin'], function()
 {
 	# post
-	Route::post('discounts/restore', 'DiscountsController@restore');
+	Route::post('supply/delete/{id}','SupplyController@delete');
+	Route::post('orders/delete/{id}','OrdersController@delete');
+	Route::post('discounts/delete/{id}','DiscountsController@delete');
+	Route::post('costs/delete/{id}','CostsController@delete');
 
 	# patch
 	Route::patch('items/status', 'ItemsController@status');
@@ -115,11 +118,7 @@ Route::group(['middleware' => ['auth', 'igor'], 'prefix' => 'igor'], function()
 	Route::post('orders/delete/{id}','OrdersController@delete');
 	Route::post('discounts/delete/{id}','DiscountsController@delete');
 	Route::post('costs/delete/{id}','CostsController@delete');
-
 	Route::post('items/barcode', 'ItemsController@barcode');
-	Route::post('discounts/restore', 'DiscountsController@restore');
-	Route::post('orders/restore', 'OrdersController@restore');	
-	Route::post('costs/restore', 'CostsController@restore');	
 
 	#resource
 	Route::resource('items', 'ItemsController');

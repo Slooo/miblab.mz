@@ -1,11 +1,11 @@
 <!-- DATE RANGE -->
 
 <div class="col-md-12">
-	<form id="form_item" url="{{ Request::segment(1).'/'.Request::segment(2).'/date' }}" method="post">
+	<form url="{{ Request::segment(1).'/'.Request::segment(2).'/date' }}" method="post" id="js-date_range--form">
 
 		<div class="form-group col-md-push-1">
 			<div class="input-group date datetimepicker">
-				<input type="text" name="date_start" class="form-control input-sm" id="date_start" placeholder="Дата начала">
+				<input type="text" name="date_start" class="form-control input-sm" placeholder="Дата начала">
 				<span class="input-group-addon">
 				 	<span class="glyphicon glyphicon-calendar"></span>
 				</span>
@@ -14,16 +14,14 @@
 
 		<div class="form-group col-md-push-1">
 			<div class="input-group date datetimepicker">
-				<input type="text" name="date_end" class="form-control input-sm" id="date_end" placeholder="Дата конца">
+				<input type="text" name="date_end" class="form-control input-sm" placeholder="Дата конца">
 				<span class="input-group-addon">
 				 	<span class="glyphicon glyphicon-calendar"></span>
 				</span>
 			</div>
 		</div>
 
-		<input type="hidden" name="id" value="{{ Request::segment(3) }}">
-
-		<button type="button" class="btn btn-primary btn-sm" id="js-settings--date-range">Показать</button>
+		<button type="button" class="btn btn-primary btn-sm" id="js-date_range--sbm">Показать</button>
 
 	</form>
 </div>
