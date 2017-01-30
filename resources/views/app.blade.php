@@ -145,7 +145,7 @@
         segment1  = '{{ Request::segment(1) }}';   
         segment2  = '{{ Request::segment(2) }}';
         segment3  = '{{ Request::segment(3) }}';
-        points_id = '{{ Auth::user()->points_id }}';
+    @if(Auth::user()) points_id = '{{ Auth::user()->points_id }}'; @endif
     </script>
     <script src="{{ elixir('js/app.js') }}"></script>
     @yield('script')
