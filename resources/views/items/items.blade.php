@@ -1,3 +1,9 @@
+<!-- 
+
+	Items page 
+
+-->
+
 @extends('app')
 
 @section('content')

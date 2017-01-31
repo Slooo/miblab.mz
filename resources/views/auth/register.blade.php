@@ -1,3 +1,9 @@
+<!-- 
+
+    Register page 
+
+-->
+
 @extends('app')
 
 @section('content')

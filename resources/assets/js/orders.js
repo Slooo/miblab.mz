@@ -1,5 +1,10 @@
+/**
+ * @author Robert Slooo
+ * @mail   borisworking@gmail.com
+ */
+
 /*
-	------- ORDERS FUNCTION ------- 
+	Orders functions	
 */
 
 // create order and supply

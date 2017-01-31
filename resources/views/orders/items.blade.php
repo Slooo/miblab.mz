@@ -1,3 +1,9 @@
+<!-- 
+
+	Items orders page 
+
+-->
+
 @extends('app')
 
 @section('content')

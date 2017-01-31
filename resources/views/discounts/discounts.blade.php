@@ -1,3 +1,9 @@
+<!-- 
+
+	Discounts page 
+
+-->
+
 @extends('app')
 
 @section('content')

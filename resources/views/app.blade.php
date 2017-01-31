@@ -1,3 +1,9 @@
+<!-- 
+
+    Index page 
+
+-->
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -63,8 +69,8 @@
                                 </a>
 
                                 <ul class="dropdown-menu dropdown-menu--lg" role="menu">
-                                    <li><a href="{{ url(Request::url().'/abc') }}">ABC</a></li>
-                                    <li><a href="{{ url(Request::url().'/xyz') }}">XYZ</a></li>
+                                    <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/abc') }}">ABC</a></li>
+                                    <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/xyz') }}">XYZ</a></li>
                                 </ul>
                             </li>
                         @endif

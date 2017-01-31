@@ -1,3 +1,9 @@
+<!-- 
+
+    Login page 
+
+-->
+
 @extends('app')
 
 @section('content')

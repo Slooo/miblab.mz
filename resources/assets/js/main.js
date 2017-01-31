@@ -1,5 +1,11 @@
+/**
+ * @author Robert Slooo
+ * @mail   borisworking@gmail.com
+ */
+
 /*
-	------- MAIN FUNCTION ------- 
+	Main functions	
+	This global functions of the entire project
 */
 
 // cashier

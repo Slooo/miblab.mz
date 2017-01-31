@@ -1,3 +1,9 @@
+<!-- 
+
+	Index page analytics 
+
+-->
+
 @extends('app')
 
 @section('content')

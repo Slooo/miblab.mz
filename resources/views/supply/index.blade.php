@@ -1,6 +1,6 @@
 <!-- 
 
-	Все приходы
+	Index supply page
 
 -->
 

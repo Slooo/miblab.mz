@@ -1,4 +1,8 @@
-<!-- ITEMS CREATE MODAL FORM -->
+<!-- 
+
+	ITEMS CREATE MODAL FORM
+
+-->
 
 <form role="form" class="form-horizontal" id="js-items--form">
 

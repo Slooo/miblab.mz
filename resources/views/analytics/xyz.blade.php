@@ -1,3 +1,9 @@
+<!-- 
+
+	XYZ analysis 
+
+-->
+
 @extends('app')
 
 @section('content')

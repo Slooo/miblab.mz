@@ -1,3 +1,9 @@
+<!-- 
+
+	Costs page 
+
+-->
+
 @extends('app')
 
 @section('content')

@@ -1,4 +1,8 @@
-<!-- COSTS CREATE MODAL FORM -->
+<!-- 
+
+	COSTS CREATE MODAL FORM 
+
+-->
 
 <form role="form" class="form-horizontal" id="js-costs--form">
 

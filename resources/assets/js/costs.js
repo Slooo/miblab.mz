@@ -1,8 +1,13 @@
+/**
+ * @author Robert Slooo
+ * @mail   borisworking@gmail.com
+ */
+
 /*
-	------- COSTS FUNCTION ------- 
+	Costs functions
 */
 
-// create costs
+// Create
 $('body').on('click', '#js-costs--create', function(e){
 	e.preventDefault();
 

@@ -1,3 +1,9 @@
+<!-- 
+
+	ABC analysis
+
+-->
+
 @extends('app')
 
 @section('content')

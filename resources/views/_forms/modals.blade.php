@@ -1,5 +1,10 @@
-<!-- MODAL CREATE -->
+<!-- 
 
+    All modals
+
+-->
+
+<!-- Modal create -->
 @if(Request::is('*/discounts') || Request::is('*/items') || Request::is('*/costs/*'))
 <div class="modal fade" id="js-modal--create" role="dialog">
   <div class="modal-dialog modal-sm">
@@ -16,8 +21,7 @@
 </div>
 @endif
 
-<!-- MODAL DELETE -->
-
+<!-- Modal delete -->
 <div class="modal fade" id="js-modal--delete" role="dialog">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">

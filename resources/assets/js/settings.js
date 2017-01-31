@@ -1,5 +1,11 @@
+/**
+ * @author Robert Slooo
+ * @mail   borisworking@gmail.com
+ */
+
 /*
-	------- SETTINGS FUNCTION ------- 
+	Settings functions
+	This global functions of the entire project
 */
 
 // csrf token add to post request

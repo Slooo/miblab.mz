@@ -1,8 +1,13 @@
+/**
+ * @author Robert Slooo
+ * @mail   borisworking@gmail.com
+ */
+
 /*
-	------- ITEMS FUNCTION ------- 
+	Items functions
 */
 
-// create & update item
+// Create & Update item
 $('body').on('click', '#js-items--create', function(e){
 	e.preventDefault();
 

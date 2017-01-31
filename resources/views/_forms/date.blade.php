@@ -1,4 +1,8 @@
-<!-- DATE RANGE -->
+<!-- 
+	
+	DATE RANGE 
+	
+-->
 
 <div class="col-md-12">
 	<form url="{{ Request::segment(1).'/'.Request::segment(2).'/date' }}" method="post" id="js-date_range--form">
