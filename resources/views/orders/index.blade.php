@@ -25,7 +25,6 @@
 					<th>Сумма &#8381;</th>
 					<th>Сумма со скидкой &#8381;</th>
 					<th>Тип оплаты</th>
-					<th>Опции</th>
 				</tr>
 			</thead>	
 
@@ -37,7 +36,6 @@
 					<td class="js--totalSum">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
 					<td class="js--totalSumDiscount">{{ number_format($totalSumDiscount[] = $row->sum_discount, 0, ' ', ' ') }}</td>
 					<td>{{ ($row->type == 1 ? 'Налично' : 'Безналично') }}</td>
-					<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>
 				</tr>
 				@endforeach
 			</tbody>

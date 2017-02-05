@@ -57,7 +57,6 @@
 					<th>Наименование</th>
 					<th>Цена &#8381; / шт.</th>
 					<th>Статус</th>
-					<th>Печать</th>
 				</tr>
 			</thead>
 			<tbody data-type="pivot">
@@ -65,16 +64,18 @@
 				<tr data-id="{{ $row->id }}">
 					<td>{{ $row->barcode }}</td>
 					<td>{{ $row->name }}</td>
-					<td @if(Auth::user()->status != 2) class="js--update" data-column="price" @endif >{{ number_format($row->price, 0, ' ', ' ') }}</td>
+					<td class="js--update" data-column="price">{{ number_format($row->price, 0, ' ', ' ') }}</td>
 					<td>
 					@if($row->status == 1)
-						<button class="btn @if(Auth::user()->status != 2) js-items--status @endif btn-circle btn-success" @if(Auth::user()->status != 2) data-status="1" @endif><i class="fa fa-check"></i></button>
-					@elseif($row->type == 0)
-						<button class="btn @if(Auth::user()->status != 2) js-items--status @endif btn-circle btn-danger" @if(Auth::user()->status != 2) data-status="0" @endif><i class="fa fa-ban"></i></button>
+						<button class="btn btn-circle btn-success" data-status="1">
+							<i class="fa fa-check"></i>
+						</button>
+					@else
+						<button class="btn btn-circle btn-danger" data-status="0">
+							<i class="fa fa-ban"></i>
+						</button>
 					@endif
 					</td>
-
-					<td><button type="button" data-barcode="{{ $row->barcode }}" class="btn btn-circle btn-primary js-items--print-review"><i class="fa fa-print" aria-hidden="true"></i></button></td>
 				</tr>
 				@endforeach
 			</tbody>

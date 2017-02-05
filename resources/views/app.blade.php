@@ -57,7 +57,6 @@
 
                         <!-- Create links -->
                         @if(Request::is('cashier/orders') || Request::is('igor/orders') || Request::is('*/supply'))
-                            <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/create') }}">создать</a></li>
                         @elseif(Request::is('*/costs/*') || Request::is('*/items') && $status != 1)
                             <li><a href="#" data-toggle="modal" data-target="#js-modal--create">создать</a></li>
                         @elseif(Request::is('*/discounts'))
@@ -77,17 +76,6 @@
 
                         <!-- Settings links -->
                         @if(Request::is('*/orders') || Request::is('*/costs/*') || Request::is('*/supply'))
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                                настройки <span class="caret"></span>
-                            </a>
-
-                            <ul class="dropdown-menu dropdown-menu--lg" role="menu">
-                                <li class="dropdown-header">Выбрать период</li>
-                                <li>@include('_forms.date')</li>
-                                <li class="divider"></li>
-                            </ul>
-                        </li>
                         @endif
 
                         <!-- Menu links -->
@@ -146,12 +134,16 @@
 
     <!-- JavaScripts -->
     <script>
-    var base_url, segment1, segment2, segment3, points_id;
+    var base_url, segment1, segment2, segment3, points_id, status;
         base_url  = '{{ url('/') }}';
         segment1  = '{{ Request::segment(1) }}';   
         segment2  = '{{ Request::segment(2) }}';
         segment3  = '{{ Request::segment(3) }}';
-    @if(Auth::user()) points_id = '{{ Auth::user()->points_id }}'; @endif
+    @if(Auth::user())
+        var userOptions = {};
+        userOptions.status    = {{ Auth::user()->status }};
+        userOptions.points_id = {{ Auth::user()->points_id }};
+    @endif
     </script>
     <script src="{{ elixir('js/app.js') }}"></script>
     @yield('script')

@@ -321,6 +321,121 @@ $('.modal').modal({
 
 $(document).ready(function() {
 
+	function userOption(option)
+	{
+		switch(option)
+		{
+			case 'update':
+			
+			break;
+			
+			case 'delete':
+				html = '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
+				$.each($('.table tbody tr'), function(){
+					$(this).append(html);
+				});
+			break;
+
+			case 'status':
+				$.each($('.table tbody tr td button[data-status]'), function(){
+					$(this).addClass('js-items--status');
+				})
+			break;
+		}
+	}
+
+	function userLink(option)
+	{
+		$.each(option, function(i, param){
+			switch(param)
+			{
+				case 'create':
+					$('ul.navbar-right').prepend('<li><a href="'+segment2+'/create">создать</a></li>');
+				break;
+
+				case 'date-range':
+					html = '<li class="dropdown">'
+                    html += '<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">';
+                    html += 'настройки <span class="caret"></span>';
+                    html += '</a>';
+                    html += '<ul class="dropdown-menu dropdown-menu--lg" role="menu">';
+                    html += '<li class="dropdown-header">Выбрать период</li>';
+                    html += '<li id="data_r></li>';
+                    html += '<li class="divider"></li>';
+                    html += '</ul>';
+                    html += '</li>';
+
+                    $('ul.navbar-right').prepend(html);
+
+                    $('body').on('#data_r', function(){
+                    	console.log('herll');
+                    	append('oki');
+                    });
+
+				break;
+			}
+		});
+	}
+	/**
+	 * Доступ пользователя
+	 * @return {status} уровень пользователя
+	 */
+	function userAccess()
+	{
+		switch(parseInt(userOptions.status))
+		{
+			// cachier
+			case 1:
+			console.log('cashier', segment3);
+				switch(segment2)
+				{
+					case 'orders':
+						if(segment3.length == 0)
+						{
+							userLink(['create', 'date-range']);
+						}
+					break;
+
+					default:
+						return false;
+					break;
+				}
+			break;
+
+			// manage
+			case 2:
+			console.log('manage');
+
+			break;
+
+			// admin
+			case 3:
+			console.log('admin');
+
+				switch(segment)
+				{
+					case 'items':
+
+					break;
+				}
+			break;
+
+			// igor
+			case 4:
+			console.log('igor');
+
+			break;
+
+			default:
+			console.log('nope');
+
+				return false;
+			break;
+		}
+	}
+
+	userAccess();
+
 	// total sum
 	function totalSumAndDiscount(data)
 	{
@@ -625,7 +740,7 @@ $(document).ready(function() {
 
 	$('#js-modal--create').on('hidden.bs.modal', function(){
 		$('input').val('');
-		$('input[name=points_id]').val(points_id);
+		$('input[name=points_id]').val(userOptions.points_id);
 	});
 
 	// ---------- UPDATE ----------
