@@ -58,7 +58,6 @@
                         <!-- Create links -->
                         @if(Request::is('cashier/orders') || Request::is('igor/orders') || Request::is('*/supply'))
                         @elseif(Request::is('*/costs/*') || Request::is('*/items') && $status != 1)
-                            <li><a href="#" data-toggle="modal" data-target="#js-modal--create">создать</a></li>
                         @elseif(Request::is('*/discounts'))
                             <li><a href="#" data-toggle="modal" data-target="#js-modal--create">создать</a></li>
                         @elseif(Request::is('*/analytics') || Request::is('*/analytics/*'))
@@ -140,7 +139,7 @@
         segment2  = '{{ Request::segment(2) }}';
         segment3  = '{{ Request::segment(3) }}';
     @if(Auth::user())
-        var userOptions = {};
+    var userOptions = {};
         userOptions.status    = {{ Auth::user()->status }};
         userOptions.points_id = {{ Auth::user()->points_id }};
     @endif

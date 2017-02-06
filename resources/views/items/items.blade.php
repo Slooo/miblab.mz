@@ -64,7 +64,7 @@
 				<tr data-id="{{ $row->id }}">
 					<td>{{ $row->barcode }}</td>
 					<td>{{ $row->name }}</td>
-					<td class="js--update" data-column="price">{{ number_format($row->price, 0, ' ', ' ') }}</td>
+					<td data-column="price">{{ number_format($row->price, 0, ' ', ' ') }}</td>
 					<td>
 					@if($row->status == 1)
 						<button class="btn btn-circle btn-success" data-status="1">

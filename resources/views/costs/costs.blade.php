@@ -23,7 +23,6 @@
 					<th>№</th>
 					<th>Дата</th>
 					<th>Сумма &#8381;</th>
-					<th>Удалить</th>
 				</tr>
 			</thead>
 			<tbody data-type="pivot">
@@ -31,8 +30,7 @@
 				<tr data-id="{{ $row->id }}">
 					<td class="col-md-1">{{ $row->id }}</td>
 					<td class="col-md-1" data-column="date">{{ $row->date_format }}</td>
-					<td class="col-md-9 js--totalSum js--update" data-column="sum">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
-					<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>
+					<td class="col-md-9 js--totalSum" data-column="sum">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
 				</tr>
 				@endforeach
 			</tbody>

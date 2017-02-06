@@ -321,61 +321,68 @@ $('.modal').modal({
 
 $(document).ready(function() {
 
-	function userOption(option)
+	function userPermissions(option)
 	{
-		switch(option)
-		{
-			case 'update':
-			
-			break;
-			
-			case 'delete':
-				html = '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-				$.each($('.table tbody tr'), function(){
-					$(this).append(html);
-				});
-			break;
+		$.each(option, function(i, param){
+			switch(param)
+			{
+				case 'update':
+					$.each($('.table tbody tr td[data-column]'), function(){
+						$(this).addClass('js--update');
+					});
+				break;
+				
+				case 'delete':
+					$('.table thead tr').append('<th>Опции</th>');
 
-			case 'status':
-				$.each($('.table tbody tr td button[data-status]'), function(){
-					$(this).addClass('js-items--status');
-				})
-			break;
-		}
+					html = '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
+					$.each($('.table tbody tr'), function(){
+						$(this).append(html);
+					});
+				break;
+
+				case 'status':
+					$.each($('.table tbody tr td button[data-status]'), function(){
+						$(this).addClass('js-items--status');
+					})
+				break;
+			}
+		});
 	}
 
-	function userLink(option)
+	// второй атрибут true / false
+	function userLinks(option)
 	{
 		$.each(option, function(i, param){
 			switch(param)
 			{
 				case 'create':
-					$('ul.navbar-right').prepend('<li><a href="'+segment2+'/create">создать</a></li>');
+					$('ul.navbar-right').prepend('<li><a href="'+base_url + segment1 + segment2+'/create">создать</a></li>');
 				break;
 
 				case 'date-range':
-					html = '<li class="dropdown">'
+					html = '<li class="dropdown" id="js--data_range-open">'
                     html += '<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">';
                     html += 'настройки <span class="caret"></span>';
                     html += '</a>';
                     html += '<ul class="dropdown-menu dropdown-menu--lg" role="menu">';
                     html += '<li class="dropdown-header">Выбрать период</li>';
-                    html += '<li id="data_r></li>';
+                    html += '<li>this load date_range.blade.php</li>';
                     html += '<li class="divider"></li>';
                     html += '</ul>';
                     html += '</li>';
 
                     $('ul.navbar-right').prepend(html);
-
-                    $('body').on('#data_r', function(){
-                    	console.log('herll');
-                    	append('oki');
-                    });
-
 				break;
 			}
 		});
 	}
+
+	function getPage()
+	{
+		
+	}
+
 	/**
 	 * Доступ пользователя
 	 * @return {status} уровень пользователя
@@ -392,8 +399,12 @@ $(document).ready(function() {
 					case 'orders':
 						if(segment3.length == 0)
 						{
-							userLink(['create', 'date-range']);
+							userLinks(['date-range', 'create']);
 						}
+					break;
+
+					case 'items':
+						return true;
 					break;
 
 					default:
@@ -405,17 +416,66 @@ $(document).ready(function() {
 			// manage
 			case 2:
 			console.log('manage');
+				switch(segment2)
+				{
+					case 'items':
+						return true;
+					break;
 
+					case 'orders':
+						if(segment3.length == 0)
+						{
+							userLinks(['date-range']);
+						}
+					break;
+
+					case 'supply':
+						if(segment3.length == 0)
+						{
+							userLinks(['date-range']);
+						}
+					break;
+
+					case 'costs':
+						if(segment3.length == 0)
+						{
+							userLinks(['date-range']);
+						}
+					break;
+
+					default:
+						return false;
+					break;
+				}
 			break;
 
 			// admin
 			case 3:
 			console.log('admin');
-
-				switch(segment)
+				switch(segment2)
 				{
 					case 'items':
+						userPermissions(['update', 'status']);
+					break;
 
+					case 'orders':
+						if(segment3.length == 0)
+						{
+							userLinks(['date-range']);
+						}
+					break;
+
+					case 'supply':
+						userPermissions(['update', 'delete']);
+					break;
+
+					case 'costs':
+						if(segment3.length > 0)
+						{
+							userLinks(['date-range', 'create']);
+						}
+
+						userPermissions(['update', 'delete']);
 					break;
 				}
 			break;
@@ -427,14 +487,17 @@ $(document).ready(function() {
 			break;
 
 			default:
-			console.log('nope');
+			console.log(userOptions.status);
 
 				return false;
 			break;
 		}
 	}
 
-	userAccess();
+	if(typeof userOptions !== 'undefined')
+	{
+		userAccess();		
+	}
 
 	// total sum
 	function totalSumAndDiscount(data)
@@ -610,6 +673,10 @@ $(document).ready(function() {
 				AnswerInfo(json.message);
 				line.remove();
 				totalSumAndDiscount();
+			break;
+
+			// not found
+			case 404:
 			break;
 
 			default:

@@ -24,7 +24,6 @@
 					<th>Цена &#8381; / шт.</th>
 					<th>Количество / уход</th>
 					<th>Сумма</th>
-					<th>Опции</th>
 				</tr>
 			</thead>
 			<tbody data-type="pivot">
@@ -35,7 +34,6 @@
 					<td class="col-md-2">{{ number_format($row->pivot->items_price, 0, ' ', ' ') }}</td>
 					<td class="col-md-1">{{ $row->pivot->items_quantity }}</td>
 					<td class="col-md-2">{{ number_format($row->pivot->items_sum, 0, ' ', ' ') }}</td>
-					<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>
 				</tr>
 				@endforeach
 			</tbody>

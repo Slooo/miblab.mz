@@ -24,7 +24,6 @@
 					<th>Цена &#8381; / шт.</th>
 					<th>Количество / приход</th>
 					<th>Сумма</th>
-					<th>Удалить</th>
 				</tr>
 			</thead>
 
@@ -37,17 +36,14 @@
 					<td class="col-md-4">
 						{{ $row->name }}
 					</td>
-					<td class="col-md-2 js--update" data-column="items_price">
+					<td class="col-md-2" data-column="items_price">
 						{{ number_format($row->pivot->items_price, 0, ' ', ' ') }}
 					</td>
-					<td class="col-md-2 js--update" data-column="items_quantity">
+					<td class="col-md-2" data-column="items_quantity">
 						{{ $row->pivot->items_quantity }}
 					</td>
 					<td class="col-md-2 js--totalSum">
 						{{ number_format($row->pivot->items_sum, 0, ' ', ' ') }}
-					</td>
-					<td class="col-md-1">
-						<button class="btn btn-circle btn-danger js--delete"><i class="fa fa-remove"></i></button>
 					</td>
 				</tr>
 				@endforeach

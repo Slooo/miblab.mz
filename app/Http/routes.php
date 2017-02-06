@@ -54,20 +54,20 @@ Route::group(['middleware' => ['auth', 'manage'], 'prefix' => 'manage'], functio
 	Route::get('analytics/abc', 'MainController@abc');
 	Route::get('analytics/xyz', 'MainController@xyz');
 	Route::get('analytics', 'MainController@analytics');
+	Route::get('items', 'ItemsController@index');
+	Route::get('orders', 'OrdersController@index');
+	Route::get('orders/{id}', 'OrdersController@show');
+	Route::get('supply', 'SupplyController@index');
+	Route::get('supply/{id}', 'SupplyController@show');
+	Route::get('costs', 'CostsController@index');
+	Route::get('costs/{id}', 'CostsController@show');
 
 	# patch
-	Route::patch('items/status', 'ItemsController@status');
 	Route::patch('orders/date', 'OrdersController@date');
 	Route::patch('costs/date', 'CostsController@date');
 	Route::patch('supply/date', 'SupplyController@date');
 	Route::patch('items/barcode/generate', 'ItemsController@barcode_generate');
 	Route::patch('items/search', 'ItemsController@search');
-
-	# resource
-	Route::resource('items', 'ItemsController');
-	Route::resource('orders', 'OrdersController');
-	Route::resource('costs', 'CostsController');
-	Route::resource('supply', 'SupplyController');
 });
 
 # Admin
