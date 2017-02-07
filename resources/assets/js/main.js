@@ -357,7 +357,11 @@ $(document).ready(function() {
 			switch(param)
 			{
 				case 'create':
-					$('ul.navbar-right').prepend('<li><a href="'+base_url + segment1 + segment2+'/create">создать</a></li>');
+					$('ul.navbar-right').prepend('<li><a href="'+segment2+'/create">создать</a></li>');
+				break;
+
+				case 'create-modal':
+					$('ul.navbar-right').prepend('<li><a href="#" data-toggle="modal" data-target="#js-modal--create">создать</a></li>');
 				break;
 
 				case 'date-range':
@@ -376,11 +380,6 @@ $(document).ready(function() {
 				break;
 			}
 		});
-	}
-
-	function getPage()
-	{
-		
 	}
 
 	/**
@@ -455,6 +454,7 @@ $(document).ready(function() {
 				switch(segment2)
 				{
 					case 'items':
+						userLinks(['create-modal']);
 						userPermissions(['update', 'status']);
 					break;
 
@@ -463,16 +463,22 @@ $(document).ready(function() {
 						{
 							userLinks(['date-range']);
 						}
+						userPermissions(['delete']);
 					break;
 
 					case 'supply':
+						if(segment3.length == 0)
+						{
+							userLinks(['date-range', 'create']);							
+						}
+
 						userPermissions(['update', 'delete']);
 					break;
 
 					case 'costs':
 						if(segment3.length > 0)
 						{
-							userLinks(['date-range', 'create']);
+							userLinks(['date-range', 'create-modal']);
 						}
 
 						userPermissions(['update', 'delete']);

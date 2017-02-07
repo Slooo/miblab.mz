@@ -30,7 +30,7 @@ $(document).ready(function(){
 					<th>Наименование</th>
 					<th>Цена ₽ / шт.</th>
 					<th>Количество</th>
-					<th colspan="2">Сумма</th>
+					<th>Сумма</th>
 				</thead>
 				<tbody>
 					
@@ -74,8 +74,7 @@ $(document).ready(function(){
 		</div>
 
 		<div class="col-md-12">
-			<button class="btn btn-primary" 
-			id="js-order-and-supply--create">Создать</button>
+			<button class="btn btn-primary" id="js-orders-supply--create">Создать</button>
 			<hr>
 		</div>
 	</div>

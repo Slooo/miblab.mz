@@ -8,8 +8,9 @@
 */
 
 // create order and supply
-$('body').on('click', '#js-orders-and-supply--create', function(e){
+$('body').on('click', '#js-orders-supply--create', function(e){
 	e.preventDefault();
+	console.log('ok');
 
 	var json, sum, sumDiscount, type, discount, counterparty, items, data;
 
@@ -21,10 +22,10 @@ $('body').on('click', '#js-orders-and-supply--create', function(e){
 	items = JSON.stringify(json.items);
 	data  = {'totalSum' : totalSum, 'type' : type, 'discount': discount, 'counterparty' : counterparty, 'items' : items};
 	
-	url = (url != 'supply' ? 'orders' : 'supply');
+	//url = (url != 'supply' ? 'orders' : 'supply');
 
 	$.ajax({
-		url 	 : base_url + '/' + segment1 + '/' + url,
+		url 	 : base_url + '/' + segment1 + '/' + segment2,
 		type 	 : 'post',
 		dataType : 'json',
 		data  	 : data,
@@ -37,7 +38,7 @@ $('body').on('click', '#js-orders-and-supply--create', function(e){
 			if(answer.status == 1)
 			{
 				OrderClear();
-				AnswerSuccess('<a href="'+base_url + '/' + segment1 + '/' + url + '/' + answer.message +'">Создано</a>');
+				AnswerSuccess('<a href="'+base_url + '/' + segment1 + '/' + segment2 + '/' + answer.message +'">Создано</a>');
 			}
 	    },
 

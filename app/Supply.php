@@ -15,7 +15,7 @@ class Supply extends Model
 	protected $table = 'supply';
 	
     protected $fillable = [
-        'id', 'sum', 'type', 'counterparty_id', 'points_id', 'created_at', 'updated_at',
+        'id', 'sum', 'counterparty_id', 'points_id', 'created_at', 'updated_at',
     ];
 
     protected $dates = ['created_at', 'updated_at', 'date'];

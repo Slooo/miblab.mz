@@ -33,7 +33,7 @@
 					<td class="col-md-4">{{ $row->name }}</td>
 					<td class="col-md-2">{{ number_format($row->pivot->items_price, 0, ' ', ' ') }}</td>
 					<td class="col-md-1">{{ $row->pivot->items_quantity }}</td>
-					<td class="col-md-2">{{ number_format($row->pivot->items_sum, 0, ' ', ' ') }}</td>
+					<td class="col-md-2 js--totalSum">{{ number_format($row->pivot->items_sum, 0, ' ', ' ') }}</td>
 				</tr>
 				@endforeach
 			</tbody>
@@ -42,8 +42,8 @@
 
 	<div class="col-md-12">
 		<hr>
-		<strong>Итого: {{ number_format($order->sum, 0, ' ', ' ') }} &#8381;</strong><br>
-		<strong>Итого со скидкой: {{ number_format($order->sum_discount, 0, ' ', ' ') }} &#8381;</strong>
+		<strong class="totalSum">Итого: {{ number_format($order->sum, 0, ' ', ' ') }} &#8381;</strong><br>
+		<strong class="totalSumDiscount">Итого со скидкой: {{ number_format($order->sum_discount, 0, ' ', ' ') }} &#8381;</strong>
 		<hr>
 	</div>
 	

@@ -44,7 +44,7 @@ class SupplyController extends Controller
         $items_id = [];
 
         $supply = $model::create([
-            'sum'             => $request->sum, 
+            'sum'             => $request->totalSum, 
             'type'            => $request->type,
             'counterparty_id' => $request->counterparty,
             'points_id'       => Auth::user()->points_id,
