@@ -365,13 +365,38 @@ $(document).ready(function() {
 				break;
 
 				case 'date-range':
-					html = '<li class="dropdown" id="js--data_range-open">'
+					html = '<li class="dropdown" id="js--date_range-open">'
                     html += '<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">';
                     html += 'настройки <span class="caret"></span>';
                     html += '</a>';
                     html += '<ul class="dropdown-menu dropdown-menu--lg" role="menu">';
                     html += '<li class="dropdown-header">Выбрать период</li>';
-                    html += '<li>this load date_range.blade.php</li>';
+                    html += '<li>';
+                    	html += '<div class="col-md-12">';
+                    	html += '<form url="'+segment1+'/'+segment2+'/date" method="post" id="js-date_range--form">';
+
+                    	html +=	'<div class="form-group col-md-push-1">';
+                    		html +=	'<div class="input-group date datetimepicker">';
+                    		html +=	'<input type="text" name="date_start" class="form-control input-sm" placeholder="Дата начала">';
+                    		html += '<span class="input-group-addon">';
+                    			html += '<span class="glyphicon glyphicon-calendar"></span>';
+                    		html += '</span>';
+                    		html += '</div>';
+                    	html += '</div>';
+
+                    	html += '<div class="form-group col-md-push-1">';
+                    		html += '<div class="input-group date datetimepicker">';
+                    		html += '<input type="text" name="date_end" class="form-control input-sm" placeholder="Дата конца">';
+                    		html += '<span class="input-group-addon">';
+                    			html += '<span class="glyphicon glyphicon-calendar"></span>';
+                    		html += '</span>';
+                    		html += '</div>';
+                    	html += '</div>';
+                    	
+                    	html += '<button type="button" class="btn btn-primary btn-sm" id="js-date_range--sbm">Показать</button>';
+                    	html += '</form>';
+                    	html += '</div>';
+                    html += '</li>';
                     html += '<li class="divider"></li>';
                     html += '</ul>';
                     html += '</li>';
@@ -746,7 +771,6 @@ $(document).ready(function() {
 								html += '<td class="col-md-1">'+data[row].id+'</td>';
 								html += '<td class="col-md-1">'+data[row].date+'</td>';
 								html += '<td class="col-md-9 js--totalSum js--update" data-column="sum">'+data[row].sum+'</td>';
-								html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
 								html += '</tr>';
 							}
 						break;
@@ -754,13 +778,12 @@ $(document).ready(function() {
 						case 'supply':
 							for(row in data)
 							{
-								html += '<tr data-id="'+data[row].id+'" data-type="main">';
-								html += '<td class="col-md-2 js-url--link" data-url="'+base_url + segment1 + segment2 + data[row].id+'">'+data[row].id+'</td>';
+								html += '<tr data-id="'+data[row].id+'">';
+								html += '<td class="col-md-2 js-url--link" data-url="'+segment2 +'/'+ data[row].id+'">'+data[row].id+'</td>';
 								html += '<td class="col-md-1">'+data[row].date+'</td>';
 								html += '<td class="col-md-3">'+data[row].sum+'</td>';
-								html += '<td class="col-md-3">'+data[row].sum_discount+'</td>';
 								html += '<td class="col-md-2">'+data[row].type+'</td>';
-								html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
+								// подгружать делете если есть доступ
 								html += '</tr>';
 							}
 						break;
@@ -768,13 +791,12 @@ $(document).ready(function() {
 						case 'orders':
 							for(row in data)
 							{
-								html += '<tr data-id="'+data[row].id+'" data-type="main">';
-								html += '<td class="col-md-2 js-url--link" data-url="'+base_url + segment1 + segment2 + data[row].id+'">'+data[row].id+'</td>';
+								html += '<tr data-id="'+data[row].id+'">';
+								html += '<td class="col-md-2 js-url--link" data-url="'+segment2 + data[row].id+'">'+data[row].id+'</td>';
 								html += '<td class="col-md-1">'+data[row].date+'</td>';
 								html += '<td class="col-md-3">'+data[row].sum+'</td>';
 								html += '<td class="col-md-3">'+data[row].sum_discount+'</td>';
 								html += '<td class="col-md-2">'+data[row].type+'</td>';
-								html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
 								html += '</tr>';
 							}
 						break;
@@ -921,3 +943,5 @@ $(document).ready(function() {
 	$("#js-modal--delete").on("hidden.bs.modal", function (){ 
 	    $('.js--delete').removeAttr('id');
 	});
+
+

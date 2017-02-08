@@ -22,9 +22,7 @@
 	<div class="form-group">
 		<input type="text" name="points_id" value="{{ Auth::user()->points_id }}" size="2" placeholder="Торговая точка #{{ Auth::user()->points_id }}" class="form-control col-sm-10">
 	</div>
-	
-	<input type="hidden" name="ccosts_id" value="{{ Request::segment(3) }}">
-	
+		
 	<div class="form-group">
 		<button type="button" class="btn btn-primary" id="js-costs--create">Создать</button>
 	</div>

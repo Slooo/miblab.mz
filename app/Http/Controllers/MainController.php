@@ -28,6 +28,11 @@ use App\ItemsSupply;
 
 class MainController extends Controller
 {
+	public function date_range()
+	{
+		return view('_forms/date_range.blade.php');
+	}
+
     # manage analytics
 	public function analytics()
 	{

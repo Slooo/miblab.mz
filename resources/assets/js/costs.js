@@ -11,7 +11,8 @@
 $('body').on('click', '#js-costs--create', function(e){
 	e.preventDefault();
 
-	var data = $('#js-costs--form').serialize();
+	var data = $('#js-costs--form').serializeArray();
+		data.push({name: 'ccosts_id', value: segment3});
 
 	$.ajax({
 		url 	 : base_url + '/' + segment1 + '/' + segment2,
