@@ -272,14 +272,6 @@ function AnswerWarning(answer)
 	$('#alert').removeClass().addClass('alert alert-warning').html(answer);	
 }
 
-// answer removed
-function AnswerDanger(answer)
-{
-	$('#js-modal--create').modal('hide');
-	qp = segment2.substring(0, segment2.length - 1);
-	$('#alert').removeClass().addClass('alert alert-danger').html('<button class="btn btn-danger" id="js--restore-'+qp+'">Отменить удаление <i class="fa fa-history"></i></button>');	
-}
-
 // number format
 function number_format( number, decimals, dec_point, thousands_sep ) {
 
@@ -323,85 +315,111 @@ $(document).ready(function() {
 
 	function userPermissions(option)
 	{
-		$.each(option, function(i, param){
-			switch(param)
-			{
-				case 'update':
-					$.each($('.table tbody tr td[data-column]'), function(){
-						$(this).addClass('js--update');
-					});
-				break;
-				
-				case 'delete':
-					$('.table thead tr').append('<th>Опции</th>');
+			$.each(option, function(i, param){
+				switch(param)
+				{
+					case 'update':
+						$('.table tbody tr td[data-column]').each(function(){
+							$(this).addClass('js--update');
+						});
+					break;
+					
+					case 'delete':
+						html = '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
+						$('.table tbody tr').each(function(){
+							$(this).append(html);
+						});
+					break;
 
-					html = '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-					$.each($('.table tbody tr'), function(){
-						$(this).append(html);
-					});
-				break;
-
-				case 'status':
-					$.each($('.table tbody tr td button[data-status]'), function(){
-						$(this).addClass('js-items--status');
-					})
-				break;
-			}
-		});
+					case 'status':
+						$('.table tbody tr td button[data-status]').each(function(){
+							$(this).addClass('js-items--status');
+						});
+					break;
+				}
+			});
 	}
 
-	// второй атрибут true / false
+	/**
+	 * Функция создающая ссылки для пользователя
+	 * @param  {array} option массив с наименованием ссылок
+	 */
 	function userLinks(option)
 	{
-		$.each(option, function(i, param){
+		var param = [];
+
+		// check isset url
+		$.each(option, function(i, v){
+			$('ul.navbar-right li').each(function(){
+				if($(this).attr('id') != v)
+				{
+					console.log($(this).attr('id'));
+					param.push(v);
+				} else {
+					return false;
+				}
+			});
+		});
+
+		$.each(param, function(i, param){
 			switch(param)
 			{
 				case 'create':
-					$('ul.navbar-right').prepend('<li><a href="'+segment2+'/create">создать</a></li>');
+					if(!$('ul.navbar-right').attr('id', 'js--url-create'))
+					{
+						$('ul.navbar-right').prepend('<li id="js--url-create"><a href="'+segment2+'/create">создать</a></li>');						
+					}
 				break;
 
 				case 'create-modal':
-					$('ul.navbar-right').prepend('<li><a href="#" data-toggle="modal" data-target="#js-modal--create">создать</a></li>');
+					if(!$('ul.navbar-right').attr('id', 'js--url-create-modal'))
+					{
+						$('ul.navbar-right').prepend('<li id="js--url-create-modal"><a href="#" data-toggle="modal" data-target="#js-modal--create">создать</a></li>');
+					}
 				break;
 
 				case 'date-range':
-					html = '<li class="dropdown" id="js--date_range-open">'
-                    html += '<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">';
-                    html += 'настройки <span class="caret"></span>';
-                    html += '</a>';
-                    html += '<ul class="dropdown-menu dropdown-menu--lg" role="menu">';
-                    html += '<li class="dropdown-header">Выбрать период</li>';
-                    html += '<li>';
-                    	html += '<div class="col-md-12">';
-                    	html += '<form url="'+segment1+'/'+segment2+'/date" method="post" id="js-date_range--form">';
+					if($('ul.navbar-right').attr('id') != 'js--url-date-range')
+					{
+						console.log($('ul.navbar-right').attr('id'));
+						html = '<li class="dropdown" id="js--url-date-range js--date_range-open">'
+		                html += '<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">';
+		                html += 'настройки <span class="caret"></span>';
+		                html += '</a>';
+		                html += '<ul class="dropdown-menu dropdown-menu--lg" role="menu">';
+		                html += '<li class="dropdown-header">Выбрать период</li>';
+		                html += '<li>';
+		                	html += '<div class="col-md-12">';
+		                	html += '<form url="'+segment1+'/'+segment2+'/date" method="post" id="js-date_range--form">';
 
-                    	html +=	'<div class="form-group col-md-push-1">';
-                    		html +=	'<div class="input-group date datetimepicker">';
-                    		html +=	'<input type="text" name="date_start" class="form-control input-sm" placeholder="Дата начала">';
-                    		html += '<span class="input-group-addon">';
-                    			html += '<span class="glyphicon glyphicon-calendar"></span>';
-                    		html += '</span>';
-                    		html += '</div>';
-                    	html += '</div>';
+		                	html +=	'<div class="form-group col-md-push-1">';
+		                		html +=	'<div class="input-group date datetimepicker">';
+		                		html +=	'<input type="text" name="date_start" class="form-control input-sm" placeholder="Дата начала">';
+		                		html += '<span class="input-group-addon">';
+		                			html += '<span class="glyphicon glyphicon-calendar"></span>';
+		                		html += '</span>';
+		                		html += '</div>';
+		                	html += '</div>';
 
-                    	html += '<div class="form-group col-md-push-1">';
-                    		html += '<div class="input-group date datetimepicker">';
-                    		html += '<input type="text" name="date_end" class="form-control input-sm" placeholder="Дата конца">';
-                    		html += '<span class="input-group-addon">';
-                    			html += '<span class="glyphicon glyphicon-calendar"></span>';
-                    		html += '</span>';
-                    		html += '</div>';
-                    	html += '</div>';
-                    	
-                    	html += '<button type="button" class="btn btn-primary btn-sm" id="js-date_range--sbm">Показать</button>';
-                    	html += '</form>';
-                    	html += '</div>';
-                    html += '</li>';
-                    html += '<li class="divider"></li>';
-                    html += '</ul>';
-                    html += '</li>';
+		                	html += '<div class="form-group col-md-push-1">';
+		                		html += '<div class="input-group date datetimepicker">';
+		                		html += '<input type="text" name="date_end" class="form-control input-sm" placeholder="Дата конца">';
+		                		html += '<span class="input-group-addon">';
+		                			html += '<span class="glyphicon glyphicon-calendar"></span>';
+		                		html += '</span>';
+		                		html += '</div>';
+		                	html += '</div>';
+		                	
+		                	html += '<button type="button" class="btn btn-primary btn-sm" id="js-date_range--sbm">Показать</button>';
+		                	html += '</form>';
+		                	html += '</div>';
+		                html += '</li>';
+		                html += '<li class="divider"></li>';
+		                html += '</ul>';
+		                html += '</li>';
 
-                    $('ul.navbar-right').prepend(html);
+		                $('ul.navbar-right').prepend(html);
+		        	}
 				break;
 			}
 		});
@@ -475,7 +493,7 @@ $(document).ready(function() {
 
 			// admin
 			case 3:
-			console.log('admin');
+			console.log('admin', segment2);
 				switch(segment2)
 				{
 					case 'items':
@@ -770,7 +788,7 @@ $(document).ready(function() {
 								html += '<tr data-id="'+data[row].id+'">';
 								html += '<td class="col-md-1">'+data[row].id+'</td>';
 								html += '<td class="col-md-1">'+data[row].date+'</td>';
-								html += '<td class="col-md-9 js--totalSum js--update" data-column="sum">'+data[row].sum+'</td>';
+								html += '<td class="col-md-9 js--totalSum" data-column="sum">'+data[row].sum+'</td>';
 								html += '</tr>';
 							}
 						break;
@@ -779,22 +797,22 @@ $(document).ready(function() {
 							for(row in data)
 							{
 								html += '<tr data-id="'+data[row].id+'">';
-								html += '<td class="col-md-2 js-url--link" data-url="'+segment2 +'/'+ data[row].id+'">'+data[row].id+'</td>';
+								html += '<td class="col-md-2 js--url-link" data-url="'+segment2 +'/'+ data[row].id+'">'+data[row].id+'</td>';
 								html += '<td class="col-md-1">'+data[row].date+'</td>';
-								html += '<td class="col-md-3">'+data[row].sum+'</td>';
+								html += '<td class="col-md-3 js--totalSum data-column="sum">'+data[row].sum+'</td>';
 								html += '<td class="col-md-2">'+data[row].type+'</td>';
-								// подгружать делете если есть доступ
 								html += '</tr>';
 							}
+
 						break;
 
 						case 'orders':
 							for(row in data)
 							{
 								html += '<tr data-id="'+data[row].id+'">';
-								html += '<td class="col-md-2 js-url--link" data-url="'+segment2 + data[row].id+'">'+data[row].id+'</td>';
+								html += '<td class="col-md-2 js--url-link" data-url="'+segment2 +'/'+ data[row].id+'">'+data[row].id+'</td>';
 								html += '<td class="col-md-1">'+data[row].date+'</td>';
-								html += '<td class="col-md-3">'+data[row].sum+'</td>';
+								html += '<td class="col-md-3 js--totalSum">'+data[row].sum+'</td>';
 								html += '<td class="col-md-3">'+data[row].sum_discount+'</td>';
 								html += '<td class="col-md-2">'+data[row].type+'</td>';
 								html += '</tr>';
@@ -816,12 +834,13 @@ $(document).ready(function() {
 		    }
 
 		}).complete(function() {
+			userAccess();
 		    LoaderStop();
 		});
 	});
 
 	// link url
-	$('body').on('click', '.js-url--link', function(e){
+	$('body').on('click', '.js--url-link', function(e){
 		e.preventDefault();
 		var url = $(this).data('url');
 	    window.location = url;
