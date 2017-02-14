@@ -346,34 +346,36 @@ $(document).ready(function() {
 	 */
 	function userLinks(option)
 	{
-		var param = [];
+		var param = []; checkOption = [];
 
-		// check isset url
-		$.each(option, function(i, v){
-			$('ul.navbar-right li').each(function(){
-				console.log($(this));
-				if($(this).attr('id') == v)
-				{
-					return false;
-				} else {
-					param.push(v);
-				}
-			});
+		$('ul.nav.navbar-nav.navbar-right li.js--url-user-links').each(function(){
+			var str = $(this).attr('id').substring(8);
+			checkOption.push(str);
 		});
+
+		if(checkOption.length > 0)
+		{
+			Array.prototype.diff = function(a) {
+			    return this.filter(function(i){return a.indexOf(i) < 0;});
+			};
+			param = option.diff(checkOption);
+		} else {
+			param = option;
+		}
 
 		$.each(param, function(i, param){
 			switch(param)
 			{
 				case 'create':
-					$('ul.navbar-right').prepend('<li id="js--url-create"><a href="'+segment2+'/create">создать</a></li>');						
+					$('ul.navbar-right').prepend('<li class="js--url-user-links" id="js--url-create"><a href="'+segment2+'/create">создать</a></li>');						
 				break;
 
 				case 'create-modal':
-					$('ul.navbar-right').prepend('<li id="js--url-create-modal"><a href="#" data-toggle="modal" data-target="#js-modal--create">создать</a></li>');
+					$('ul.navbar-right').prepend('<li class="js--url-user-links" id="js--url-create-modal"><a href="#" data-toggle="modal" data-target="#js-modal--create">создать</a></li>');
 				break;
 
 				case 'date-range':
-					html = '<li class="dropdown" id="js--url-date-range js--date_range-open">'
+					html = '<li class="dropdown js--url-user-links" id="js--url-date-range">'
 	                html += '<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">';
 	                html += 'настройки <span class="caret"></span>';
 	                html += '</a>';
@@ -425,7 +427,6 @@ $(document).ready(function() {
 		{
 			// cachier
 			case 1:
-			console.log('cashier', segment3);
 				switch(segment2)
 				{
 					case 'orders':
@@ -433,10 +434,6 @@ $(document).ready(function() {
 						{
 							userLinks(['date-range', 'create']);
 						}
-					break;
-
-					case 'items':
-						return true;
 					break;
 
 					default:
@@ -447,13 +444,8 @@ $(document).ready(function() {
 
 			// manage
 			case 2:
-			console.log('manage');
 				switch(segment2)
 				{
-					case 'items':
-						return true;
-					break;
-
 					case 'orders':
 						if(segment3.length == 0)
 						{
@@ -483,7 +475,6 @@ $(document).ready(function() {
 
 			// admin
 			case 3:
-			console.log('admin', segment2);
 				switch(segment2)
 				{
 					case 'items':
@@ -521,7 +512,6 @@ $(document).ready(function() {
 
 			// igor
 			case 4:
-			console.log('igor');
 				switch(segment2)
 				{
 					case 'items':
@@ -558,8 +548,6 @@ $(document).ready(function() {
 			break;
 
 			default:
-			console.log(userOptions.status);
-
 				return false;
 			break;
 		}
@@ -822,7 +810,6 @@ $(document).ready(function() {
 								html += '<td class="col-md-2 js--url-link" data-url="'+segment2 +'/'+ data[row].id+'">'+data[row].id+'</td>';
 								html += '<td class="col-md-1">'+data[row].date+'</td>';
 								html += '<td class="col-md-3 js--totalSum data-column="sum">'+data[row].sum+'</td>';
-								html += '<td class="col-md-2">'+data[row].type+'</td>';
 								html += '</tr>';
 							}
 
