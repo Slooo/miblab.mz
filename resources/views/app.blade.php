@@ -55,28 +55,6 @@
                     @else
                         <?php $status = Auth::user()->status;?>
 
-                        <!-- Create links -->
-                        @if(Request::is('cashier/orders') || Request::is('igor/orders') || Request::is('*/supply'))
-                        @elseif(Request::is('*/costs/*') || Request::is('*/items') && $status != 1)
-                        @elseif(Request::is('*/discounts'))
-                            <li><a href="#" data-toggle="modal" data-target="#js-modal--create">создать</a></li>
-                        @elseif(Request::is('*/analytics') || Request::is('*/analytics/*'))
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                                    анализы <span class="caret"></span>
-                                </a>
-
-                                <ul class="dropdown-menu dropdown-menu--lg" role="menu">
-                                    <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/abc') }}">ABC</a></li>
-                                    <li><a href="{{ url(Request::segment(1).'/'.Request::segment(2).'/xyz') }}">XYZ</a></li>
-                                </ul>
-                            </li>
-                        @endif
-
-                        <!-- Settings links -->
-                        @if(Request::is('*/orders') || Request::is('*/costs/*') || Request::is('*/supply'))
-                        @endif
-
                         <!-- Menu links -->
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">

@@ -24,18 +24,18 @@
 					<th>Дата</th>
 					<th>Сумма &#8381;</th>
 				</tr>
-			</thead>	
+			</thead>
 			
 			<tbody data-type="main">
 				@foreach($supply as $row)
 				<tr data-id="{{ $row->id }}">
-					<td class="col-md-2 js-url--link" data-url="{{ url(Request::segment(1).'/supply/'.$row->id) }}">
+					<td class="col-md-1 js--url-link" data-url="{{ url(Request::segment(1).'/'.Request::segment(2).'/'.$row->id) }}">
 						{{ $row->id }}
 					</td>
-					<td class="col-md-1">
+					<td class="col-md-2">
 						{{ $row->date_format }}
 					</td>
-					<td class="col-md-3 js--totalSum">
+					<td class="col-md-9 js--totalSum">
 						{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}
 					</td>
 				</tr>

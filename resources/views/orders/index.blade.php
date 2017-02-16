@@ -31,11 +31,11 @@
 			<tbody data-type="main">
 				@foreach($orders as $row)
 				<tr data-id="{{ $row->id }}">
-					<td class="js-url--link" data-url="{{ url(Request::segment(1).'/'.Request::segment(2).'/'.$row->id) }}">{{ $row->id }}</td>
-					<td>{{ $row->date_format }}</td>
-					<td class="js--totalSum">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
-					<td class="js--totalSumDiscount">{{ number_format($totalSumDiscount[] = $row->sum_discount, 0, ' ', ' ') }}</td>
-					<td>{{ ($row->type == 1 ? 'Налично' : 'Безналично') }}</td>
+					<td class="col-md-1 js--url-link" data-url="{{ url(Request::segment(1).'/'.Request::segment(2).'/'.$row->id) }}">{{ $row->id }}</td>
+					<td class="col-md-1">{{ $row->date_format }}</td>
+					<td class="col-md-4 js--totalSum">{{ number_format($totalSum[] = $row->sum, 0, ' ', ' ') }}</td>
+					<td class="col-md-4 js--totalSumDiscount">{{ number_format($totalSumDiscount[] = $row->sum_discount, 0, ' ', ' ') }}</td>
+					<td class="col-md-2">{{ ($row->type == 1 ? 'Налично' : 'Безналично') }}</td>
 				</tr>
 				@endforeach
 			</tbody>

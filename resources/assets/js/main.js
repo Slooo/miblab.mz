@@ -413,6 +413,25 @@ $(document).ready(function() {
 
 	                $('ul.navbar-right').prepend(html);
 				break;
+
+				case 'analyzes':
+					html = '<li class="dropdown" id="js--url-analyzes">';
+					    html += '<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">';
+					        html += 'анализы <span class="caret"></span>';
+					    html += '</a>';
+
+					    html += '<ul class="dropdown-menu dropdown-menu--lg" role="menu">';
+					        html += '<li><a href="'+base_url+'/'+segment1+'/'+segment2+'/abc">ABC</a></li>';
+					        html += '<li><a href="'+base_url+'/'+segment1+'/'+segment2+'/xyz">XYZ</a></li>';
+					    html += '</ul>';
+					html += '</li>';
+
+					$('ul.navbar-right').prepend(html);
+				break;
+
+				default:
+					return false;
+				break;
 			}
 		});
 	}
@@ -446,6 +465,10 @@ $(document).ready(function() {
 			case 2:
 				switch(segment2)
 				{
+					case 'analytics':
+						userLinks(['analyzes']);
+					break;
+
 					case 'orders':
 						if(segment3.length == 0)
 						{
@@ -543,6 +566,10 @@ $(document).ready(function() {
 						}
 
 						userPermissions(['update', 'delete']);
+					break;
+
+					case 'analytics':
+						userLinks(['analyzes']);
 					break;
 				}
 			break;
@@ -807,22 +834,21 @@ $(document).ready(function() {
 							for(row in data)
 							{
 								html += '<tr data-id="'+data[row].id+'">';
-								html += '<td class="col-md-2 js--url-link" data-url="'+segment2 +'/'+ data[row].id+'">'+data[row].id+'</td>';
+								html += '<td class="col-md-1 js--url-link" data-url="'+segment2 +'/'+ data[row].id+'">'+data[row].id+'</td>';
 								html += '<td class="col-md-1">'+data[row].date+'</td>';
-								html += '<td class="col-md-3 js--totalSum data-column="sum">'+data[row].sum+'</td>';
+								html += '<td class="col-md-9 js--totalSum data-column="sum">'+data[row].sum+'</td>';
 								html += '</tr>';
 							}
-
 						break;
 
 						case 'orders':
 							for(row in data)
 							{
 								html += '<tr data-id="'+data[row].id+'">';
-								html += '<td class="col-md-2 js--url-link" data-url="'+segment2 +'/'+ data[row].id+'">'+data[row].id+'</td>';
+								html += '<td class="col-md-1 js--url-link" data-url="'+segment2 +'/'+ data[row].id+'">'+data[row].id+'</td>';
 								html += '<td class="col-md-1">'+data[row].date+'</td>';
-								html += '<td class="col-md-3 js--totalSum">'+data[row].sum+'</td>';
-								html += '<td class="col-md-3">'+data[row].sum_discount+'</td>';
+								html += '<td class="col-md-4 js--totalSum">'+data[row].sum+'</td>';
+								html += '<td class="col-md-4">'+data[row].sum_discount+'</td>';
 								html += '<td class="col-md-2">'+data[row].type+'</td>';
 								html += '</tr>';
 							}

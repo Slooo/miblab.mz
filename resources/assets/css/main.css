@@ -95,11 +95,11 @@ h2 {
     width:40px;
 }
 
-.js-url--link {
+.js--url-link {
     color:#337ab7;
 }
 
-.js-url--link:hover{
+.js--url-link:hover{
     cursor:pointer;
     color: #23527c;
     text-decoration: underline;

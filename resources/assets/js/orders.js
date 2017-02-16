@@ -7,6 +7,14 @@
 	Orders functions	
 */
 
+/**
+ * Функция рисовки страницы orders
+ */
+function ordersPage()
+{
+	
+}
+
 // create order and supply
 $('body').on('click', '#js-orders-supply--create', function(e){
 	e.preventDefault();

@@ -33,7 +33,7 @@
 					<td class="col-md-1">
 						{{ $row->barcode }}
 					</td>	
-					<td class="col-md-4">
+					<td class="col-md-5">
 						{{ $row->name }}
 					</td>
 					<td class="col-md-2" data-column="items_price">

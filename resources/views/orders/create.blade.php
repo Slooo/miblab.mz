@@ -55,8 +55,8 @@ $(document).ready(function(){
 		</div>
 		@endif
 
-		@if(isset($counterparty))
-			<div class="col-md-12">
+		@if(Request::is('*/supply/create'))
+		<div class="col-md-12">
 			<hr>
 				<select class="js-supply--counterparty">
 					<option selected="selected" disabled="disabled">Контрагент</option>
