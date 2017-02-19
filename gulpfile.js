@@ -23,8 +23,19 @@ elixir(function(mix) {
 		'main.css', 
 	], 'public/css/app.css')
 
+	// библиотеки
+	.scripts([
+		'../bower/jquery/jquery.min.js',
+		'../bower/bootstrap/dist/js/bootstrap.min.js',
+		'../bower/moment/min/moment-with-locales.min.js',
+		'../bower/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',
+		'../bower/jquery-numeric/dist/jquery-numeric.js',
+		'../bower/highcharts/highcharts.js'
+	], 'public/js/libs.js')
+
 	// скрипты
 	.scripts([
+		'analytics.js',
 		'main.js',
 		'items.js',
 		'orders.js',
@@ -34,15 +45,6 @@ elixir(function(mix) {
 		'settings.js',
 	], 'public/js/app.js')
 
-	// библиотеки
-	.scripts([
-		'../bower/jquery/jquery.min.js',
-		'../bower/bootstrap/dist/js/bootstrap.min.js',
-		'../bower/moment/min/moment-with-locales.min.js',
-		'../bower/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',
-		'../bower/jquery-numeric/dist/jquery-numeric.js',
-	], 'public/js/libs.js')
-
-	.version(['css/app.css', 'js/app.js', 'js/libs.js'])
+	.version(['css/app.css', 'js/libs.js', 'js/app.js'])
     
 });

@@ -47,48 +47,10 @@
                 @endif
 
             </div>
-
+            
+            <!-- Authentication Links -->
             <div class="collapse navbar-collapse" id="app-navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
-                    <!-- Authentication Links -->
-                    @if (Auth::guest())
-                    @else
-                        <?php $status = Auth::user()->status;?>
-
-                        <!-- Menu links -->
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                                {{ Auth::user()->username }} <span class="caret"></span>
-                            </a>
-
-                            <ul class="dropdown-menu" role="menu">
-                            @if(Auth::user()->status == 1)
-                                <li><a href="{{ url('cashier/items') }}">Товары</a></li>
-                                <li><a href="{{ url('cashier/orders') }}">Заказы</a></li>
-                            @elseif(Auth::user()->status == 2)
-                                <li><a href="{{ url('manage/items') }}">Товары</a></li>
-                                <li><a href="{{ url('manage/orders') }}">Заказы</a></li>
-                                <li><a href="{{ url('manage/supply') }}">Приходы</a></li>
-                                <li><a href="{{ url('manage/costs') }}">Расходы</a></li>
-                                <li><a href="{{ url('manage/analytics') }}">Аналитика</a></li>
-                            @elseif(Auth::user()->status == 3)
-                                <li><a href="{{ url('admin/items') }}">Товары</a></li>
-                                <li><a href="{{ url('admin/orders') }}">Заказы</a></li>
-                                <li><a href="{{ url('admin/supply') }}">Приходы</a></li>
-                                <li><a href="{{ url('admin/costs') }}">Расходы</a></li>
-                                <li><a href="{{ url('admin/discounts') }}">Скидки</a></li>
-                            @elseif(Auth::user()->status == 4)
-                                <li><a href="{{ url('igor/items') }}">Товары</a></li>
-                                <li><a href="{{ url('igor/orders') }}">Заказы</a></li>
-                                <li><a href="{{ url('igor/supply') }}">Приходы</a></li>
-                                <li><a href="{{ url('igor/costs') }}">Расходы</a></li>
-                                <li><a href="{{ url('igor/analytics') }}">Аналитика</a></li>
-                                <li><a href="{{ url('igor/discounts') }}">Скидки</a></li>
-                            @endif
-                                <li><a href="{{ url('/logout') }}"><i class="fa fa-btn fa-sign-out"></i>Выйти</a></li>
-                            </ul>
-                        </li>
-                    @endif
                 </ul>
             </div>
         </div>
@@ -101,7 +63,7 @@
             @if(Session::has('message'))
                 <div id="alert" class="alert alert-info">{{ Session::get('message') }}</div>
             @else
-                <div id="alert"></div>    
+                <div id="alert"></div>
             @endif
 
             @include('_forms.modals')
@@ -118,6 +80,7 @@
         segment3  = '{{ Request::segment(3) }}';
     @if(Auth::user())
     var userOptions = {};
+        userOptions.username  = "{{ Auth::user()->username }}";
         userOptions.status    = {{ Auth::user()->status }};
         userOptions.points_id = {{ Auth::user()->points_id }};
     @endif

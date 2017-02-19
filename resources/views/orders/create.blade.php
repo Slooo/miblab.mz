@@ -85,6 +85,6 @@ $(document).ready(function(){
 
 @section('script')
 	<script>
-		CashierPageLoad()
+		CashierPageLoad();
 	</script>
 @stop

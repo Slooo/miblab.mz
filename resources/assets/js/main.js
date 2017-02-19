@@ -315,29 +315,29 @@ $(document).ready(function() {
 
 	function userPermissions(option)
 	{
-			$.each(option, function(i, param){
-				switch(param)
-				{
-					case 'update':
-						$('.table tbody tr td[data-column]').each(function(){
-							$(this).addClass('js--update');
-						});
-					break;
-					
-					case 'delete':
-						html = '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-						$('.table tbody tr').each(function(){
-							$(this).append(html);
-						});
-					break;
+		$.each(option, function(i, param){
+			switch(param)
+			{
+				case 'update':
+					$('.table tbody tr td[data-column]').each(function(){
+						$(this).addClass('js--update');
+					});
+				break;
 
-					case 'status':
-						$('.table tbody tr td button[data-status]').each(function(){
-							$(this).addClass('js-items--status');
-						});
-					break;
-				}
-			});
+				case 'delete':
+					html = '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
+					$('.table tbody tr').each(function(){
+						$(this).append(html);
+					});
+				break;
+
+				case 'status':
+					$('.table tbody tr td button[data-status]').each(function(){
+						$(this).addClass('js-items--status');
+					});
+				break;
+			}
+		});
 	}
 
 	/**
@@ -346,6 +346,56 @@ $(document).ready(function() {
 	 */
 	function userLinks(option)
 	{
+		// Menu links
+		html = '<li class="dropdown">';
+		    html += '<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">';
+		        html += userOptions.username+' <span class="caret"></span>';
+		    html += '</a>';
+		    html += '<ul class="dropdown-menu" role="menu">';
+
+		    switch(parseInt(userOptions.status))
+		    {
+		    	case 1:
+		    		html += '<li><a href="'+base_url+'/'+segment1+'/items">Товары</a></li>';
+	            	html += '<li><a href="'+base_url+'/'+segment1+'/orders">Заказы</a></li>';
+		    	break;
+
+		    	case 2:
+			    	html += '<li><a href="'+base_url+'/'+segment1+'/items">Товары</a></li>';
+			    	html += '<li><a href="'+base_url+'/'+segment1+'/orders">Заказы</a></li>';
+			    	html += '<li><a href="'+base_url+'/'+segment1+'/supply">Приходы</a></li>';
+			    	html += '<li><a href="'+base_url+'/'+segment1+'/costs">Расходы</a></li>';
+			    	html += '<li><a href="'+base_url+'/'+segment1+'/analytics">Аналитика</a></li>';
+		    	break;
+
+		    	case 3:
+		    		html += '<li><a href="'+base_url+'/'+segment1+'/items">Товары</a></li>';
+		    		html += '<li><a href="'+base_url+'/'+segment1+'/orders">Заказы</a></li>';
+		    		html += '<li><a href="'+base_url+'/'+segment1+'/supply">Приходы</a></li>';
+		    		html += '<li><a href="'+base_url+'/'+segment1+'/costs">Расходы</a></li>';
+		    		html += '<li><a href="'+base_url+'/'+segment1+'/discounts">Скидки</a></li>';
+		    	break;
+
+				case 4:
+		    		html += '<li><a href="'+base_url+'/'+segment1+'/items">Товары</a></li>';
+		    		html += '<li><a href="'+base_url+'/'+segment1+'/orders">Заказы</a></li>';
+		    		html += '<li><a href="'+base_url+'/'+segment1+'/supply">Приходы</a></li>';
+		    		html += '<li><a href="'+base_url+'/'+segment1+'/costs">Расходы</a></li>';
+		    		html += '<li><a href="'+base_url+'/'+segment1+'/analytics">Аналитика</a></li>';
+		    		html += '<li><a href="'+base_url+'/'+segment1+'/discounts">Скидки</a></li>';
+		    	break;
+
+		    	default:
+		    		return false;
+		    	break;
+		    }
+
+		    	html += '<li><a href="/logout"><i class="fa fa-btn fa-sign-out"></i>Выйти</a></li>';
+		    html += '</ul>';
+		html += '</li>';
+
+		$('ul.nav.navbar-nav.navbar-right').append(html);
+
 		var param = []; checkOption = [];
 
 		$('ul.nav.navbar-nav.navbar-right li.js--url-user-links').each(function(){
@@ -414,6 +464,14 @@ $(document).ready(function() {
 	                $('ul.navbar-right').prepend(html);
 				break;
 
+				case 'graphics':
+					html = '<li class="dropdown" id="js--url-graphics">';
+						html += '<a href="'+base_url+'/'+segment1+'/'+segment2+'/graphics">графики</a>';
+					html += '</li>';
+
+					$('ul.navbar-right').prepend(html);
+				break;
+
 				case 'analyzes':
 					html = '<li class="dropdown" id="js--url-analyzes">';
 					    html += '<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">';
@@ -466,7 +524,7 @@ $(document).ready(function() {
 				switch(segment2)
 				{
 					case 'analytics':
-						userLinks(['analyzes']);
+						userLinks(['analyzes', 'graphics']);
 					break;
 
 					case 'orders':
@@ -569,7 +627,7 @@ $(document).ready(function() {
 					break;
 
 					case 'analytics':
-						userLinks(['analyzes']);
+						userLinks(['analyzes', 'graphics']);
 					break;
 				}
 			break;
@@ -580,7 +638,7 @@ $(document).ready(function() {
 		}
 	}
 
-	if(typeof userOptions !== 'undefined')
+	if(typeof userOptions !== undefined)
 	{
 		userAccess();		
 	}

@@ -34,8 +34,13 @@ class MainController extends Controller
 	}
 
     # manage analytics
-	public function analytics()
+	public function analytics($page = 'index')
 	{
+		if($page != 'index' && $page != 'graphics')
+		{
+			return abort(404);
+		}
+
 	    # settings
 	    $i = -1; $sumAll = []; $sumMonth = []; $sumMonthPoint = []; 
 	    $sumAllKey = []; $sumAllKeyPoint = []; $sumWeek = []; $dateWeek = [];
@@ -153,7 +158,7 @@ class MainController extends Controller
             }
 	    endforeach;
 
-	    return view('analytics.index', compact(
+	    return view('analytics.'.$page, compact(
 	        'sumAll', 'sumMonth', 'sumMonthPoint', 
 	        'sumAllKey', 'sumAllKeyPoint',
 	        'sum30DaysOrders', 'sum30DaysSupply', 'sumWeek'

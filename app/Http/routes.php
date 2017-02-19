@@ -54,6 +54,7 @@ Route::group(['middleware' => ['auth', 'manage'], 'prefix' => 'manage'], functio
 	Route::get('analytics/abc', 'MainController@abc');
 	Route::get('analytics/xyz', 'MainController@xyz');
 	Route::get('analytics', 'MainController@analytics');
+	Route::get('analytics/{graphics}', 'MainController@analytics');
 	Route::get('items', 'ItemsController@index');
 	Route::get('orders', 'OrdersController@index');
 	Route::get('orders/{id}', 'OrdersController@show');
@@ -101,7 +102,7 @@ Route::group(['middleware' => ['auth', 'igor'], 'prefix' => 'igor'], function()
 	# get
 	Route::get('analytics/abc', 'MainController@abc');
 	Route::get('analytics/xyz', 'MainController@xyz');
-
+	Route::get('analytics/{graphics}', 'MainController@analytics');
 	Route::get('analytics', 'MainController@analytics');
 	Route::get('items/search', 'ItemsController@cashier');
 
