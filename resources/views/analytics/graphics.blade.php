@@ -42,7 +42,19 @@
 
 @section('script')
 <script>
-	var sumAll = [], sumMonth = [], sumAllKey = [], sumAllKeyPoint = [], sum30DaysSO = []; sumMonthPoint = [], sumWeek = [];
+	var sumAll = [], 
+		sumMonth = [], 
+		sumAllKey = [], 
+		sumAllKeyPoint = [], 
+		sum30DaysSO = [],
+		sumMonthPoint = [], 
+		sumWeek = {},
+
+		categories = [],
+		data = [];
+
+		sumWeek.categories = categories;
+		sumWeek.data = data;
 </script>
 
 @foreach($sumAll as $row)
@@ -58,22 +70,22 @@
 @endforeach
 
 <script>
-	sumAllKey.push(graphParseData(['Прибыль', {{ $sumAllKey['profit'] }}]));
-	sumAllKey.push(graphParseData(['Продажи', {{ $sumAllKey['orders'] }}]));
-	sumAllKey.push(graphParseData(['Расходы', {{ $sumAllKey['costs'] }}]));
-	sumAllKey.push(graphParseData(['Закупка', {{ $sumAllKey['supply'] }}]));
-	sumAllKey.push(graphParseData(['Склад', {{ $sumAllKey['stock'] }}]));
+	sumAllKey.push(graphParseData(['Прибыль', {{ $sumAllKey['profit'] }}], false));
+	sumAllKey.push(graphParseData(['Продажи', {{ $sumAllKey['orders'] }}], false));
+	sumAllKey.push(graphParseData(['Расходы', {{ $sumAllKey['costs'] }}], false));
+	sumAllKey.push(graphParseData(['Закупка', {{ $sumAllKey['supply'] }}], false));
+	sumAllKey.push(graphParseData(['Склад', {{ $sumAllKey['stock'] }}], false));
 </script>
 
 @foreach($sumAllKeyPoint as $key => $row)
 <script>
 	$('.col-body').append('<div class="hc-line" id="js--hc-sumAllKeyPoint_{{ $key }}"></div>');
 
-	sumAllKeyPoint.push(graphParseData(['Прибыль', {{ $row['profit'] }}]));
-	sumAllKeyPoint.push(graphParseData(['Продажи', {{ $row['orders'] }}]));
-	sumAllKeyPoint.push(graphParseData(['Расходы', {{ $row['costs'] }}]));
-	sumAllKeyPoint.push(graphParseData(['Закупка', {{ $row['supply'] }}]));
-	sumAllKeyPoint.push(graphParseData(['Склад', {{ $row['stock'] }}]));
+	sumAllKeyPoint.push(graphParseData(['Прибыль', {{ $row['profit'] }}], false));
+	sumAllKeyPoint.push(graphParseData(['Продажи', {{ $row['orders'] }}], false));
+	sumAllKeyPoint.push(graphParseData(['Расходы', {{ $row['costs'] }}], false));
+	sumAllKeyPoint.push(graphParseData(['Закупка', {{ $row['supply'] }}], false));
+	sumAllKeyPoint.push(graphParseData(['Склад', {{ $row['stock'] }}], false));
 
 	hcPie(JSON.stringify(sumAllKeyPoint), 'js--hc-sumAllKeyPoint_{{ $key }}', 'Ключевые показатели по точке #{{ $key }}');
 	sumAllKeyPoint = [];
@@ -82,14 +94,14 @@
 
 @foreach($sumMonthPoint as $row)
 <script>
-	sumMonthPoint.push(graphParseData(['Точка #{{ $row['point'] }}', {{ $row['sum'] }}]));
-	sumMonthPoint = [];
+	sumMonthPoint.push(graphParseData(['Точка #{{ $row['point'] }}', {{ $row['sum'] }}], false));
 </script>
 @endforeach
 
 @foreach($sumWeek as $row)
 <script>
-	sumWeek.push(graphParseData(['{{ $row['date'] }}', {{ $row['sum'] }}]));
+	sumWeek.categories.push("{{ $row['date'] }}");
+	sumWeek.data.push({{ $row['sum'] }});
 </script>
 @endforeach
 

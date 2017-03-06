@@ -56,8 +56,8 @@ function hcPie(data, container, title)
        },
        tooltip: {
           formatter: function() {
-              var val = this.point.positive ? this.y : this.y * (-1);
-             return '<b>'+ this.point.name +'</b>: '+ val +' руб.';
+            var val = this.point.positive ? this.y : this.y * (-1);
+            return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(val, 0, ' ', ' ') +' руб.';
           }
        },
        plotOptions: {
@@ -67,7 +67,6 @@ function hcPie(data, container, title)
                dataLabels: {
                 	enabled: false,
                 	formatter: function() {
-                		//number format
                 		return this.point.positive ? this.y : this.y * (-1);
                     },
                },
@@ -93,10 +92,10 @@ function hcWdl(data, container, title)
 	        text: title,
 	        align: 'center',
 	        verticalAlign: 'middle',
-	        y: 40
+	        y: -130
 	    },
 	    tooltip: {
-	        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+	        pointFormat: '<b>{point.y}</b> руб.'
 	    },
 	    plotOptions: {
 	        pie: {
@@ -123,30 +122,32 @@ function hcWdl(data, container, title)
 
 function hcInverted(data, container, title)
 {
+	var json = JSON.parse(data);
 	Highcharts.chart(container, {
 
 		chart: {
 		    inverted: true,
 		    polar: false
 		},
+	    
 	    title: {
-	        text: 'Chart.update'
-	    },
-
-	    subtitle: {
-	        text: 'Plain'
+	        text: title
 	    },
 
 	    xAxis: {
-	        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec','Sep', 'Oct', 'Nov', 'Dec','Sep', 'Oct', 'Nov', 'Dec']
+	        categories: json.categories
 	    },
 
 	    series: [{
 	        type: 'column',
 	        colorByPoint: true,
-	        data: [29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4,29.9, 71.5, 106.4, 129.2,29.9, 71.5, 106.4, 129.2],
+	        data: json.data,
 	        showInLegend: false
-	    }]
+	    }],
+
+	    tooltip: {
+	    	pointFormat: '<b>{point.name}</b>{point.y} руб.'
+	    }
 
 	});
 }
@@ -467,19 +468,35 @@ $('.modal').modal({
  * Parse data in graphic
  * @return data - obj in push
  */
-function graphParseData(data)
+function graphParseData(data, type)
 {
-	var obj = {}, val, positive;
+	var obj = {}, arr = [], val, positive, result;
 
-		val = data[1] < 0 ? Math.abs(data[1]) : data[1];
-		value = val == undefined ? 0 : val;
-		positive = data[1] < 0 ? false : true;
+	val = data[1] < 0 ? Math.abs(data[1]) : data[1];
+	value = val == undefined ? 0 : val;
+	positive = data[1] < 0 ? false : true;
 
-	obj.name = data[0];
-	obj.y = value;
-	obj.positive = positive;
+	switch(type)
+	{
+		case true:
+			arr.push(data[0]);
+			arr.push(value);
+			arr.push(positive);
+			return arr;
+		break;
 
-	return obj;
+		case false:
+			obj.name = data[0];
+			obj.y = value;
+			obj.positive = positive;
+			return obj;
+		break;
+
+		default:
+		break;
+	}
+
+	return true;
 }
 
 $(document).ready(function() {

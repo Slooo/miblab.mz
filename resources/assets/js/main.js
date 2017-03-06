@@ -315,19 +315,35 @@ $('.modal').modal({
  * Parse data in graphic
  * @return data - obj in push
  */
-function graphParseData(data)
+function graphParseData(data, type)
 {
-	var obj = {}, val, positive;
+	var obj = {}, arr = [], val, positive, result;
 
-		val = data[1] < 0 ? Math.abs(data[1]) : data[1];
-		value = val == undefined ? 0 : val;
-		positive = data[1] < 0 ? false : true;
+	val = data[1] < 0 ? Math.abs(data[1]) : data[1];
+	value = val == undefined ? 0 : val;
+	positive = data[1] < 0 ? false : true;
 
-	obj.name = data[0];
-	obj.y = value;
-	obj.positive = positive;
+	switch(type)
+	{
+		case true:
+			arr.push(data[0]);
+			arr.push(value);
+			arr.push(positive);
+			return arr;
+		break;
 
-	return obj;
+		case false:
+			obj.name = data[0];
+			obj.y = value;
+			obj.positive = positive;
+			return obj;
+		break;
+
+		default:
+		break;
+	}
+
+	return true;
 }
 
 $(document).ready(function() {
