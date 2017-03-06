@@ -311,6 +311,25 @@ $('.modal').modal({
     show: false,
 });
 
+/**
+ * Parse data in graphic
+ * @return data - obj in push
+ */
+function graphParseData(data)
+{
+	var obj = {}, val, positive;
+
+		val = data[1] < 0 ? Math.abs(data[1]) : data[1];
+		value = val == undefined ? 0 : val;
+		positive = data[1] < 0 ? false : true;
+
+	obj.name = data[0];
+	obj.y = value;
+	obj.positive = positive;
+
+	return obj;
+}
+
 $(document).ready(function() {
 
 	function userPermissions(option)

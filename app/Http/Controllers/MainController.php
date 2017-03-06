@@ -120,7 +120,6 @@ class MainController extends Controller
 
 	    # key performance indicators in point
 	    foreach($points as $row):
-	    	$i++;
 	    	$sumAllPointOrders = Orders::where('points_id', $row->id)->sum('sum');
 	    	$sumAllPointCosts = Costs::where('points_id', $row->id)->sum('sum');
 
@@ -132,11 +131,11 @@ class MainController extends Controller
 
 	    	$sumAllPointItemsQuantity = Stock::where('points_id', $row->id)->sum('items_quantity');
 
-	    	$sumAllKeyPoint[$row->point]['orders'] = $sumAllPointOrders;
-	    	$sumAllKeyPoint[$row->point]['costs']  = $sumAllPointCosts;
-	    	$sumAllKeyPoint[$row->point]['supply'] = Supply::where('points_id', $row->id)->sum('sum');
-	    	$sumAllKeyPoint[$row->point]['stock']  = $sumAllPointItemsPrice * $sumAllPointItemsQuantity;
-	    	$sumAllKeyPoint[$row->point]['profit'] = $sumAllPointOrders - $sumAllPointCosts;    	
+	    	$sumAllKeyPoint[$row->id]['orders'] = $sumAllPointOrders;
+	    	$sumAllKeyPoint[$row->id]['costs']  = $sumAllPointCosts;
+	    	$sumAllKeyPoint[$row->id]['supply'] = Supply::where('points_id', $row->id)->sum('sum');
+	    	$sumAllKeyPoint[$row->id]['stock']  = $sumAllPointItemsPrice * $sumAllPointItemsQuantity;
+	    	$sumAllKeyPoint[$row->id]['profit'] = $sumAllPointOrders - $sumAllPointCosts;    	
 	    endforeach;
 
 	    # week sum 30 days
