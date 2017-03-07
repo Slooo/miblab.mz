@@ -82,9 +82,3 @@ $(document).ready(function(){
 </div>
 
 @stop
-
-@section('script')
-	<script>
-		CashierPageLoad();
-	</script>
-@stop

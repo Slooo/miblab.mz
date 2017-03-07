@@ -28,8 +28,6 @@
 		<div id="js--hc-sumMonthPoint"></div>
 		<hr>
 		<div id="js--hc-sumWeek"></div>
-		<hr>
-
 	</div>
 
 	<div class="col-md-12 col-footer">
@@ -79,7 +77,7 @@
 
 @foreach($sumAllKeyPoint as $key => $row)
 <script>
-	$('.col-body').append('<div class="hc-line" id="js--hc-sumAllKeyPoint_{{ $key }}"></div>');
+	$('#js--hc-sumAllKey').after('<div class="hc-line" id="js--hc-sumAllKeyPoint_{{ $key }}"></div>');
 
 	sumAllKeyPoint.push(graphParseData(['Прибыль', {{ $row['profit'] }}], false));
 	sumAllKeyPoint.push(graphParseData(['Продажи', {{ $row['orders'] }}], false));
@@ -106,6 +104,7 @@
 @endforeach
 
 <script>
+	$('#js--hc-sumAllKey').after('<hr>');
 	sum30DaysSO.push(['Закупка за 30 дней', {{ $sum30DaysSupply = empty($sum30DaysSupply) ? 0 : $sum30DaysSupply }}]);
 	sum30DaysSO.push(['Реализация за 30 дней', {{ $sum30DaysOrders = empty($sum30DaysOrders) ? 0 : $sum30DaysOrders }}]);
 

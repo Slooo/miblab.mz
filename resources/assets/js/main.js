@@ -8,189 +8,6 @@
 	This global functions of the entire project
 */
 
-// cashier
-function CashierPageLoad()
-{
-	if(localStorage.getItem('order-table') == null)
-	{
-		$('.order').addClass('hidden');
-		$('#js-item--search').val('').focus();
-	} else {
-		// запрос на скидки
-		OrderTotalSum();
-		OrderButtonActive($('.js-order--type').eq(localStorage['order-type-index']));
-		OrderButtonActive($('.js-order--discount').eq(localStorage['order-discount-index']));
-		$('.order-table').removeClass('hidden').html(localStorage.getItem('order-table'));
-	}
-}
-
-// clear order
-function OrderClear()
-{
-	localStorage.clear();
-	$('.order-table table tbody').html('');
-	$('.js-order--type').removeClass('active');
-	CashierPageLoad();
-}
-
-// push item
-function OrderItemAdd(data)
-{
-	var json, items;
-	if(localStorage.getItem('items') == null)
-	{
-		json = {};
-		items = [];
-		json.items = items;
-		json.items.push(data);
-		json.totalSum = data.price * data.quantity;
-		json.discount = false;
-		localStorage.setItem('items', JSON.stringify(json));
-	} else {
-		json = JSON.parse(localStorage.getItem('items'));
-		json.items.push(data);
-		localStorage.setItem('items', JSON.stringify(json));
-	}
-
-	OrderTotalSum();
-}
-
-// update order
-function OrderUpdate(here)
-{
-	var parents, item, placeholder, price, quantity, sum;
-
-	parents 	= here.parents('tr');
-	item 	 	= parents.data('item');
-	placeholder = here.attr('placeholder');
-	value 		= Number(here.val());
-
-	// return before value
-	if(value.length == 0)
-	{
-		if(placeholder.length > 0)
-		{
-			here.val(placeholder);
-		} else {
-			here.val(1);
-		}
-	}
-
-	// if 0 return 1
-	if(value == 0)
-	{
-		here.val(1);
-	}
-
-	// if here = price
-	if(here.parent('td').hasClass('js-order--update-price'))
-	{
-		price = value;
-		quantity = Number(parents.find('.js-order--update-quantity').text());
-	}
-
-	// if here = quantity
-	if(here.parent('td').hasClass('js-order--update-quantity'))
-	{
-		price = Number(parents.find('.js-order--update-price').text());
-		quantity = value;
-	}
-
-	// update item
-	OrderItemUpdate(here, item, price, quantity);
-}
-
-// order total sum
-function OrderTotalSum()
-{
-	json = JSON.parse(localStorage.getItem('items'));
-	totalSum = json.items.reduce(function(sum, current) {
-		return sum + current.sum;
-	}, 0);
-
-	json.totalSum = totalSum;
-	localStorage.setItem('items', JSON.stringify(json));
-	$('#order-sum').html(totalSum);
-}
-
-// update item
-function OrderItemUpdate(here, item, price, quantity)
-{
-	var json, sum, product;
-
-	json = JSON.parse(localStorage.getItem('items'));
-
-	// qty in stock
-	max_qty = json.items[item].stock;
-
-	// check quantity update with max qty in stock
-	qty = (quantity <= max_qty ? quantity : max_qty);
-
-	sum = price * qty;
-
-	// set item
-	json.items[item].price = price;
-	json.items[item].quantity = qty;
-	json.items[item].sum = sum;
-
-	// save items
-	localStorage.setItem('items', JSON.stringify(json));
-
-	OrderTotalSum();
-	
-	// save item
-	product = $('*[data-item="'+item+'"]');
-	product.find('.js-order--sum').html(sum);
-
-	// save all
-	localStorage.setItem('order-table', $('.order-table').html());
-
-	// return value input
-	if(here && here.parent('td').hasClass('js-order--update-price'))
-	{
-		here.parent('td').html(price);		
-	}
-
-	if(here && here.parent('td').hasClass('js-order--update-quantity'))
-	{
-		here.parent('td').html(qty);		
-	}
-}
-
-// order items paste in html
-function OrderItemPaste(json)
-{
-	var html, item, id, price, quantity, data;
-
-	item = $('.order-table tbody tr').length;
-
-	html += '<tr data-item="'+item+'" data-id="'+json.id+'">';
-	html += '<td>'+json.barcode+'</td>';
-	html += '<td>'+json.name+'</td>';
-	html += '<td class="js-order--update js-order--update-price">'+json.price+'</td>';
-	html += '<td class="js-order--update js-order--update-quantity">1</td>';
-	html += '<td class="js-order--sum">'+json.price+'</td>';
-	html += '<td><button type="button" class="btn btn-xs btn-danger js-order--remove"><i class="fa fa-remove"></i></button></td>';
-	html += '</tr>';
-
-	// save object in localStorage
-	data = {
-		id 		 : json.id,
-		item	 : item,
-		barcode  : json.barcode,
-		price    : Number(json.price),
-		quantity : 1,
-		sum 	 : Number(json.price),
-		stock 	 : Number(json.stock),
-	}
-
-	OrderItemAdd(data);
-
-	$('.order-table table tbody').append(html);
-	localStorage.setItem('order-table', $('.order-table').html());
-	CashierPageLoad();
-}
-
 // remove dublicate qty stock
 function removeDuplicates(arr, prop) {
 	var new_arr = [];
@@ -218,7 +35,7 @@ function functiontofindIndexByKeyValue(arraytosearch, key, valuetosearch) {
 }
 
 // active button
-function OrderButtonActive(index) 
+function orderButtonActive(index) 
 {
 	var btn = index.siblings();
 
@@ -227,6 +44,33 @@ function OrderButtonActive(index)
 	});
 
 	index.addClass('active');
+}
+
+function Answer(type, message)
+{
+	switch(type)
+	{
+		case 'success':
+			$('#js-modal--create').modal('hide');
+			$('#alert').removeClass().addClass('alert alert-success').html(message);		
+		break;
+
+		case 'error':
+			$('#js-modal--create').modal('hide');
+			$('#alert').removeClass().addClass('alert alert-danger').html('Ошибка запроса');	
+		break;
+
+		case 'info':
+			$('#js-modal--create').modal('hide');
+			$('#js-modal--delete').modal('hide');
+			$('#alert').removeClass().addClass('alert alert-info').html(message);	
+		break;
+
+		case 'warning':
+			$('#js-modal--create').modal('hide');
+			$('#alert').removeClass().addClass('alert alert-warning').html(message);	
+		break;
+	}
 }
 
 // loader start
@@ -241,35 +85,6 @@ function LoaderStop()
 {
 	$('.loader').remove();
 	//$('#js-modal--create').modal('hide');
-}
-
-// answer success
-function AnswerSuccess(answer)
-{
-	$('#js-modal--create').modal('hide');
-	$('#alert').removeClass().addClass('alert alert-success').html(answer);		
-}
-
-// answer error
-function AnswerError()
-{
-	$('#js-modal--create').modal('hide');
-	$('#alert').removeClass().addClass('alert alert-danger').html('Ошибка запроса');	
-}
-
-// answer info
-function AnswerInfo(answer)
-{
-	$('#js-modal--create').modal('hide');
-	$('#js-modal--delete').modal('hide');
-	$('#alert').removeClass().addClass('alert alert-info').html(answer);	
-}
-
-// answer warning
-function AnswerWarning(answer)
-{
-	$('#js-modal--create').modal('hide');
-	$('#alert').removeClass().addClass('alert alert-warning').html(answer);	
 }
 
 // number format
@@ -313,7 +128,7 @@ $('.modal').modal({
 
 /**
  * Parse data in graphic
- * @return data - obj in push
+ * @return data
  */
 function graphParseData(data, type)
 {
@@ -340,10 +155,9 @@ function graphParseData(data, type)
 		break;
 
 		default:
+			return false;
 		break;
 	}
-
-	return true;
 }
 
 $(document).ready(function() {
@@ -430,6 +244,8 @@ $(document).ready(function() {
 		html += '</li>';
 
 		$('ul.nav.navbar-nav.navbar-right').append(html);
+
+		if(option) {
 
 		var param = []; checkOption = [];
 
@@ -527,6 +343,7 @@ $(document).ready(function() {
 				break;
 			}
 		});
+		}
 	}
 
 	/**
@@ -541,11 +358,13 @@ $(document).ready(function() {
 			case 1:
 				switch(segment2)
 				{
-					case 'orders':
+					case 'orders':					
 						if(segment3.length == 0)
 						{
 							userLinks(['date-range', 'create']);
 						}
+
+					cashierPageLoad();
 					break;
 
 					default:
@@ -558,6 +377,10 @@ $(document).ready(function() {
 			case 2:
 				switch(segment2)
 				{
+					case 'items':
+						userLinks();
+					break;
+
 					case 'analytics':
 						userLinks(['analyzes', 'graphics']);
 					break;
@@ -577,9 +400,11 @@ $(document).ready(function() {
 					break;
 
 					case 'costs':
-						if(segment3.length == 0)
+						if(segment3.length > 0)
 						{
 							userLinks(['date-range']);
+						} else {
+							userLinks();
 						}
 					break;
 
@@ -673,7 +498,7 @@ $(document).ready(function() {
 		}
 	}
 
-	if(typeof userOptions !== undefined)
+	if(typeof(userOptions) !== 'undefined')
 	{
 		userAccess();		
 	}
@@ -781,12 +606,12 @@ $(document).ready(function() {
 					$('.table tbody tr').removeClass().first().addClass('success');
 				}
 
-				AnswerInfo(json.message);
+				Answer('info', json.message);
 				totalSumAndDiscount();
 	    	break;
 
 			default:
-				AnswerError();
+				Answer('error');
 			break;
 		}
 
@@ -808,7 +633,7 @@ $(document).ready(function() {
 				$('.table tbody tr').removeClass();
 				here.parents('tr').addClass('warning');
 
-				AnswerWarning(json.message.value);
+				Answer('warning', json.message.value);
 			break;
 
 			// success
@@ -822,7 +647,7 @@ $(document).ready(function() {
 				here.parents('tr').addClass('info');
 				totalSumAndDiscount(json.data);
 
-				AnswerInfo(json.message);
+				Answer('info', json.message);
 			break;
 		}
 
@@ -838,7 +663,7 @@ $(document).ready(function() {
 		{
 			// error validation
 			case 422:
-				AnswerError();
+				Answer('error');
 			break;
 
 			// redirect
@@ -849,7 +674,7 @@ $(document).ready(function() {
 			// success
 			case 200:
 				//AnswerDanger(json.data.id);
-				AnswerInfo(json.message);
+				Answer('info', json.message);
 				line.remove();
 				totalSumAndDiscount();
 			break;
@@ -859,7 +684,7 @@ $(document).ready(function() {
 			break;
 
 			default:
-				AnswerError();
+				Answer('error');
 			break;
 		}
 
@@ -958,7 +783,7 @@ $(document).ready(function() {
 		    },
 
 		    error: function(answer) {
-		    	AnswerError();
+		    	Answer('error');
 		    }
 
 		}).complete(function() {
