@@ -17,7 +17,7 @@ function cashierPageLoad()
 	} else {
 		orderTotalSum();
 		orderButtonActive($('.js-order--type').eq(localStorage['order-type-index']));
-		orderButtonActive($('.js-order--discount').eq(localStorage['order-discount-index']));
+		orderDiscount();
 		$('.order-table').removeClass('hidden').html(localStorage.getItem('order-table'));
 	}
 }
@@ -185,22 +185,37 @@ function orderTotalSum()
 		return sum + current.sum;
 	}, 0);
 
+	// если есть скидка 5%
+	if(json.discount === true)
+	{
+		totalSum = totalSum - (totalSum / 20);
+	}
+
 	json.totalSum = totalSum;
+
 	localStorage.setItem('items', JSON.stringify(json));
 	$('#order-sum').html(totalSum);
-
-	if(orderDiscount() === true)
-	{
-		console.log('totalSum', totalSum / (5/100));
-	}
 }
 
 // discount
 function orderDiscount()
 {
-	var discount = localStorage.getItem('order-discount-index');
-	console.log(discount);
-	return discount;
+	var json = JSON.parse(localStorage.getItem('items'));
+	var btn = $('#js-order--discount');
+	var discount = localStorage.getItem('orderDiscount');		
+
+	if(discount === 'true')
+	{
+		json.discount = true;
+		btn.addClass('active');
+	} else {
+		json.discount = false;
+		btn.removeClass('active');
+	}
+
+	localStorage.setItem('orderDiscount', json.discount);
+	localStorage.setItem('items', JSON.stringify(json));
+	orderTotalSum();
 }
 
 // order items paste in html
@@ -248,7 +263,6 @@ function ordersPage()
 // create order and supply
 $('body').on('click', '#js-orders-supply--create', function(e){
 	e.preventDefault();
-	console.log('ok');
 
 	var json, sum, sumDiscount, type, discount, counterparty, items, data;
 
@@ -307,28 +321,14 @@ $('body').on('click', '.js-order--type', function(e){
 	orderButtonActive(btn);
 });
 
+
+
 // discount order
-$('body').on('click', '.js-order--discount', function(e){
-
-	var btn, json;
-
-	btn = $(this);
-	json = JSON.parse(localStorage.getItem('items'));
-
-	if(btn.hasClass('active'))
-	{
-		btn.removeClass('active');
-		json.discount = false;
-		localStore.removeItem('order-discount-index');
-	} else {
-		btn.addClass('active');
-		json.discount = true;
-		localStorage.setItem('order-discount-index') = btn.index();
-	}
-
-	localStorage.setItem('items', JSON.stringify(json));
-	console.log('discount', json.discount);
-	console.log(localStore.getItem('order-discount-index'));
+$('body').on('click', '#js-order--discount', function(e){
+	var getDiscount = localStorage.getItem('orderDiscount');		
+	var setDiscount = getDiscount === 'true' ? 'false' : 'true';
+	localStorage.setItem('orderDiscount', setDiscount);
+	orderDiscount();
 });
 
 // counterparty

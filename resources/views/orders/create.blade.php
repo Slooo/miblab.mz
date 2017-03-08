@@ -50,7 +50,7 @@ $(document).ready(function(){
 		<div class="col-md-12">
 		<hr>
 			<div class="btn-group">
-				<button class="btn btn-default js-order--discount">Скидка 5%</button>
+				<button class="btn btn-default" id="js-order--discount">Скидка 5%</button>
 			</div>
 		</div>
 		@endif
