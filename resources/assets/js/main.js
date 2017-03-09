@@ -83,6 +83,7 @@ function LoaderStart()
 // loader stop
 function LoaderStop()
 {
+	$('#alert').removeClass().html('');
 	$('.loader').remove();
 	//$('#js-modal--create').modal('hide');
 }
@@ -532,6 +533,45 @@ $(document).ready(function() {
 
 			$('.totalSumDiscount').html('Итого со скидкой ' + number_format(totalSumDiscount, 0, ' ', ' ') + ' &#8381;');
 		}
+	}
+
+	// check search
+	function validationInputs(answer)
+	{
+		var json = JSON.parse(answer.responseText);
+
+		console.log('status', json);
+		switch(answer.status)
+		{
+			case 422:
+				Answer('warning', '<button id="js-item--barcode-create" class="btn btn-danger">Отправить штрихкод</button>');
+			break;
+
+			case 200:
+				$('.order').removeClass('hidden');
+				orderItemPaste(json.data);
+			break;
+
+			case 201:
+				var parents, qty, price, quantity, here;
+				$('table tr').removeClass('info');
+
+				parents  = $('*[data-item="'+json.data+'"]').addClass('info');
+				qty 	 = parents.find('.js-order--update-quantity');
+				price 	 = Number(parents.find('.js-order--update-price').html());
+				quantity = Number(qty.html()) + 1;
+				here 	 = qty.html(quantity);
+
+				orderItemUpdate(here, json.data, price, quantity);
+			break;
+
+			default:
+				Answer('error');
+			break;
+		}
+
+		$('#js-items--search').val('');
+		LoaderStop();
 	}
 
 	// check create

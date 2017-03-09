@@ -35,13 +35,13 @@ elixir(function(mix) {
 
 	// скрипты
 	.scripts([
+		'main.js',
 		'analytics.js',
 		'items.js',
 		'orders.js',
 		'supply.js',
 		'costs.js',
 		'discounts.js',
-		'main.js',
 		'settings.js',
 	], 'public/js/app.js')
 

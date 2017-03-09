@@ -38,22 +38,20 @@ class ItemsController extends Controller
         # this cashier
         #} else {
         #}
-
+        $data = [];
         $item = Items::where('barcode', $request->barcode)->where('status', 1)->first();
-
         if(count($item) > 0)
         {
             $stock = Stock::select('items_quantity')->where('items_id', $item->id)->first();
             if(count($stock) > 0)
             {
-                $status = 1;
+                $status = 200;
                 $message = 'Товар найден';
                 $data = $item;
                 $data['stock'] = $stock->items_quantity;
             } else {
-                $status = 0;
+                $status = 422;
                 $message = 'Товар отсутствует на складе';
-                $data = [];
             }
 
             // check barcode dublicate
@@ -64,7 +62,7 @@ class ItemsController extends Controller
                 {
                     if($value->id == $item->id)
                     {
-                        $status = 0;
+                        $status = 201;
                         $message = 'Товар уже есть в списке';
                         $data = $value->item;
                     }
@@ -72,12 +70,11 @@ class ItemsController extends Controller
             }
 
         } else {
-            $status = 2;
-            $message = 'Товар не найден';
+            $status = 422;
+            $message = 'Товар не найден '.$item;
         }
 
-        // после orders create очистить сессию
-        return response()->json(['status' => $status, 'message' => $message, 'data' => $data]);
+        return response()->json(['data' => $data, 'message' => $message], $status);      
    	}
 
     # get max quantity

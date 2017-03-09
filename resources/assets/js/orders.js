@@ -135,7 +135,7 @@ function orderItemDelete(here)
 // update order
 function orderUpdate(here)
 {
-	var parents, item, placeholder, price, quantity, sum;
+	var parents, item, placeholder, value, price, quantity;
 
 	parents 	= here.parents('tr');
 	item 	 	= parents.data('item');
@@ -274,8 +274,6 @@ $('body').on('click', '#js-orders-supply--create', function(e){
 	items = JSON.stringify(json.items);
 	data  = {'totalSum' : totalSum, 'type' : type, 'discount': discount, 'counterparty' : counterparty, 'items' : items};
 	
-	//url = (url != 'supply' ? 'orders' : 'supply');
-
 	$.ajax({
 		url 	 : base_url + '/' + segment1 + '/' + segment2,
 		type 	 : 'post',
@@ -341,76 +339,37 @@ $('body').on('change', '.js-supply--counterparty', function(e){
 	json.counterparty = here;
 	localStorage.setItem('items', JSON.stringify(json));
 });
-
-var timer;
-   $('#some_id').keyup(function () {
-       window.clearTimeout(timer);
-       if ($('#some_id').val().length > 2) {
-           timer = setTimeout(function () {
-               // тут ajax запрос
-           }, 1000);
-       }
-   });
-
-
+  
 // search item
 $('#js-items--search').keyup(function(e){
 	e.preventDefault();
 
 	var barcode, items, data, json, quantity, unique;
 
-	window.clearTimeout(timer);
-
 	barcode = $(this).val();
+
+	// сделать здесь проверку по штрихкоду в объекте и просто его не отправлять
 
 	items = localStorage.getItem('items');
 	data = {'barcode':barcode, 'items':items};
 
-	if(barcode.length > 10)
+	if(barcode.length == 13)
 	{
-		setTimeout(function(){ 
-			$.ajax({
-				url 	 : base_url + '/' + segment1 + '/' + 'items/search',
-				type 	 : 'patch',
-				dataType : 'json',
-				data 	 : data,
+		$.ajax({
+			url 	 : base_url + '/' + segment1 + '/' + 'items/search',
+			type 	 : 'patch',
+			dataType : 'json',
+			data 	 : data,
 
-				beforeSend: function(){
-			        LoaderStart();
-			    },
+	    	beforeSend: function(){
+	            LoaderStart();
+	        },
 
-				success: function(answer) {
-					if(answer.status == 2)
-					{
-						Answer('warning', '<button id="js-item--barcode-create" class="btn btn-danger">Отправить штрихкод</button>');
-					}
+	        complete: function(answer, xhr, settings){
+	        	validationInputs(answer);
+	        }
 
-					if(answer.status == 1)
-					{
-						$('.order').removeClass('hidden');
-						$('#alert').removeClass().html('');
-
-						json = JSON.parse(JSON.stringify(answer.data));
-						orderItemPaste(json);
-					}
-
-					if(answer.status == 0)
-					{
-						Answer('warning', answer.message);
-						$('table tr').removeClass('info');
-						var parents = $('*[data-item="'+answer.data+'"]').addClass('info');
-						parents.find('.js-order--update-quantity').html(quantity);
-					}
-			    },
-
-			    error: function(answer) {
-			    	Answer('error');
-			    }
-
-			}).complete(function() {
-					LoaderStop();
-				});
-		}, 2000);
+		});
 	}
 });
 
