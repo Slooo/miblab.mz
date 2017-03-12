@@ -34,20 +34,9 @@ function functiontofindIndexByKeyValue(arraytosearch, key, valuetosearch) {
 	return 'z';
 }
 
-// active button
-function orderButtonActive(index) 
-{
-	var btn = index.siblings();
-
-	btn.each(function(){
-	  $(this).removeClass('active');
-	});
-
-	index.addClass('active');
-}
-
 function Answer(type, message)
 {
+	$('#alert').removeClass().html('');
 	switch(type)
 	{
 		case 'success':
@@ -83,7 +72,7 @@ function LoaderStart()
 // loader stop
 function LoaderStop()
 {
-	$('#alert').removeClass().html('');
+	//$('#alert').removeClass().html('');
 	$('.loader').remove();
 	//$('#js-modal--create').modal('hide');
 }
@@ -363,9 +352,15 @@ $(document).ready(function() {
 						if(segment3.length == 0)
 						{
 							userLinks(['date-range', 'create']);
+						} else {
+							userLinks();
 						}
 
 					cashierPageLoad();
+					break;
+
+					case 'items':
+						userLinks();
 					break;
 
 					default:
@@ -435,10 +430,14 @@ $(document).ready(function() {
 					case 'supply':
 						if(segment3.length == 0)
 						{
-							userLinks(['date-range', 'create']);							
+							userLinks(['date-range', 'create']);	
+							userPermissions(['update', 'delete']);						
 						}
 
-						userPermissions(['update', 'delete']);
+						if(segment3 == 'create')
+						{
+							cashierPageLoad();
+						}
 					break;
 
 					case 'costs':
@@ -539,30 +538,15 @@ $(document).ready(function() {
 	function validationInputs(answer)
 	{
 		var json = JSON.parse(answer.responseText);
-
-		console.log('status', json);
 		switch(answer.status)
 		{
 			case 422:
-				Answer('warning', '<button id="js-item--barcode-create" class="btn btn-danger">Отправить штрихкод</button>');
+				Answer('warning', '<button id="js-items--barcode-create" data-barcode="'+$('#js-items--search').val()+'" class="btn btn-danger">Отправить штрихкод</button>');
 			break;
 
 			case 200:
 				$('.order').removeClass('hidden');
 				orderItemPaste(json.data);
-			break;
-
-			case 201:
-				var parents, qty, price, quantity, here;
-				$('table tr').removeClass('info');
-
-				parents  = $('*[data-item="'+json.data+'"]').addClass('info');
-				qty 	 = parents.find('.js-order--update-quantity');
-				price 	 = Number(parents.find('.js-order--update-price').html());
-				quantity = Number(qty.html()) + 1;
-				here 	 = qty.html(quantity);
-
-				orderItemUpdate(here, json.data, price, quantity);
 			break;
 
 			default:
@@ -572,6 +556,45 @@ $(document).ready(function() {
 
 		$('#js-items--search').val('');
 		LoaderStop();
+	}
+
+	function validationInputsOrderSupplyCreate(answer)
+	{
+		var json = JSON.parse(answer.responseText);
+		switch(answer.status)
+		{
+			case 422:
+				Answer('error');
+			break;
+
+			case 200:
+				orderClear();
+				Answer('success', '<a href="'+base_url + '/' + segment1 + '/' + segment2 + '/' + json.message +'">Оформлен заказ #'+json.message+'</a>');
+			break;
+
+			default:
+				Answer('error');
+			break;
+		}
+	}
+
+	function validationInputsBarcode(answer)
+	{
+		var json = JSON.parse(answer.responseText);
+		switch(answer.status)
+		{
+			case 422:
+				Answer('error');
+			break;
+
+			case 200:
+				Answer('success', json.message);
+			break;
+
+			default:
+				Answer('error');
+			break;
+		}
 	}
 
 	// check create

@@ -98,7 +98,7 @@ class SupplyController extends Controller
             }
         }
         
-        return response()->json(['status' => 1, 'message' => $supply->id]);
+        return response()->json(['message' => $supply->id], 200);
     }
 
     # get one supply

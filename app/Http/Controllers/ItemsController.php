@@ -38,43 +38,34 @@ class ItemsController extends Controller
         # this cashier
         #} else {
         #}
+        #
+
         $data = [];
         $item = Items::where('barcode', $request->barcode)->where('status', 1)->first();
-        if(count($item) > 0)
+
+        if($request->segment == 'orders')
         {
-            $stock = Stock::select('items_quantity')->where('items_id', $item->id)->first();
-            if(count($stock) > 0)
+            if(count($item) > 0)
             {
-                $status = 200;
-                $message = 'Товар найден';
-                $data = $item;
-                $data['stock'] = $stock->items_quantity;
+                $stock = Stock::select('items_quantity')->where('items_id', $item->id)->first();
+                if(count($stock) > 0)
+                {
+                    $status = 200;
+                    $data = $item;
+                    $data['stock'] = $stock->items_quantity;
+                } else {
+                    $status = 422;
+                }
             } else {
                 $status = 422;
-                $message = 'Товар отсутствует на складе';
             }
-
-            // check barcode dublicate
-            if($request->items)
-            {
-                $json = json_decode($request->items);
-                foreach ($json->items as $value) 
-                {
-                    if($value->id == $item->id)
-                    {
-                        $status = 201;
-                        $message = 'Товар уже есть в списке';
-                        $data = $value->item;
-                    }
-                }
-            }
-
         } else {
-            $status = 422;
-            $message = 'Товар не найден '.$item;
+            $status = 200;
+            $data = $item;
+            $data['stock'] = 999;
         }
 
-        return response()->json(['data' => $data, 'message' => $message], $status);      
+        return response()->json(['data' => $data], $status);      
    	}
 
     # get max quantity
@@ -94,7 +85,7 @@ class ItemsController extends Controller
             return response()->json(['status' => 0, 'message' => 'Штрихкод существует']);
         } else {
             Items::create(['barcode' => $request->barcode, 'status' => 0]);
-            return response()->json(['status' => 1, 'message' => 'Штрихкод отправлен']);
+            return response()->json(['message' => 'Штрихкод отправлен'], 200);
         }
     }
 

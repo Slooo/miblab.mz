@@ -119,7 +119,7 @@ class OrdersController extends Controller
 		    endforeach;
 		}
 
-		return response()->json(['status' => 1, 'message' => $order->id]);
+		return response()->json(['message' => $order->id], 200);
 	}
 
     public function update(Request $request, $id)

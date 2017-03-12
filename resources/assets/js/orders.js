@@ -15,9 +15,9 @@ function cashierPageLoad()
 		$('.order').addClass('hidden');
 		$('#js-item--search').val('').focus();
 	} else {
-		orderTotalSum();
-		orderButtonActive($('.js-order--type').eq(localStorage['order-type-index']));
+		orderType();
 		orderDiscount();
+		orderTotalSum();
 		$('.order-table').removeClass('hidden').html(localStorage.getItem('order-table'));
 	}
 }
@@ -180,21 +180,30 @@ function orderUpdate(here)
 // order total sum
 function orderTotalSum()
 {
+	var json, totalSum;
+
 	json = JSON.parse(localStorage.getItem('items'));
 	totalSum = json.items.reduce(function(sum, current) {
 		return sum + current.sum;
 	}, 0);
 
-	// если есть скидка 5%
-	if(json.discount === true)
-	{
-		totalSum = totalSum - (totalSum / 20);
-	}
-
 	json.totalSum = totalSum;
 
 	localStorage.setItem('items', JSON.stringify(json));
 	$('#order-sum').html(totalSum);
+}
+
+// active button
+function orderType() 
+{
+	var index = $('.js-order--type').eq(localStorage['order-type-index']);
+	var btn = index.siblings();
+
+	btn.each(function(){
+	  $(this).removeClass('active');
+	});
+
+	index.addClass('active');
 }
 
 // discount
@@ -252,27 +261,54 @@ function orderItemPaste(json)
 	cashierPageLoad();
 }
 
-/**
- * Функция рисовки страницы orders
- */
-function ordersPage()
+// check add to search barcode
+function orderCheckItems(barcode)
 {
-	
+	var json = JSON.parse(localStorage.getItem('items')),
+		answer;
+
+	if(json !== null)
+	{
+		$.each(json.items, function(i,v){
+			if(v.barcode === barcode)
+			{
+				var parents, qty, price, quantity, here;
+
+				parents  = $('*[data-item="'+v.item+'"]');
+				qty 	 = parents.find('.js-order--update-quantity');
+				price 	 = Number(parents.find('.js-order--update-price').html());
+				quantity = Number(qty.html()) + 1;
+				here 	 = qty.html(quantity);
+
+				orderItemUpdate(here, v.item, price, quantity);
+				$('#js-items--search').val('');
+
+				answer = false;
+				return false;
+			} else {
+				answer = true;
+			}
+		});		
+	} else {
+		answer = true;
+	}
+
+	return answer;
 }
 
 // create order and supply
 $('body').on('click', '#js-orders-supply--create', function(e){
 	e.preventDefault();
 
-	var json, sum, sumDiscount, type, discount, counterparty, items, data;
+	var json, totalSum, type, discount, counterparty, items, data;
 
-	json  = JSON.parse(localStorage.getItem('items'));
-	totalSum = json.totalSum;
-	type  = json.type;
-	discount = json.discount;
+	json  		 = JSON.parse(localStorage.getItem('items'));
+	totalSum 	 = json.totalSum;
+	type  		 = json.type;
+	discount 	 = json.discount;
 	counterparty = json.counterparty;
-	items = JSON.stringify(json.items);
-	data  = {'totalSum' : totalSum, 'type' : type, 'discount': discount, 'counterparty' : counterparty, 'items' : items};
+	items 		 = JSON.stringify(json.items);
+	data  		 = {'segment' : segment2, 'totalSum' : totalSum, 'type' : type, 'discount': discount, 'counterparty' : counterparty, 'items' : items};
 	
 	$.ajax({
 		url 	 : base_url + '/' + segment1 + '/' + segment2,
@@ -280,25 +316,11 @@ $('body').on('click', '#js-orders-supply--create', function(e){
 		dataType : 'json',
 		data  	 : data,
 
-		beforeSend: function(){
-	        LoaderStart();
-	    },
+	    complete: function(answer, xhr, settings){
+	    	validationInputsOrderSupplyCreate(answer);
+	    }
 
-		success: function(answer) {
-			if(answer.status == 1)
-			{
-				orderClear();
-				Answer('success', '<a href="'+base_url + '/' + segment1 + '/' + segment2 + '/' + answer.message +'">Создано</a>');
-			}
-	    },
-
-	    error: function(answer) {
-	    	Answer('error');
-		}
-
-	}).complete(function() {
-	        LoaderStop();
-		});
+	});
 });
 
 // type order
@@ -316,10 +338,8 @@ $('body').on('click', '.js-order--type', function(e){
 	json = JSON.parse(localStorage.getItem('items'));
 	json.type = type;
 	localStorage.setItem('items', JSON.stringify(json));
-	orderButtonActive(btn);
+	orderType(btn);
 });
-
-
 
 // discount order
 $('body').on('click', '#js-order--discount', function(e){
@@ -344,26 +364,15 @@ $('body').on('change', '.js-supply--counterparty', function(e){
 $('#js-items--search').keyup(function(e){
 	e.preventDefault();
 
-	var barcode, items, data, json, quantity, unique;
+	var barcode = $(this).val();
 
-	barcode = $(this).val();
-
-	// сделать здесь проверку по штрихкоду в объекте и просто его не отправлять
-
-	items = localStorage.getItem('items');
-	data = {'barcode':barcode, 'items':items};
-
-	if(barcode.length == 13)
+	if(barcode.length == 13 && orderCheckItems(barcode) === true)
 	{
 		$.ajax({
 			url 	 : base_url + '/' + segment1 + '/' + 'items/search',
 			type 	 : 'patch',
 			dataType : 'json',
-			data 	 : data,
-
-	    	beforeSend: function(){
-	            LoaderStart();
-	        },
+			data 	 : {'barcode':barcode},
 
 	        complete: function(answer, xhr, settings){
 	        	validationInputs(answer);
@@ -402,13 +411,13 @@ $('body').on("click", ".js-order--delete", function(){
 });
 
 // create new item (cashier -> admin)
-$('body').on('click', '#js-item--barcode-create', function(e){
+$('body').on('click', '#js-items--barcode-create', function(e){
 	e.preventDefault();
 
 	var barcode, data;
 	
-	barcode = $('#js--item-search').val();
-	data  	= {'barcode':barcode}
+	barcode = $(this).data('barcode');
+	data  	= {'barcode':barcode};
 
 	$.ajax({
 		url 	 : base_url + '/' + segment1 + '/' + 'items/barcode',
@@ -416,29 +425,10 @@ $('body').on('click', '#js-item--barcode-create', function(e){
 		dataType : 'json',
 		data 	 : data,
 
-		beforeSend: function(){
-	        LoaderStart();
-	    },
+        complete: function(answer, xhr, settings){
+        	validationInputsBarcode(answer);
+        }
 
-		success: function(answer) {
-
-			if(answer.status == 0)
-			{
-				Answer('error');
-			}
-
-			if(answer.status == 1)
-			{
-				Answer('success');
-			}
-
-	    },
-
-	    error: function(answer) {
-	    	Answer('error');
-	    }
-
-	}).complete(function() {
-	        LoaderStop();
-		});
+	});
 });
+
