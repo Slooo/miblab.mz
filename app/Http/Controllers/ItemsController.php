@@ -107,6 +107,10 @@ class ItemsController extends Controller
                 $check = 'required|numeric';
             break;
 
+            case 'name':
+                $check = 'required';
+            break;
+
             default:
                 return false;
             break;
@@ -120,6 +124,7 @@ class ItemsController extends Controller
             $message = $validator->messages();
             $status = 422;
         } else {
+
             $column = $request->column;
             $value = $request->value;
 

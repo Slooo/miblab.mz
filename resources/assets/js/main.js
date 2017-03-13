@@ -8,6 +8,62 @@
 	This global functions of the entire project
 */
 
+// list column type
+function getTypeColumn(column)
+{
+	var type;
+	switch(column)
+	{
+		case 'name':
+			type = 'string';
+		break;
+
+		case 'price':
+		case 'items_price':
+		case 'sum':
+			type = 'numeric';
+		break;
+
+		case 'items_quantity':
+		case 'percent':
+			type = 'integer';
+		break;
+
+		case 'created_at':
+		case 'date':
+			type = 'date';
+		break;
+
+		default:
+			type = 'string';
+		break;
+	}
+
+	return type;
+}
+
+// parse column
+function getValueColumn(type, column)
+{
+	var parse;
+	switch(type)
+	{
+		case 'string':
+			parse = column.toString();
+		break;
+
+		case 'numeric':
+			parse = number_format(column, 0, ' ', ' ');
+		break;
+
+		case 'integer':
+			parse = Number(column);
+		break;
+	}
+
+	return parse;
+}
+
 // remove dublicate qty stock
 function removeDuplicates(arr, prop) {
 	var new_arr = [];
@@ -424,6 +480,7 @@ $(document).ready(function() {
 						{
 							userLinks(['date-range']);
 						}
+
 						userPermissions(['delete']);
 					break;
 
@@ -431,7 +488,9 @@ $(document).ready(function() {
 						if(segment3.length == 0)
 						{
 							userLinks(['date-range', 'create']);	
-							userPermissions(['update', 'delete']);						
+						} else {
+							userLinks();
+							userPermissions(['update', 'delete']);
 						}
 
 						if(segment3 == 'create')
@@ -444,9 +503,15 @@ $(document).ready(function() {
 						if(segment3.length > 0)
 						{
 							userLinks(['date-range', 'create-modal']);
+						} else {
+							userLinks();
 						}
 
 						userPermissions(['update', 'delete']);
+					break;
+
+					case 'discounts':
+						userLinks();
 					break;
 				}
 			break;
@@ -701,10 +766,9 @@ $(document).ready(function() {
 
 			// success
 			case 200:
-				/* проверять какой столбец и к какому типу он относится
-					val = here.parent('td').data('column') == 'int' ? number_format(here.val(), 0, ' ', ' ' : here.val()
-				*/
-				val = number_format(here.val(), 0, ' ', ' ');
+				var type = getTypeColumn(here.parent('td').data('column'));
+				var val = getValueColumn(type, here.val());
+				here.removeAttr('id');
 				here.parent('td').html(val);
 				$('.table tbody tr').removeClass();
 				here.parents('tr').addClass('info');
@@ -882,6 +946,16 @@ $(document).ready(function() {
 		here = $(this);
 		data = here.text();
 
+		// определять к какому типу относится столбец
+		
+		if(here.data('column') == 'name')
+		{
+			here.html('<input type="text" id="js--update" placeholder="'+data+'">');
+			here.find('input').focus();
+		} 
+
+		else 
+
 		// if date
 		if(here.data('column') == 'created_at')
 		{
@@ -910,7 +984,7 @@ $(document).ready(function() {
 
 	// update
 	function update(here){
-		var here, id, line, column, data, json;
+		var here, id, line, column, value, data, json;
 
 		if(here.val() == 0 || here.val().length == 0)
 		{
@@ -920,8 +994,9 @@ $(document).ready(function() {
 			line   = here.parents('tr');
 			id 	   = line.data('id');
 			column = here.parent('td').data('column');
+			value  = here.val();
 			type   = line.parents('tbody').data('type');
-			data   = {"column":column, "value":here.val(), "type":type};
+			data   = {"column":column, "value":value, "type":type};
 
 			$.ajax({
 				url 	 : base_url + '/' + segment1 + '/' + segment2 + '/' + id,

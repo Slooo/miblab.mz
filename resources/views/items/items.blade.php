@@ -63,7 +63,7 @@
 				@foreach($items as $row)
 				<tr data-id="{{ $row->id }}">
 					<td>{{ $row->barcode }}</td>
-					<td>{{ $row->name }}</td>
+					<td data-column="name">{{ $row->name }}</td>
 					<td data-column="price">{{ number_format($row->price, 0, ' ', ' ') }}</td>
 					<td>
 					@if($row->status == 1)
