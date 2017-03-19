@@ -59,6 +59,10 @@ function getValueColumn(type, column)
 		case 'integer':
 			parse = Number(column);
 		break;
+
+		case 'date':
+			parse = column.toString();
+		break;
 	}
 
 	return parse;
@@ -479,6 +483,8 @@ $(document).ready(function() {
 						if(segment3.length == 0)
 						{
 							userLinks(['date-range']);
+						} else {
+							userLinks();
 						}
 
 						userPermissions(['delete']);
@@ -487,7 +493,8 @@ $(document).ready(function() {
 					case 'supply':
 						if(segment3.length == 0)
 						{
-							userLinks(['date-range', 'create']);	
+							userLinks(['date-range', 'create']);
+							userPermissions(['update']);	
 						} else {
 							userLinks();
 							userPermissions(['update', 'delete']);
@@ -599,147 +606,189 @@ $(document).ready(function() {
 		}
 	}
 
-	// check search
-	function validationInputs(answer)
+	// global validation
+	function validationInputs(answer, method, element)
 	{
 		var json = JSON.parse(answer.responseText);
-		switch(answer.status)
+
+		switch(segment2) 
 		{
-			case 422:
-				Answer('warning', '<button id="js-items--barcode-create" data-barcode="'+$('#js-items--search').val()+'" class="btn btn-danger">Отправить штрихкод</button>');
-			break;
-
-			case 200:
-				$('.order').removeClass('hidden');
-				orderItemPaste(json.data);
-			break;
-
-			default:
-				Answer('error');
-			break;
-		}
-
-		$('#js-items--search').val('');
-		LoaderStop();
-	}
-
-	function validationInputsOrderSupplyCreate(answer)
-	{
-		var json = JSON.parse(answer.responseText);
-		switch(answer.status)
-		{
-			case 422:
-				Answer('error');
-			break;
-
-			case 200:
-				orderClear();
-				Answer('success', '<a href="'+base_url + '/' + segment1 + '/' + segment2 + '/' + json.message +'">Оформлен заказ #'+json.message+'</a>');
-			break;
-
-			default:
-				Answer('error');
-			break;
-		}
-	}
-
-	function validationInputsBarcode(answer)
-	{
-		var json = JSON.parse(answer.responseText);
-		switch(answer.status)
-		{
-			case 422:
-				Answer('error');
-			break;
-
-			case 200:
-				Answer('success', json.message);
-			break;
-
-			default:
-				Answer('error');
-			break;
-		}
-	}
-
-	// check create
-	function validationCreate(answer)
-	{
-		var json, keys, input, data;
-		json = JSON.parse(answer.responseText);
-
-		switch(answer.status)
-		{
-			// error validation
-			case 422:
-				keys = Object.keys(json);
-
-				$("form input").each(function(){
-					input = $(this);
-					if(keys.indexOf(input.attr('name')) != -1)
-					{
-						input.addClass('validate-error');
-					} else {
-						input.addClass('validate-success');
-					}
-				});
-			break;
-
-			// success
-			case 200:
-				switch(segment2)
+			case 'items':
+				if(answer.status == 200)
 				{
-					case 'items':
-						json.data.price  = number_format(json.data.price, 0, ' ', ' ');
+					switch(method)
+					{
+						case 'create':
+							json.data.price  = number_format(json.data.price, 0, ' ', ' ');
 
-						html =  '<tr data-id="'+json.data.id+'">'; 
-						html += '<td>'+json.data.barcode+'</td>';
-						html += '<td>'+json.data.name+'</td>';
-						html += '<td class="js--update" data-column="price">'+json.data.price+'</td>';
-						html += '<td><button class="btn btn-circle btn-success js-items--status" data-status="'+json.data.status+'"><i class="fa fa-check"></i></button></td>';
-						html += '<td><button type="button" data-barcode="'+json.data.barcode+'" class="btn btn-circle btn-primary js-items--print-review"><i class="fa fa-print"></i></button></td>';
-						html += '</tr>';
+							html =  '<tr data-id="'+json.data.id+'">'; 
+							html += '<td>'+json.data.barcode+'</td>';
+							html += '<td>'+json.data.name+'</td>';
+							html += '<td class="js--update" data-column="price">'+json.data.price+'</td>';
+							html += '<td><button class="btn btn-circle btn-success js-items--status" data-status="'+json.data.status+'"><i class="fa fa-check"></i></button></td>';
+							html += '<td><button type="button" data-barcode="'+json.data.barcode+'" class="btn btn-circle btn-primary js-items--print-review"><i class="fa fa-print"></i></button></td>';
+							html += '</tr>';
 
-						$('.table tbody').prepend(html);
-					break;
+							$('.table tbody').prepend(html);
+							$('.table tbody tr').removeClass().first().addClass('success');
+							Answer('info', json.message);
+							totalSumAndDiscount();
+						break;
 
-					case 'costs':
-						data = json.data;
-						data.date = moment(json.data.created_at, "YYYY-MM-DD HH:mm:ss").format('DD/MM/YYYY');
-						data.sum  = number_format(json.data.sum, 0, ' ', ' ');
+						case 'update':
 
-						html =  '<tr data-id="'+data.id+'">';
-						html += '<td class="col-md-1">'+data.id+'</td>';
-						html += '<td class="col-md-1">'+data.date+'</td>';
-						html += '<td class="col-md-9 js--totalSum js--update" data-column="sum">'+data.sum+'</td>';
-						html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
-						html += '</tr>';
+						break;
 
-						$('.table tbody').prepend(html);
-					break;
+						case 'delete':
 
-					case 'discounts':
-						json.data.sum  = number_format(json.data.sum, 0, ' ', ' ');
+						break;
 
-						html = '<tr data-id="'+json.data.id+'">';
-						html += '<td class="col-md-1">'+json.data.id+'</td>';
-						html += '<td class="col-md-5 js--update" data-column="sum">'+json.data.sum+'</td>';
-						html += '<td class="col-md-5 js--update" data-column="percent">'+json.data.percent+'</td>';
-						html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-						html += '</tr>';
+						case 'status':
+						var btn = $(this);
+							if(json.data === 1)
+							{
+								btn.removeClass('btn-danger').addClass('btn-success');
+								btn.html('<i class="fa fa-check"></i>');
+								btn.attr('data-status', answer.status);
+							} else {
+								btn.removeClass('btn-success').addClass('btn-danger');
+								btn.html('<i class="fa fa-ban"></i>');
+								btn.attr('data-status', json.data);
+							}
+						break;
 
-						$('.table tbody').prepend(html);
-					break;
-
-					$('.table tbody tr').removeClass().first().addClass('success');
+						default:
+							return false;
+						break;
+					}
 				}
 
-				Answer('info', json.message);
-				totalSumAndDiscount();
-	    	break;
+				else
 
-			default:
-				Answer('error');
+				if(answer.status == 422)
+				{
+					switch(method)
+					{
+						case 'create':
+							keys = Object.keys(json);
+
+							$("form input").each(function(){
+								input = $(this);
+								if(keys.indexOf(input.attr('name')) != -1)
+								{
+									input.addClass('validate-error');
+								} else {
+									input.addClass('validate-success');
+								}
+							});
+						break;
+
+						case 'status':
+							Answer('error');
+						break;
+					}
+				}
+			break;
+
+			case 'supply':
+			case 'orders':
+				if(answer.status == 200)
+				{
+					switch(method)
+					{
+						case 'create':
+							orderClear();
+							Answer('success', '<a href="'+base_url + '/' + segment1 + '/' + segment2 + '/' + json.message +'">Оформлен заказ #'+json.message+'</a>');					
+						break;
+
+						case 'create--barcode':
+							Answer('success', json.message);
+						break;
+
+						case 'search':
+							$('.order').removeClass('hidden');
+							orderItemPaste(json.data);
+							$('#js-items--search').val('');
+						break;
+					}
+				} 
+
+				else 
+
+				if(answer.status == 422)
+				{
+					switch(method)
+					{
+						case 'search':
+							Answer('warning', '<button id="js-items--barcode-create" data-barcode="'+$('#js-items--search').val()+'" class="btn btn-danger">Отправить штрихкод</button>');
+							$('#js-items--search').val('');
+						break;
+					}
+					Answer('error');
+				}
+			break;
+
+			case 'costs':
+				if(answer.status == 200)
+				{
+					switch(method)
+					{
+						case 'create':
+							data = json.data;
+							data.date = moment(json.data.created_at, "YYYY-MM-DD HH:mm:ss").format('DD/MM/YYYY');
+							data.sum  = number_format(json.data.sum, 0, ' ', ' ');
+
+							html =  '<tr data-id="'+data.id+'">';
+							html += '<td class="col-md-1">'+data.id+'</td>';
+							html += '<td class="col-md-1">'+data.date+'</td>';
+							html += '<td class="col-md-9 js--totalSum js--update" data-column="sum">'+data.sum+'</td>';
+							html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
+							html += '</tr>';
+
+							$('.table tbody').prepend(html);
+							$('.table tbody tr').removeClass().first().addClass('success');
+							Answer('info', json.message);
+							totalSumAndDiscount();
+						break;
+					}
+				}
+
+				else
+
+				if(answer.status == 422)
+				{
+					Answer('error');
+				}
+			break;
+
+			case 'discounts':
+				if(answer.status == 200)
+				{
+					switch(method)
+					{
+						case 'create':
+							json.data.sum  = number_format(json.data.sum, 0, ' ', ' ');
+
+							html = '<tr data-id="'+json.data.id+'">';
+							html += '<td class="col-md-1">'+json.data.id+'</td>';
+							html += '<td class="col-md-5 js--update" data-column="sum">'+json.data.sum+'</td>';
+							html += '<td class="col-md-5 js--update" data-column="percent">'+json.data.percent+'</td>';
+							html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
+							html += '</tr>';
+
+							$('.table tbody').prepend(html);
+							$('.table tbody tr').removeClass().first().addClass('success');
+							Answer('info', json.message);
+							totalSumAndDiscount();
+						break;
+
+						case 'update':
+
+						break;
+					}
+				} else {
+
+				}
 			break;
 		}
 
@@ -822,6 +871,12 @@ $(document).ready(function() {
 	$('.datetimepicker').datetimepicker(
 		{locale: 'ru', format: 'DD/MM/YYYY'}
 	);
+
+	// datetimepicker update
+	$('body').on('focus', '.datetimepickerCall', function(){
+		var oldDate = moment($(this).attr('placeholder'), 'DD/MM/YYYY');
+	    $(this).datetimepicker({defaultDate: oldDate, locale: 'ru', format: 'DD/MM/YYYY'});
+	});
 
 	// DATE RANGE
 	$('#js-date_range--sbm').click(function(e){
@@ -941,32 +996,37 @@ $(document).ready(function() {
 
 	// select update item order
 	$('body').on('click', '.js--update', function(){
-		var here, data;
+		var here, data, type;
 		
 		here = $(this);
 		data = here.text();
-
-		// определять к какому типу относится столбец
-		
-		if(here.data('column') == 'name')
+		type = getTypeColumn(here.data('column'));
+			
+		switch(type)
 		{
-			here.html('<input type="text" id="js--update" placeholder="'+data+'">');
-			here.find('input').focus();
-		} 
+			case 'string':
+				here.html('<input type="text" id="js--update" placeholder="'+data+'">');
+				here.find('input').focus();			
+			break;
 
-		else 
+			case 'numeric':
+				here.html('<input type="number" id="js--update" placeholder="'+data+'">');
+				here.find('input').focus();			
+			break;
 
-		// if date
-		if(here.data('column') == 'created_at')
-		{
-			here.html('<input type="text" class="datetimepicker">');
-			here.find('input').click();
+			case 'integer':
+				here.html('<input type="number" id="js--update" placeholder="'+data+'">');
+				here.find('input').focus();			
+			break;
 
-			// дата пикер
-			// оутпат которого пошлет запрос на update
-		} else {
-			here.html('<input type="number" id="js--update" placeholder="'+data+'">');
-			here.find('input').focus();			
+			case 'date':
+				here.html('<input type="text" id="js--update" class="datetimepickerCall" placeholder="'+data+'">');
+				here.find('input').focus();
+			break;
+
+			default:
+				return false;
+			break;
 		}
 	});
 

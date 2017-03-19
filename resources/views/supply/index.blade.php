@@ -32,7 +32,7 @@
 					<td class="col-md-1 js--url-link" data-url="{{ url(Request::segment(1).'/'.Request::segment(2).'/'.$row->id) }}">
 						{{ $row->id }}
 					</td>
-					<td class="col-md-2">
+					<td class="col-md-2" data-column="created_at">
 						{{ $row->date_format }}
 					</td>
 					<td class="col-md-9 js--totalSum">

@@ -95,7 +95,7 @@ class ItemsController extends Controller
         $item = Items::findOrFail($request->id);
         $status = ($request->status == 0 ? 1 : 0);
         $item->update(['status' => $status]);
-        return response()->json(['status' => $status]);
+        return response()->json(['data' => $status], 200);
     }
 
     # update

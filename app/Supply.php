@@ -18,7 +18,7 @@ class Supply extends Model
         'id', 'sum', 'counterparty_id', 'points_id', 'created_at', 'updated_at',
     ];
 
-    protected $dates = ['created_at', 'updated_at', 'date'];
+    protected $dates = ['created_at', 'updated_at'];
 
     public function items()
     {

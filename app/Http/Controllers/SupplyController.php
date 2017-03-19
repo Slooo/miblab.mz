@@ -111,9 +111,6 @@ class SupplyController extends Controller
     # update
     public function update(Request $request, $id)
     {
-        $column = $request->column;
-        $value = $request->value;
-
         switch($request->column)
         {
             case 'items_price':
@@ -122,6 +119,10 @@ class SupplyController extends Controller
 
             case 'items_quantity':
                 $check = 'required|numeric';
+            break;
+
+            case 'created_at':
+                $check = 'required|date_format:"d/m/Y"';
             break;
 
             default:
@@ -133,27 +134,38 @@ class SupplyController extends Controller
             'value' => $check
         ]);
 
+        $data = [];
+
         if ($validator->fails()) {
-            $data = [];
             $message = $validator->messages();
             $status = 422;
         } else {
             $column = $request->column;
-            $value = $request->value;
+            $value = $request->column == 'created_at' ? Carbon::createFromFormat('d/m/Y', $request->value)->format('Y-m-d') : $request->value;
 
-            $supply = ItemsSupply::find($id);
-            $supply->$column = $value;
-            $supply->items_sum = $supply->items_price * $supply->items_quantity;
-            $supply->save();
+            if($request->type == 'main')
+            {
+                $supply = Supply::find($id);
+                $supply->update([$column => $value]);
+                $data['sum'] = $supply->sum;
+            } else {
+                $supply = ItemsSupply::find($id);
+                $supply->$column = $value;
+                $supply->items_sum = $supply->items_price * $supply->items_quantity;
+                $supply->save();
 
-            $sum = ItemsSupply::where('supply_id', $supply->supply_id)->sum('items_sum');
-            Supply::find($supply->supply_id)->update(['sum' => $sum]);
+                $sum = ItemsSupply::where('supply_id', $supply->supply_id)->sum('items_sum');
+                Supply::find($supply->supply_id)->update(['sum' => $sum]);
 
+                $data['sum'] = $supply->items_sum;
+            }
+
+            $data['id'] = $id;
             $message = 'Обновлено';
-            $status = 200;
+            $status = 200;                
         }
 
-        return response()->json(['message' => $message, 'data' => ['id' => $id, 'sum' => $supply->items_sum], $status]);
+        return response()->json(['message' => $message, 'data' => $data, $status]);
     }
 
     # delete

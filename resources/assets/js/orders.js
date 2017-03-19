@@ -317,7 +317,7 @@ $('body').on('click', '#js-orders-supply--create', function(e){
 		data  	 : data,
 
 	    complete: function(answer, xhr, settings){
-	    	validationInputsOrderSupplyCreate(answer);
+	    	validationInputs(answer, 'create');
 	    }
 
 	});
@@ -375,7 +375,7 @@ $('#js-items--search').keyup(function(e){
 			data 	 : {'barcode':barcode},
 
 	        complete: function(answer, xhr, settings){
-	        	validationInputs(answer);
+	        	validationInputs(answer, 'search');
 	        }
 
 		});
@@ -426,7 +426,7 @@ $('body').on('click', '#js-items--barcode-create', function(e){
 		data 	 : data,
 
         complete: function(answer, xhr, settings){
-        	validationInputsBarcode(answer);
+        	validationInputs(answer, 'create--barcode');
         }
 
 	});

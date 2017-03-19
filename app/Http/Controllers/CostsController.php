@@ -108,6 +108,10 @@ class CostsController extends Controller
                 $check = 'required|numeric';
             break;
 
+            case 'date':
+                $check = 'required|date_format:"d/m/Y"';
+            break;
+
             default:
                 return false;
             break;
@@ -122,7 +126,7 @@ class CostsController extends Controller
             $status = 422;
         } else {
             $column = $request->column;
-            $value = $request->value;
+            $value = $request->column == 'date' ? Carbon::createFromFormat('d/m/Y', $request->value)->format('Y-m-d') : $request->value;
 
             $costs = Costs::find($id);
             $costs->$column = $value;

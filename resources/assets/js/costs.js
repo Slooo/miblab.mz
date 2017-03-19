@@ -25,7 +25,7 @@ $('body').on('click', '#js-costs--create', function(e){
 	    },
 
 	    complete: function(answer, xhr, settings){
-	    	validationCreate(answer);
+	    	validationInputs(answer, 'create');
 	    }
 	});
 });

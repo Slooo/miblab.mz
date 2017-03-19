@@ -39,7 +39,7 @@ $('body').on('click', '#js-items--create', function(e){
 	    },
 
 	    complete: function(answer, xhr, settings){
-	    	validationCreate(answer);
+	    	validationInputs(answer, 'create');
 	    }
 
 	});
@@ -67,28 +67,10 @@ $('body').on('click', '.js-items--status', function(e){
 	        LoaderStart();
 	    },
 
-		success: function(answer) {
-			if(answer.status == 0)
-			{
-				btn.removeClass('btn-success').addClass('btn-danger');
-				btn.html('<i class="fa fa-ban"></i>');
-				btn.attr('data-status', answer.status);
-			}
-
-			if(answer.status == 1)
-			{
-				btn.removeClass('btn-danger').addClass('btn-success');
-				btn.html('<i class="fa fa-check"></i>');
-				btn.attr('data-status', answer.status);
-			}
-	    },
-
-	    error: function(answer) {
-	    	AnswerError();
+	    complete: function(answer, xhr, settings){
+	    	validationInputs(answer, 'status');
 	    }
 
-	}).complete(function() {
-	    LoaderStop();
 	});
 });
 
