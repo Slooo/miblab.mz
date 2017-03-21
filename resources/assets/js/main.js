@@ -84,7 +84,7 @@ function removeDuplicates(arr, prop) {
 	return new_arr;
 }
 
-// find element in array to object
+// find elem in array to object
 function functiontofindIndexByKeyValue(arraytosearch, key, valuetosearch) {
 	for (var i = 0; i < arraytosearch.length; i++) {
  		if (arraytosearch[i][key] == valuetosearch) {
@@ -572,7 +572,7 @@ $(document).ready(function() {
 
 	if(typeof(userOptions) !== 'undefined')
 	{
-		userAccess();		
+		userAccess();
 	}
 
 	// total sum
@@ -607,261 +607,299 @@ $(document).ready(function() {
 	}
 
 	// global validation
-	function validationInputs(answer, method, element)
+	function validationInputs(answer, method, elem, glob = false)
 	{
 		var json = JSON.parse(answer.responseText);
 
-		switch(segment2) 
+		if(glob === true)
 		{
-			case 'items':
-				if(answer.status == 200)
+			switch(method)
+			{
+				case 'update':
+				switch(answer.status)
 				{
-					switch(method)
+					case 200:
+						var type = getTypeColumn(elem.parent('td').data('column'));
+						var val = getValueColumn(type, elem.val());
+						elem.removeAttr('id');
+						$('.table tbody tr').removeClass();
+						elem.parents('tr').addClass('info');
+						elem.parent('td').html(val);
+						totalSumAndDiscount(json.data);
+						Answer('info', json.message);
+					break;
+
+					case 422:
+						$('.table tbody tr').removeClass();
+						elem.parents('tr').addClass('warning');
+						elem.parent('td').html(elem.attr('placeholder'));
+						Answer('warning', json.message.value);
+					break;
+
+					case 404:
+						Answer('error');
+					break;
+
+					default:
+						Answer('error');
+					break;
+				}
+				break;
+
+				case 'delete':
+				switch(answer.status)
+				{
+					// success
+					case 200:
+						Answer('info', json.message);
+						elem.remove();
+						totalSumAndDiscount();
+					break;
+
+					// error validation
+					case 422:
+						Answer('error');
+					break;
+
+					// redirect
+					case 301:
+						window.location.href = base_url +'/'+ segment1 +'/'+ segment2;	
+					break;
+
+					// not found
+					case 404:
+						Answer('error');
+					break;
+
+					default:
+						Answer('error');
+					break;
+				}
+
+				case 'date-range':
+					$('.col-body h2').remove();
+
+					switch(answer.status)
 					{
-						case 'create':
-							json.data.price  = number_format(json.data.price, 0, ' ', ' ');
+						case 200:
+							html = "";
+							
+							$('.table').removeClass('hidden');
+							$('.col-footer').removeClass('hidden');
 
-							html =  '<tr data-id="'+json.data.id+'">'; 
-							html += '<td>'+json.data.barcode+'</td>';
-							html += '<td>'+json.data.name+'</td>';
-							html += '<td class="js--update" data-column="price">'+json.data.price+'</td>';
-							html += '<td><button class="btn btn-circle btn-success js-items--status" data-status="'+json.data.status+'"><i class="fa fa-check"></i></button></td>';
-							html += '<td><button type="button" data-barcode="'+json.data.barcode+'" class="btn btn-circle btn-primary js-items--print-review"><i class="fa fa-print"></i></button></td>';
-							html += '</tr>';
-
-							$('.table tbody').prepend(html);
-							$('.table tbody tr').removeClass().first().addClass('success');
-							Answer('info', json.message);
-							totalSumAndDiscount();
-						break;
-
-						case 'update':
-
-						break;
-
-						case 'delete':
-
-						break;
-
-						case 'status':
-						var btn = $(this);
-							if(json.data === 1)
+							switch(segment2)
 							{
-								btn.removeClass('btn-danger').addClass('btn-success');
-								btn.html('<i class="fa fa-check"></i>');
-								btn.attr('data-status', answer.status);
-							} else {
-								btn.removeClass('btn-success').addClass('btn-danger');
-								btn.html('<i class="fa fa-ban"></i>');
-								btn.attr('data-status', json.data);
+								case 'costs':
+									for(row in json.data)
+									{
+										html += '<tr data-id="'+json.data[row].id+'">';
+										html += '<td class="col-md-1">'+json.data[row].id+'</td>';
+										html += '<td class="col-md-1">'+json.data[row].date+'</td>';
+										html += '<td class="col-md-9 js--totalSum" data-column="sum">'+json.data[row].sum+'</td>';
+										html += '</tr>';
+									}
+								break;
+
+								case 'supply':
+									for(row in json.data)
+									{
+										html += '<tr data-id="'+json.data[row].id+'">';
+										html += '<td class="col-md-1 js--url-link" data-url="'+segment2 +'/'+ json.data[row].id+'">'+json.data[row].id+'</td>';
+										html += '<td class="col-md-1">'+json.data[row].date+'</td>';
+										html += '<td class="col-md-9 js--totalSum data-column="sum">'+json.data[row].sum+'</td>';
+										html += '</tr>';
+									}
+								break;
+
+								case 'orders':
+									for(row in json.data)
+									{
+										html += '<tr data-id="'+json.data[row].id+'">';
+										html += '<td class="col-md-1 js--url-link" data-url="'+segment2 +'/'+ json.data[row].id+'">'+json.data[row].id+'</td>';
+										html += '<td class="col-md-1">'+json.data[row].date+'</td>';
+										html += '<td class="col-md-4 js--totalSum">'+json.data[row].sum+'</td>';
+										html += '<td class="col-md-4">'+json.data[row].sum_discount+'</td>';
+										html += '<td class="col-md-2">'+json.data[row].type+'</td>';
+										html += '</tr>';
+									}
+								break;
+
+								default:
+									return false;
+								break;
 							}
+							
+							$('.table tbody').html(html);
+							$('.totalSum').html('Итого: ' + json.extra.totalSum + ' &#8381;');
+							//userAccess();
+						break;
+
+						case 422:
+							$('.table').addClass('hidden');
+							$('.col-footer').addClass('hidden');
+							$('.col-body').append('<h2>'+json.data+'</h2>');
 						break;
 
 						default:
-							return false;
-						break;
-					}
-				}
-
-				else
-
-				if(answer.status == 422)
-				{
-					switch(method)
-					{
-						case 'create':
-							keys = Object.keys(json);
-
-							$("form input").each(function(){
-								input = $(this);
-								if(keys.indexOf(input.attr('name')) != -1)
-								{
-									input.addClass('validate-error');
-								} else {
-									input.addClass('validate-success');
-								}
-							});
-						break;
-
-						case 'status':
 							Answer('error');
 						break;
+						// скрыть dropdown
 					}
-				}
-			break;
-
-			case 'supply':
-			case 'orders':
-				if(answer.status == 200)
+				break;
+			}
+		} else {
+			switch(segment2)
+			{
+				case 'items':
+				switch(method)
 				{
-					switch(method)
+					case 'create':
+					if(answer.status === 200)
 					{
-						case 'create':
-							orderClear();
-							Answer('success', '<a href="'+base_url + '/' + segment1 + '/' + segment2 + '/' + json.message +'">Оформлен заказ #'+json.message+'</a>');					
-						break;
+						json.data.price  = number_format(json.data.price, 0, ' ', ' ');
 
-						case 'create--barcode':
-							Answer('success', json.message);
-						break;
+						html =  '<tr data-id="'+json.data.id+'">'; 
+						html += '<td>'+json.data.barcode+'</td>';
+						html += '<td>'+json.data.name+'</td>';
+						html += '<td class="js--update" data-column="price">'+json.data.price+'</td>';
+						html += '<td><button class="btn btn-circle btn-success js-items--status" data-status="'+json.data.status+'"><i class="fa fa-check"></i></button></td>';
+						//html += '<td><button type="button" data-barcode="'+json.data.barcode+'" class="btn btn-circle btn-primary js-items--print-review"><i class="fa fa-print"></i></button></td>';
+						html += '</tr>';
 
-						case 'search':
-							$('.order').removeClass('hidden');
-							orderItemPaste(json.data);
-							$('#js-items--search').val('');
-						break;
+						$('.table tbody').prepend(html);
+						$('.table tbody tr').removeClass().first().addClass('success');
+						Answer('success', json.message);
+						totalSumAndDiscount();
+					} else {
+						keys = Object.keys(json);
+
+						$("form input").each(function(){
+							input = $(this);
+							if(keys.indexOf(input.attr('name')) != -1)
+							{
+								input.addClass('validate-error');
+							} else {
+								input.addClass('validate-success');
+							}
+						});
 					}
-				} 
+					break;
 
-				else 
-
-				if(answer.status == 422)
-				{
-					switch(method)
+					case 'status':
+					if(answer.status === 200)
 					{
-						case 'search':
-							Answer('warning', '<button id="js-items--barcode-create" data-barcode="'+$('#js-items--search').val()+'" class="btn btn-danger">Отправить штрихкод</button>');
-							$('#js-items--search').val('');
-						break;
-					}
-					Answer('error');
-				}
-			break;
+						if(json.data === 1)
+						{
+							elem.removeClass('btn-danger').addClass('btn-success');
+							elem.html('<i class="fa fa-check"></i>');
+							elem.attr('data-status', answer.status);
+						} else {
+							elem.removeClass('btn-success').addClass('btn-danger');
+							elem.html('<i class="fa fa-ban"></i>');
+							elem.attr('data-status', json.data);
+						}
 
-			case 'costs':
-				if(answer.status == 200)
+					} else {
+						Answer('error');
+					}
+					break;
+
+					default:
+						return false;
+					break;
+				}
+				break;
+
+				case 'supply':
+				case 'orders':
+				switch(method)
 				{
-					switch(method)
+					case 'create':
+					if(answer.status === 200)
 					{
-						case 'create':
-							data = json.data;
-							data.date = moment(json.data.created_at, "YYYY-MM-DD HH:mm:ss").format('DD/MM/YYYY');
-							data.sum  = number_format(json.data.sum, 0, ' ', ' ');
+						orderClear();
+						Answer('success', '<a href="'+base_url + '/' + segment1 + '/' + segment2 + '/' + json.message +'">Оформлен заказ #'+json.message+'</a>');					
+					} else {
 
-							html =  '<tr data-id="'+data.id+'">';
-							html += '<td class="col-md-1">'+data.id+'</td>';
-							html += '<td class="col-md-1">'+data.date+'</td>';
-							html += '<td class="col-md-9 js--totalSum js--update" data-column="sum">'+data.sum+'</td>';
-							html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
-							html += '</tr>';
-
-							$('.table tbody').prepend(html);
-							$('.table tbody tr').removeClass().first().addClass('success');
-							Answer('info', json.message);
-							totalSumAndDiscount();
-						break;
 					}
-				}
+					break;
 
-				else
+					case 'create--barcode':
+						Answer('success', json.message);
+					break;
 
-				if(answer.status == 422)
-				{
-					Answer('error');
-				}
-			break;
-
-			case 'discounts':
-				if(answer.status == 200)
-				{
-					switch(method)
+					case 'search':
+					if(answer.status === 200)
 					{
-						case 'create':
-							json.data.sum  = number_format(json.data.sum, 0, ' ', ' ');
-
-							html = '<tr data-id="'+json.data.id+'">';
-							html += '<td class="col-md-1">'+json.data.id+'</td>';
-							html += '<td class="col-md-5 js--update" data-column="sum">'+json.data.sum+'</td>';
-							html += '<td class="col-md-5 js--update" data-column="percent">'+json.data.percent+'</td>';
-							html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
-							html += '</tr>';
-
-							$('.table tbody').prepend(html);
-							$('.table tbody tr').removeClass().first().addClass('success');
-							Answer('info', json.message);
-							totalSumAndDiscount();
-						break;
-
-						case 'update':
-
-						break;
+						$('.order').removeClass('hidden');
+						orderItemPaste(json.data);
+						$('#js-items--search').val('');
+					} else {
+						Answer('warning', '<button id="js-items--barcode-create" data-barcode="'+$('#js-items--search').val()+'" class="btn btn-danger">Отправить штрихкод</button>');
+						$('#js-items--search').val('');
 					}
-				} else {
-
+					break;
 				}
-			break;
-		}
+				break;
 
-		LoaderStop();
-	}
+				case 'costs':
+				switch(method)
+				{
+					case 'create':
+					if(answer.status === 200)
+					{
+						data = json.data;
+						data.date = moment(json.data.created_at, "YYYY-MM-DD HH:mm:ss").format('DD/MM/YYYY');
+						data.sum  = number_format(json.data.sum, 0, ' ', ' ');
 
-	// check update
-	function validationUpdate(answer, here)
-	{
-		var json = JSON.parse(answer.responseText);
+						html =  '<tr data-id="'+data.id+'">';
+						html += '<td class="col-md-1">'+data.id+'</td>';
+						html += '<td class="col-md-1">'+data.date+'</td>';
+						html += '<td class="col-md-9 js--totalSum js--update" data-column="sum">'+data.sum+'</td>';
+						html += '<td class="col-md-1"><button class="btn btn-circle btn-danger js--delete"><li class="fa fa-remove"></li></button></td>';
+						html += '</tr>';
 
-		switch(answer.status)
-		{
-			// error validation
-			case 422:
-				here.parent('td').html(here.attr('placeholder'));
+						$('.table tbody').prepend(html);
+						$('.table tbody tr').removeClass().first().addClass('success');
+						Answer('success', json.message);
+						totalSumAndDiscount();
+					} else {
+						Answer('error');
+					}
+					break;
+				}
+				break;
 
-				//!
-				$('.table tbody tr').removeClass();
-				here.parents('tr').addClass('warning');
+				case 'discounts':
+				switch(method)
+				{
+					case 'create':
+					if(answer.status === 200)
+					{
+						json.data.sum  = number_format(json.data.sum, 0, ' ', ' ');
 
-				Answer('warning', json.message.value);
-			break;
+						html = '<tr data-id="'+json.data.id+'">';
+						html += '<td class="col-md-1">'+json.data.id+'</td>';
+						html += '<td class="col-md-5 js--update" data-column="sum">'+json.data.sum+'</td>';
+						html += '<td class="col-md-5 js--update" data-column="percent">'+json.data.percent+'</td>';
+						html += '<td class="col-md-1"><button class="btn btn-danger btn-circle js--delete"><i class="fa fa-remove"></i></button></td>';
+						html += '</tr>';
 
-			// success
-			case 200:
-				var type = getTypeColumn(here.parent('td').data('column'));
-				var val = getValueColumn(type, here.val());
-				here.removeAttr('id');
-				here.parent('td').html(val);
-				$('.table tbody tr').removeClass();
-				here.parents('tr').addClass('info');
-				totalSumAndDiscount(json.data);
+						$('.table tbody').prepend(html);
+						$('.table tbody tr').removeClass().first().addClass('success');
+						Answer('info', json.message);
+						totalSumAndDiscount();
+					} else {
+						Answer('error');
+					}
+					break;
 
-				Answer('info', json.message);
-			break;
-		}
+					case 'update':
 
-		LoaderStop();
-	}
-
-	// check delete
-	function validationDelete(answer, line)
-	{
-		var json = JSON.parse(answer.responseText);
-
-		switch(answer.status)
-		{
-			// error validation
-			case 422:
-				Answer('error');
-			break;
-
-			// redirect
-			case 301:
-				window.location.href = base_url +'/'+ segment1 +'/'+ segment2;	
-			break;
-
-			// success
-			case 200:
-				//AnswerDanger(json.data.id);
-				Answer('info', json.message);
-				line.remove();
-				totalSumAndDiscount();
-			break;
-
-			// not found
-			case 404:
-			break;
-
-			default:
-				Answer('error');
-			break;
+					break;
+				}
+				break;
+			}
 		}
 
 		LoaderStop();
@@ -897,80 +935,9 @@ $(document).ready(function() {
 		        LoaderStart();
 		    },
 
-			success: function(answer) {
-
-				$('.col-body h2').remove();
-
-				if(answer.status == 0)
-				{
-					$('.table').addClass('hidden');
-					$('.col-footer').addClass('hidden');
-					$('.col-body').append('<h2>'+answer.data+'</h2>');
-				}
-
-				if(answer.status == 1)
-				{
-					html = "";
-					json = JSON.stringify(answer.data);
-					data = JSON.parse(json);
-					
-					$('.table').removeClass('hidden');
-					$('.col-footer').removeClass('hidden');
-
-					switch(segment2)
-					{
-						case 'costs':
-							for(row in data)
-							{
-								html += '<tr data-id="'+data[row].id+'">';
-								html += '<td class="col-md-1">'+data[row].id+'</td>';
-								html += '<td class="col-md-1">'+data[row].date+'</td>';
-								html += '<td class="col-md-9 js--totalSum" data-column="sum">'+data[row].sum+'</td>';
-								html += '</tr>';
-							}
-						break;
-
-						case 'supply':
-							for(row in data)
-							{
-								html += '<tr data-id="'+data[row].id+'">';
-								html += '<td class="col-md-1 js--url-link" data-url="'+segment2 +'/'+ data[row].id+'">'+data[row].id+'</td>';
-								html += '<td class="col-md-1">'+data[row].date+'</td>';
-								html += '<td class="col-md-9 js--totalSum data-column="sum">'+data[row].sum+'</td>';
-								html += '</tr>';
-							}
-						break;
-
-						case 'orders':
-							for(row in data)
-							{
-								html += '<tr data-id="'+data[row].id+'">';
-								html += '<td class="col-md-1 js--url-link" data-url="'+segment2 +'/'+ data[row].id+'">'+data[row].id+'</td>';
-								html += '<td class="col-md-1">'+data[row].date+'</td>';
-								html += '<td class="col-md-4 js--totalSum">'+data[row].sum+'</td>';
-								html += '<td class="col-md-4">'+data[row].sum_discount+'</td>';
-								html += '<td class="col-md-2">'+data[row].type+'</td>';
-								html += '</tr>';
-							}
-						break;
-
-						default:
-							return false;
-						break;
-					}
-					
-					$('.table tbody').html(html);
-					$('.totalSum').html('Итого: ' + answer.extra.totalSum + ' &#8381;');
-				}
-		    },
-
-		    error: function(answer) {
-		    	Answer('error');
-		    }
-
-		}).complete(function() {
-			userAccess();
-		    LoaderStop();
+	        complete: function(answer, xhr, settings){
+	    	    validationInputs(answer, 'date-range', false, true);
+	        }
 		});
 	});
 
@@ -996,32 +963,32 @@ $(document).ready(function() {
 
 	// select update item order
 	$('body').on('click', '.js--update', function(){
-		var here, data, type;
+		var elem, data, type;
 		
-		here = $(this);
-		data = here.text();
-		type = getTypeColumn(here.data('column'));
+		elem = $(this);
+		data = elem.text();
+		type = getTypeColumn(elem.data('column'));
 			
 		switch(type)
 		{
 			case 'string':
-				here.html('<input type="text" id="js--update" placeholder="'+data+'">');
-				here.find('input').focus();			
+				elem.html('<input type="text" id="js--update" placeholder="'+data+'">');
+				elem.find('input').focus();			
 			break;
 
 			case 'numeric':
-				here.html('<input type="number" id="js--update" placeholder="'+data+'">');
-				here.find('input').focus();			
+				elem.html('<input type="number" id="js--update" placeholder="'+data+'">');
+				elem.find('input').focus();			
 			break;
 
 			case 'integer':
-				here.html('<input type="number" id="js--update" placeholder="'+data+'">');
-				here.find('input').focus();			
+				elem.html('<input type="number" id="js--update" placeholder="'+data+'">');
+				elem.find('input').focus();			
 			break;
 
 			case 'date':
-				here.html('<input type="text" id="js--update" class="datetimepickerCall" placeholder="'+data+'">');
-				here.find('input').focus();
+				elem.html('<input type="text" id="js--update" class="datetimepickerCall" placeholder="'+data+'">');
+				elem.find('input').focus();
 			break;
 
 			default:
@@ -1043,18 +1010,18 @@ $(document).ready(function() {
 	});
 
 	// update
-	function update(here){
-		var here, id, line, column, value, data, json;
+	function update(elem){
+		var id, line, column, value, data, json;
 
-		if(here.val() == 0 || here.val().length == 0)
+		if(elem.val() == 0 || elem.val().length == 0)
 		{
-			here.parent('td').html(here.attr('placeholder'));
+			elem.parent('td').html(elem.attr('placeholder'));
 		} else {
 
-			line   = here.parents('tr');
+			line   = elem.parents('tr');
 			id 	   = line.data('id');
-			column = here.parent('td').data('column');
-			value  = here.val();
+			column = elem.parent('td').data('column');
+			value  = elem.val();
 			type   = line.parents('tbody').data('type');
 			data   = {"column":column, "value":value, "type":type};
 
@@ -1069,7 +1036,7 @@ $(document).ready(function() {
 			    },
 
 			    complete: function(answer, xhr, settings){
-				    validationUpdate(answer, here);
+				    validationInputs(answer, 'update', elem, true);
 			    }
 
 			});
@@ -1104,7 +1071,7 @@ $(document).ready(function() {
 		    },
 
 		    complete: function(answer, xhr, settings){
-		    	validationDelete(answer, line);
+		    	validationInputs(answer, 'delete', line, true);
 		    }
 
 		});

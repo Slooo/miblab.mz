@@ -143,7 +143,7 @@ class ItemsController extends Controller
     public function store(ItemsRequest $request)
     {
         $data = Items::create($request->all());
-        return response()->json(['status' => 1, 'message' => 'Создано', 'data' => $data]);
+        return response()->json(['message' => 'Товар создан', 'data' => $data], 200);
     }
 
     # generate barcode

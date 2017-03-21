@@ -50,11 +50,11 @@ $('body').on('click', '#js-items--create', function(e){
 $('body').on('click', '.js-items--status', function(e){
 	e.preventDefault();
 
-	var btn, status, id, data;
+	var elem, status, id, data;
 
-	btn    = $(this);
-	status = btn.attr('data-status');
-	id 	   = btn.parents('tr').data('id');
+	elem   = $(this);
+	status = elem.attr('data-status');
+	id 	   = elem.parents('tr').data('id');
 	data   = {'id':id, 'status':status}
 
 	$.ajax({
@@ -68,7 +68,7 @@ $('body').on('click', '.js-items--status', function(e){
 	    },
 
 	    complete: function(answer, xhr, settings){
-	    	validationInputs(answer, 'status');
+	    	validationInputs(answer, 'status', elem);
 	    }
 
 	});

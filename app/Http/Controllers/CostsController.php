@@ -78,13 +78,13 @@ class CostsController extends Controller
             endforeach;
 
             $extra['totalSum'] = number_format(array_sum(array_column($total, 'sum')), 0, ' ', ' ');
-            $status = 1;
+            $status = 200;
         } else {
             $data = 'Нет расходов за период';
-            $status = 0;
+            $status = 422;
         }
 
-        return response()->json(['status' => $status, 'data' => $data, 'extra' => $extra]);
+        return response()->json(['data' => $data, 'extra' => $extra], $status);
     }
 
     # create
