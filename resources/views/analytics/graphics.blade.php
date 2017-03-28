@@ -1,10 +1,9 @@
+@extends('app')
 <!-- 
 
 	Graphics page
 
 -->
-
-@extends('app')
 
 @section('content')
 
@@ -17,9 +16,9 @@
 
 	<div class="col-md-10 col-md-pull-1 col-md-push-1 col-body">
 
-		<div id="js--hc-allPeriod"></div>
+		<div id="js--hc-sumAll"></div>
 		<hr>
-		<div id="js--hc-curMonth"></div>
+		<div id="js--hc-sumMonth"></div>
 		<hr>
 		<div id="js--hc-sumAllKey"></div>
 		<hr>
@@ -40,43 +39,36 @@
 
 @section('script')
 <script>
-	var sumAll = [], 
-		sumMonth = [], 
-		sumAllKey = [], 
-		sumAllKeyPoint = [], 
-		sum30DaysSO = [],
-		sumMonthPoint = [], 
-		sumWeek = {},
+var sumAll = [], 
+	sumMonth = [], 
+	sumAllKey = [], 
+	sumAllKeyPoint = [], 
+	sum30DaysSO = [],
+	sumMonthPoint = [], 
+	sumWeek = {},
+	categories = [],
+	data = [];
+	sumWeek.categories = categories;
+	sumWeek.data = data;
 
-		categories = [],
-		data = [];
-
-		sumWeek.categories = categories;
-		sumWeek.data = data;
-</script>
+	arr = [], obj = {};
 
 @foreach($sumAll as $row)
-<script>
 	sumAll.push({ y : {{ $row['sum'] = empty($row['sum']) ? 0 : $row['sum'] }}, name : "{{ $row['costs'] }}" });
-</script>
 @endforeach
 
 @foreach($sumMonth as $row)
-<script>
 	sumMonth.push({ y : {{ $row['sum'] = empty($row['sum']) ? 0 : $row['sum'] }}, name : "{{ $row['costs'] }}" });
-</script>
 @endforeach
 
-<script>
 	sumAllKey.push(graphParseData(['Прибыль', {{ $sumAllKey['profit'] }}], false));
 	sumAllKey.push(graphParseData(['Продажи', {{ $sumAllKey['orders'] }}], false));
 	sumAllKey.push(graphParseData(['Расходы', {{ $sumAllKey['costs'] }}], false));
 	sumAllKey.push(graphParseData(['Закупка', {{ $sumAllKey['supply'] }}], false));
 	sumAllKey.push(graphParseData(['Склад', {{ $sumAllKey['stock'] }}], false));
-</script>
+
 
 @foreach($sumAllKeyPoint as $key => $row)
-<script>
 	$('#js--hc-sumAllKey').after('<div class="hc-line" id="js--hc-sumAllKeyPoint_{{ $key }}"></div>');
 
 	sumAllKeyPoint.push(graphParseData(['Прибыль', {{ $row['profit'] }}], false));
@@ -85,41 +77,86 @@
 	sumAllKeyPoint.push(graphParseData(['Закупка', {{ $row['supply'] }}], false));
 	sumAllKeyPoint.push(graphParseData(['Склад', {{ $row['stock'] }}], false));
 
-	hcPie(JSON.stringify(sumAllKeyPoint), 'js--hc-sumAllKeyPoint_{{ $key }}', 'Ключевые показатели по точке #{{ $key }}');
+	sumAllKeyPoint{{ $key }} = {};
+	sumAllKeyPoint{{ $key }}.id = 'js--hc-sumAllKeyPoint_{{ $key }}';
+	sumAllKeyPoint{{ $key }}.type = 'hcPie';
+	sumAllKeyPoint{{ $key }}.description = 'Ключевые показатели по точке #{{ $key }}';
+	sumAllKeyPoint{{ $key }}.data = JSON.stringify(sumAllKeyPoint);
+	arr.push(sumAllKeyPoint{{ $key }});
+
 	sumAllKeyPoint = [];
-</script>
 @endforeach
 
 @foreach($sumMonthPoint as $row)
-<script>
 	sumMonthPoint.push(graphParseData(['Точка #{{ $row['point'] }}', {{ $row['sum'] }}], false));
-</script>
 @endforeach
 
 @foreach($sumWeek as $row)
-<script>
 	sumWeek.categories.push("{{ $row['date'] }}");
 	sumWeek.data.push({{ $row['sum'] }});
-</script>
 @endforeach
 
-<script>
-	$('#js--hc-sumAllKey').after('<hr>');
-	sum30DaysSO.push(['Закупка за 30 дней', {{ $sum30DaysSupply = empty($sum30DaysSupply) ? 0 : $sum30DaysSupply }}]);
-	sum30DaysSO.push(['Реализация за 30 дней', {{ $sum30DaysOrders = empty($sum30DaysOrders) ? 0 : $sum30DaysOrders }}]);
+$('#js--hc-sumAllKey').after('<hr>');
+sum30DaysSO.push(['Закупка за 30 дней', {{ $sum30DaysSupply = empty($sum30DaysSupply) ? 0 : $sum30DaysSupply }}]);
+sum30DaysSO.push(['Реализация за 30 дней', {{ $sum30DaysOrders = empty($sum30DaysOrders) ? 0 : $sum30DaysOrders }}]);
+	
+	objSumAll = {};
+	objSumAll.id = 'sumAll';
+	objSumAll.type = 'hcColumn';
+	objSumAll.description = 'За весь период';
+	objSumAll.data = sumAll;
+	arr.push(objSumAll);
 
-	hcColumn(JSON.stringify(sumAll), 'js--hc-allPeriod', 'За весь период');
-	hcColumn(JSON.stringify(sumMonth), 'js--hc-curMonth', 'За период');
-	hcPie(JSON.stringify(sumAllKey), 'js--hc-sumAllKey', 'Ключевые показатели');
-	hcWdl(JSON.stringify(sum30DaysSO), 'js--hc-sum30DaysSO', 'Закупка и реализация');
-	hcPie(JSON.stringify(sumMonthPoint), 'js--hc-sumMonthPoint', 'Прибыль понедельно по точкам (за 30 дней)');
-	hcInverted(JSON.stringify(sumWeek), 'js--hc-sumWeek', 'Прибыль понедельно (за 30 дней)')
+	objSumMonth = {};
+	objSumMonth.id = 'sumMonth';
+	objSumMonth.type = 'hcColumn';
+	objSumMonth.description = 'За период';
+	objSumMonth.data = sumMonth;
+	arr.push(objSumMonth);
+
+	objSumAllKey = {};
+	objSumAllKey.id = 'sumAllKey';
+	objSumAllKey.type = 'hcPie';
+	objSumAllKey.description = 'Ключевые показатели';
+	objSumAllKey.data = sumAllKey;
+	arr.push(objSumAllKey);
+
+	objSum30DaysSO = {};
+	objSum30DaysSO.id = 'sum30DaysSO';
+	objSum30DaysSO.type = 'hcWdl';
+	objSum30DaysSO.description = 'Закупка и реализация';
+	objSum30DaysSO.sum30DaysSO = sum30DaysSO;
+	arr.push(objSum30DaysSO);
+	
+	objSumMonthPoint = {};
+	objSumMonthPoint.id = 'sumMonthPoint';
+	objSumMonthPoint.type = 'hcPie';
+	objSumMonthPoint.description = 'Прибыль понедельно по точкам (за 30 дней)';
+	objSumMonthPoint.sumMonthPoint = sumMonthPoint;
+	arr.push(objSumMonthPoint);
+
+	objSumWeek = {};
+	objSumWeek.id = 'sumWeek';
+	objSumWeek.type = 'hcInverted';
+	objSumWeek.description = 'Прибыль понедельно (за 30 дней)';
+	objSumWeek.sumWeek = sumWeek;
+	arr.push(objSumWeek);
+
+hcAnalytics(arr);
+
+//hcColumn(JSON.stringify(sumAll), 'За весь период');
+//hcColumn(JSON.stringify(sumMonth), 'За период');
+//hcPie(JSON.stringify(sumAllKey), 'Ключевые показатели');
+//hcWdl(JSON.stringify(sum30DaysSO), '');
+//hcPie(JSON.stringify(sumMonthPoint), '');
+//hcInverted(JSON.stringify(), '');
+
+
 </script>
-@stop
 
 <style>
 .hc-line {
 	display: inline-block;
-	width: 470;
 }
 </style>
+@stop

@@ -1,9 +1,3 @@
-<!-- 
-
-    Index page 
-
--->
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -20,6 +14,7 @@
 
     <!-- Scripts -->
     <script src="{{ elixir('js/libs.js') }}"></script>
+    <script src="{{ elixir('js/app.js') }}"></script>
 
 </head>
 <body>
@@ -73,7 +68,7 @@
 
     <!-- JavaScripts -->
     <script>
-    var base_url, segment1, segment2, segment3, points_id, status;
+    var base_url, segment1, segment2, segment3;
         base_url  = '{{ url('/') }}';
         segment1  = '{{ Request::segment(1) }}';   
         segment2  = '{{ Request::segment(2) }}';
@@ -85,8 +80,7 @@
         userOptions.points_id = {{ Auth::user()->points_id }};
     @endif
     </script>
-    <script src="{{ elixir('js/app.js') }}"></script>
-    @yield('script')
 
+    @yield('script')
 </body>
 </html>

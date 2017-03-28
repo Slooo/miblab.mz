@@ -98,6 +98,13 @@ class ItemsController extends Controller
         return response()->json(['data' => $status], 200);
     }
 
+    # create
+    public function store(ItemsRequest $request)
+    {
+        $data = Items::create($request->all());
+        return response()->json(['message' => 'Товар создан', 'data' => $data], 200);
+    }
+
     # update
     public function update($id, Request $request)
     {
@@ -139,11 +146,37 @@ class ItemsController extends Controller
         return response()->json(['message' => $message], $status);
     }
 
-    # create
-    public function store(ItemsRequest $request)
+    # delete
+    public function delete(Request $request, $id)
     {
-        $data = Items::create($request->all());
-        return response()->json(['message' => 'Товар создан', 'data' => $data], 200);
+        $validator = Validator::make($request->all(), [
+            'type' => 'required|in:main,pivot',
+        ]);
+
+        if ($validator->fails()) {
+            $message = $validator->messages();
+            $status = 422;
+        } else {
+            $type = $request->type;
+
+            switch($type)
+            {
+                case 'main':
+                    Items::destroy($id);
+                    $message = 'Удален товар #'.$id;
+                    $status = 200;
+                break;
+                case 'pivot':
+                    return false;
+                break;
+
+                default:
+                    return false;
+                break;
+            }
+        }
+
+        return response()->json(['message' => $message], $status);
     }
 
     # generate barcode

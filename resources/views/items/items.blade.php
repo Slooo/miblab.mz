@@ -59,7 +59,7 @@
 					<th>Статус</th>
 				</tr>
 			</thead>
-			<tbody data-type="pivot">
+			<tbody data-type="main">
 				@foreach($items as $row)
 				<tr data-id="{{ $row->id }}">
 					<td>{{ $row->barcode }}</td>

@@ -210,6 +210,15 @@ function graphParseData(data, type)
 	}
 }
 
+// return analytics
+function hcAnalytics(obj)
+{
+	console.log(obj);
+	$.each(obj, function(i, v){
+
+	});
+}
+
 $(document).ready(function() {
 
 	function userPermissions(option)
@@ -397,216 +406,12 @@ $(document).ready(function() {
 	}
 
 	/**
-	 * Доступ пользователя
-	 * @return {status} уровень пользователя
+	 * The global validation
+	 * @param  {object}  answer request server
+	 * @param  {string}  method type validation
+	 * @param  {object}  elem this   
+	 * @param  {Boolean} glob or local method
 	 */
-	function userAccess()
-	{
-		switch(parseInt(userOptions.status))
-		{
-			// cachier
-			case 1:
-				switch(segment2)
-				{
-					case 'orders':					
-						if(segment3.length == 0)
-						{
-							userLinks(['date-range', 'create']);
-						} else {
-							userLinks();
-						}
-
-					cashierPageLoad();
-					break;
-
-					case 'items':
-						userLinks();
-					break;
-
-					default:
-						return false;
-					break;
-				}
-			break;
-
-			// manage
-			case 2:
-				switch(segment2)
-				{
-					case 'items':
-						userLinks();
-					break;
-
-					case 'analytics':
-						userLinks(['analyzes', 'graphics']);
-					break;
-
-					case 'orders':
-						if(segment3.length == 0)
-						{
-							userLinks(['date-range']);
-						}
-					break;
-
-					case 'supply':
-						if(segment3.length == 0)
-						{
-							userLinks(['date-range']);
-						}
-					break;
-
-					case 'costs':
-						if(segment3.length > 0)
-						{
-							userLinks(['date-range']);
-						} else {
-							userLinks();
-						}
-					break;
-
-					default:
-						return false;
-					break;
-				}
-			break;
-
-			// admin
-			case 3:
-				switch(segment2)
-				{
-					case 'items':
-						userLinks(['create-modal']);
-						userPermissions(['update', 'status']);
-					break;
-
-					case 'orders':
-						if(segment3.length == 0)
-						{
-							userLinks(['date-range']);
-						} else {
-							userLinks();
-						}
-
-						userPermissions(['delete']);
-					break;
-
-					case 'supply':
-						if(segment3.length == 0)
-						{
-							userLinks(['date-range', 'create']);
-							userPermissions(['update']);	
-						} else {
-							userLinks();
-							userPermissions(['update', 'delete']);
-						}
-
-						if(segment3 == 'create')
-						{
-							cashierPageLoad();
-						}
-					break;
-
-					case 'costs':
-						if(segment3.length > 0)
-						{
-							userLinks(['date-range', 'create-modal']);
-						} else {
-							userLinks();
-						}
-
-						userPermissions(['update', 'delete']);
-					break;
-
-					case 'discounts':
-						userLinks();
-					break;
-				}
-			break;
-
-			// igor
-			case 4:
-				switch(segment2)
-				{
-					case 'items':
-						userLinks(['create-modal'])
-						userPermissions(['update', 'status']);
-					break;
-
-					case 'orders':
-						if(segment3.length == 0)
-						{
-							userLinks(['date-range']);
-						}
-						userPermissions(['delete']);
-					break;
-
-					case 'supply':
-						if(segment3.length == 0)
-						{
-							userLinks(['date-range', 'create']);							
-						}
-
-						userPermissions(['update', 'delete']);
-					break;
-
-					case 'costs':
-						if(segment3.length > 0)
-						{
-							userLinks(['date-range', 'create-modal']);
-						}
-
-						userPermissions(['update', 'delete']);
-					break;
-
-					case 'analytics':
-						userLinks(['analyzes', 'graphics']);
-					break;
-				}
-			break;
-
-			default:
-				return false;
-			break;
-		}
-	}
-
-	if(typeof(userOptions) !== 'undefined')
-	{
-		userAccess();
-	}
-
-	// total sum
-	function totalSumAndDiscount(data)
-	{
-		var line, totalSum = 0, totalSumDiscount = 0;
-
-		if($('strong').hasClass('totalSum'))
-		{
-			if(data)
-			{
-				line = $('.table tbody').find("[data-id='" + data.id + "']");
-				$(line).find('td.js--totalSum').html(number_format(data.sum, 0, ' ', ' '));			
-			}
-
-			$('td.js--totalSum').each(function(){
-				totalSum += parseFloat($(this).text().replace(/\s/g, ''));
-			});
-
-			$('.totalSum').html('Итого ' + number_format(totalSum, 0, ' ', ' ') + ' &#8381;');	
-		}
-
-		// пока непонятно как считать скидку при изменениях.
-		if($('strong').hasClass('totalSumDiscount'))
-		{
-			$('.js--sum-discount').each(function(){
-			    totalSumDiscount += parseFloat($(this).text().replace(/\s/g, ''));
-			});
-
-			$('.totalSumDiscount').html('Итого со скидкой ' + number_format(totalSumDiscount, 0, ' ', ' ') + ' &#8381;');
-		}
-	}
-
-	// global validation
 	function validationInputs(answer, method, elem, glob = false)
 	{
 		var json = JSON.parse(answer.responseText);
@@ -675,76 +480,81 @@ $(document).ready(function() {
 						Answer('error');
 					break;
 				}
+				break;
 
 				case 'date-range':
-					$('.col-body h2').remove();
+				$('.col-body h2').remove();
 
-					switch(answer.status)
-					{
-						case 200:
-							html = "";
-							
-							$('.table').removeClass('hidden');
-							$('.col-footer').removeClass('hidden');
+				switch(answer.status)
+				{
+					case 200:
+						html = "";
+						
+						$('.table').removeClass('hidden');
+						$('.col-footer').removeClass('hidden');
 
-							switch(segment2)
-							{
-								case 'costs':
-									for(row in json.data)
-									{
-										html += '<tr data-id="'+json.data[row].id+'">';
-										html += '<td class="col-md-1">'+json.data[row].id+'</td>';
-										html += '<td class="col-md-1">'+json.data[row].date+'</td>';
-										html += '<td class="col-md-9 js--totalSum" data-column="sum">'+json.data[row].sum+'</td>';
-										html += '</tr>';
-									}
-								break;
+						switch(segment2)
+						{
+							case 'costs':
+								for(row in json.data)
+								{
+									html += '<tr data-id="'+json.data[row].id+'">';
+									html += '<td class="col-md-1">'+json.data[row].id+'</td>';
+									html += '<td class="col-md-1">'+json.data[row].date+'</td>';
+									html += '<td class="col-md-9 js--totalSum" data-column="sum">'+json.data[row].sum+'</td>';
+									html += '</tr>';
+								}
+							break;
 
-								case 'supply':
-									for(row in json.data)
-									{
-										html += '<tr data-id="'+json.data[row].id+'">';
-										html += '<td class="col-md-1 js--url-link" data-url="'+segment2 +'/'+ json.data[row].id+'">'+json.data[row].id+'</td>';
-										html += '<td class="col-md-1">'+json.data[row].date+'</td>';
-										html += '<td class="col-md-9 js--totalSum data-column="sum">'+json.data[row].sum+'</td>';
-										html += '</tr>';
-									}
-								break;
+							case 'supply':
+								for(row in json.data)
+								{
+									html += '<tr data-id="'+json.data[row].id+'">';
+									html += '<td class="col-md-1 js--url-link" data-url="'+segment2 +'/'+ json.data[row].id+'">'+json.data[row].id+'</td>';
+									html += '<td class="col-md-1">'+json.data[row].date+'</td>';
+									html += '<td class="col-md-9 js--totalSum data-column="sum">'+json.data[row].sum+'</td>';
+									html += '</tr>';
+								}
+							break;
 
-								case 'orders':
-									for(row in json.data)
-									{
-										html += '<tr data-id="'+json.data[row].id+'">';
-										html += '<td class="col-md-1 js--url-link" data-url="'+segment2 +'/'+ json.data[row].id+'">'+json.data[row].id+'</td>';
-										html += '<td class="col-md-1">'+json.data[row].date+'</td>';
-										html += '<td class="col-md-4 js--totalSum">'+json.data[row].sum+'</td>';
-										html += '<td class="col-md-4">'+json.data[row].sum_discount+'</td>';
-										html += '<td class="col-md-2">'+json.data[row].type+'</td>';
-										html += '</tr>';
-									}
-								break;
+							case 'orders':
+								for(row in json.data)
+								{
+									html += '<tr data-id="'+json.data[row].id+'">';
+									html += '<td class="col-md-1 js--url-link" data-url="'+segment2 +'/'+ json.data[row].id+'">'+json.data[row].id+'</td>';
+									html += '<td class="col-md-1">'+json.data[row].date+'</td>';
+									html += '<td class="col-md-4 js--totalSum">'+json.data[row].sum+'</td>';
+									html += '<td class="col-md-4">'+json.data[row].sum_discount+'</td>';
+									html += '<td class="col-md-2">'+json.data[row].type+'</td>';
+									html += '</tr>';
+								}
+							break;
 
-								default:
-									return false;
-								break;
-							}
-							
-							$('.table tbody').html(html);
-							$('.totalSum').html('Итого: ' + json.extra.totalSum + ' &#8381;');
-							//userAccess();
-						break;
+							default:
+								return false;
+							break;
+						}
+						
+						$('.table tbody').html(html);
+						$('.totalSum').html('Итого: ' + json.extra.totalSum + ' &#8381;');
+						//userAccess();
+					break;
 
-						case 422:
-							$('.table').addClass('hidden');
-							$('.col-footer').addClass('hidden');
-							$('.col-body').append('<h2>'+json.data+'</h2>');
-						break;
+					case 422:
+						$('.table').addClass('hidden');
+						$('.col-footer').addClass('hidden');
+						$('.col-body').append('<h2>'+json.data+'</h2>');
+					break;
 
-						default:
-							Answer('error');
-						break;
-						// скрыть dropdown
-					}
+					default:
+						Answer('error');
+					break;
+					// скрыть dropdown
+				}
+				break;
+
+				default:
+					Answer('error');
 				break;
 			}
 		} else {
@@ -893,16 +703,222 @@ $(document).ready(function() {
 						Answer('error');
 					}
 					break;
-
-					case 'update':
-
-					break;
 				}
 				break;
 			}
 		}
 
 		LoaderStop();
+	}
+
+	/**
+	 * Доступ пользователя
+	 * @return {status} уровень пользователя
+	 */
+	function userAccess()
+	{
+		switch(parseInt(userOptions.status))
+		{
+			// cachier
+			case 1:
+				switch(segment2)
+				{
+					case 'orders':					
+						if(segment3.length == 0)
+						{
+							userLinks(['date-range', 'create']);
+						} else {
+							userLinks();
+						}
+
+					cashierPageLoad();
+					break;
+
+					case 'items':
+						userLinks();
+					break;
+
+					default:
+						return false;
+					break;
+				}
+			break;
+
+			// manage
+			case 2:
+				switch(segment2)
+				{
+					case 'items':
+						userLinks();
+					break;
+
+					case 'analytics':
+						userLinks(['analyzes', 'graphics']);
+					break;
+
+					case 'orders':
+						if(segment3.length == 0)
+						{
+							userLinks(['date-range']);
+						}
+					break;
+
+					case 'supply':
+						if(segment3.length == 0)
+						{
+							userLinks(['date-range']);
+						}
+					break;
+
+					case 'costs':
+						if(segment3.length > 0)
+						{
+							userLinks(['date-range']);
+						} else {
+							userLinks();
+						}
+					break;
+
+					default:
+						return false;
+					break;
+				}
+			break;
+
+			// admin
+			case 3:
+				switch(segment2)
+				{
+					case 'items':
+						userLinks(['create-modal']);
+						userPermissions(['update', 'delete', 'status']);
+					break;
+
+					case 'orders':
+						if(segment3.length == 0)
+						{
+							userLinks(['date-range']);
+						} else {
+							userLinks();
+						}
+
+						userPermissions(['delete']);
+					break;
+
+					case 'supply':
+						if(segment3.length == 0)
+						{
+							userLinks(['date-range', 'create']);
+							userPermissions(['update']);	
+						} else {
+							userLinks();
+							userPermissions(['update', 'delete']);
+						}
+
+						if(segment3 == 'create')
+						{
+							cashierPageLoad();
+						}
+					break;
+
+					case 'costs':
+						if(segment3.length > 0)
+						{
+							userLinks(['date-range', 'create-modal']);
+						} else {
+							userLinks();
+						}
+
+						userPermissions(['update', 'delete']);
+					break;
+
+					case 'discounts':
+						userLinks();
+					break;
+				}
+			break;
+
+			// igor
+			case 4:
+				switch(segment2)
+				{
+					case 'items':
+						userLinks(['create-modal'])
+						userPermissions(['update', 'status']);
+					break;
+
+					case 'orders':
+						if(segment3.length == 0)
+						{
+							userLinks(['date-range']);
+						}
+						userPermissions(['delete']);
+					break;
+
+					case 'supply':
+						if(segment3.length == 0)
+						{
+							userLinks(['date-range', 'create']);							
+						}
+
+						userPermissions(['update', 'delete']);
+					break;
+
+					case 'costs':
+						if(segment3.length > 0)
+						{
+							userLinks(['date-range', 'create-modal']);
+						}
+
+						userPermissions(['update', 'delete']);
+					break;
+
+					case 'analytics':
+						userLinks(['analyzes', 'graphics']);
+					break;
+				}
+			break;
+
+			default:
+				return false;
+			break;
+		}
+	}
+
+	if(typeof(userOptions) !== 'undefined')
+	{
+		userAccess();
+	}
+
+	// total sum
+	function totalSumAndDiscount(data)
+	{
+		var line, totalSum = 0, totalSumDiscount = 0;
+
+		if($('strong').hasClass('totalSum'))
+		{
+			if(data)
+			{
+				line = $('.table tbody').find("[data-id='" + data.id + "']");
+				$(line).find('td.js--totalSum').html(number_format(data.sum, 0, ' ', ' '));			
+			}
+
+			$('td.js--totalSum').each(function(){
+				totalSum += parseFloat($(this).text().replace(/\s/g, ''));
+			});
+
+			$('.totalSum').html('Итого ' + number_format(totalSum, 0, ' ', ' ') + ' &#8381;');	
+		}
+
+		// пока непонятно как считать скидку при изменениях.
+		if($('strong').hasClass('totalSumDiscount'))
+		{
+			$('.js--sum-discount').each(function(){
+			    totalSumDiscount += parseFloat($(this).text().replace(/\s/g, ''));
+			});
+
+			$('.totalSumDiscount').html('Итого со скидкой ' + number_format(totalSumDiscount, 0, ' ', ' ') + ' &#8381;');
+		}
 	}
 
 	// datepicker
@@ -1081,7 +1097,14 @@ $(document).ready(function() {
 	    $('.js--delete').removeAttr('id');
 	});
 
+/**
+ * @author Robert Slooo
+ * @mail   borisworking@gmail.com
+ */
 
+/*
+	Analytics functions
+*/
 
 function hcColumn(data, container, title)
 {
