@@ -6,9 +6,9 @@
 [![Latest Unstable Version](https://poser.pugx.org/laravel/framework/v/unstable.svg)](https://packagist.org/packages/laravel/framework)
 [![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/laravel/framework)
 
-Project created in [Laravel Framework version 5.2.45] (https://laravel.com/docs/5.2)
+Project created in [Laravel Framework version 5.2.45](https://laravel.com/docs/5.2)
 
-[Developer] (http://codbro.com)
+[Developer](http://codbro.com)
 
 ## Install
 
