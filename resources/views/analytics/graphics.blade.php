@@ -67,7 +67,6 @@ var sumAll = [],
 	sumAllKey.push(graphParseData(['Закупка', {{ $sumAllKey['supply'] }}], false));
 	sumAllKey.push(graphParseData(['Склад', {{ $sumAllKey['stock'] }}], false));
 
-
 @foreach($sumAllKeyPoint as $key => $row)
 	$('#js--hc-sumAllKey').after('<div class="hc-line" id="js--hc-sumAllKeyPoint_{{ $key }}"></div>');
 
@@ -78,10 +77,10 @@ var sumAll = [],
 	sumAllKeyPoint.push(graphParseData(['Склад', {{ $row['stock'] }}], false));
 
 	sumAllKeyPoint{{ $key }} = {};
-	sumAllKeyPoint{{ $key }}.id = 'js--hc-sumAllKeyPoint_{{ $key }}';
+	sumAllKeyPoint{{ $key }}.id = 'sumAllKeyPoint_{{ $key }}';
 	sumAllKeyPoint{{ $key }}.type = 'hcPie';
 	sumAllKeyPoint{{ $key }}.description = 'Ключевые показатели по точке #{{ $key }}';
-	sumAllKeyPoint{{ $key }}.data = JSON.stringify(sumAllKeyPoint);
+	sumAllKeyPoint{{ $key }}.data = sumAllKeyPoint;
 	arr.push(sumAllKeyPoint{{ $key }});
 
 	sumAllKeyPoint = [];
@@ -125,33 +124,24 @@ sum30DaysSO.push(['Реализация за 30 дней', {{ $sum30DaysOrders =
 	objSum30DaysSO.id = 'sum30DaysSO';
 	objSum30DaysSO.type = 'hcWdl';
 	objSum30DaysSO.description = 'Закупка и реализация';
-	objSum30DaysSO.sum30DaysSO = sum30DaysSO;
+	objSum30DaysSO.data = sum30DaysSO;
 	arr.push(objSum30DaysSO);
 	
 	objSumMonthPoint = {};
 	objSumMonthPoint.id = 'sumMonthPoint';
 	objSumMonthPoint.type = 'hcPie';
 	objSumMonthPoint.description = 'Прибыль понедельно по точкам (за 30 дней)';
-	objSumMonthPoint.sumMonthPoint = sumMonthPoint;
+	objSumMonthPoint.data = sumMonthPoint;
 	arr.push(objSumMonthPoint);
 
 	objSumWeek = {};
 	objSumWeek.id = 'sumWeek';
 	objSumWeek.type = 'hcInverted';
 	objSumWeek.description = 'Прибыль понедельно (за 30 дней)';
-	objSumWeek.sumWeek = sumWeek;
+	objSumWeek.data = sumWeek;
 	arr.push(objSumWeek);
 
 hcAnalytics(arr);
-
-//hcColumn(JSON.stringify(sumAll), 'За весь период');
-//hcColumn(JSON.stringify(sumMonth), 'За период');
-//hcPie(JSON.stringify(sumAllKey), 'Ключевые показатели');
-//hcWdl(JSON.stringify(sum30DaysSO), '');
-//hcPie(JSON.stringify(sumMonthPoint), '');
-//hcInverted(JSON.stringify(), '');
-
-
 </script>
 
 <style>
